@@ -210,12 +210,13 @@ export default function (bot: Telegraf<BotContext>) {
 
     await ctx.replyWithHTML(
       `<b>🛠 Welcome to <u>Afibie FX Signal</u>! 🚀</b>\n\n` +
-        `📈 Afibie FX is an exclusive trading community where members gain access to high-quality trading signals, market insights, and expert strategies to maximize their profits.\n\n` +
-        `<b>To gain access to Afibie FX Signals, please complete these steps:</b>\n\n` +
+        `📈 <i>Home of <b>Exclusive FOREX signals</b></i>\n\n` +
+        `<b>To gain access, complete these steps 👇</b>\n\n` +
         `✅ <b>Step 1:</b> Solve the Captcha 🔢\n` +
         `✅ <b>Step 2:</b> Register at Exco Trader, deposit <b>$100</b> or more, and provide your <b>Login ID</b> 💰\n` +
         `✅ <b>Step 3:</b> Create Deriv account (Optional) 📊\n\n` +
         `⏳ <b>Once all steps are completed, you will gain full access to Afibie FX Signals - where strategy meets profitability!</b> 💰📊\n\n` +
+         `<i>(If you have any issues during the process, message support 👉 @Francis_Nbtc)</i>\n\n` +
         `👉 Click <b>CONTINUE</b> to start:`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 CONTINUE", "continue_to_captcha"),

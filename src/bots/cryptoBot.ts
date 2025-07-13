@@ -1,4 +1,3 @@
-
 import { Telegraf, Markup } from "telegraf";
 import { message } from "telegraf/filters";
 import { ICRYPTO_User, CryptoUserModel } from "../models/crypto_user.model";
@@ -15,10 +14,8 @@ dotenv.config({
   path: process.env.NODE_ENV === "production" ? ".env.production" : ".env",
 });
 
-
-
 const VIDEO_FILE_ID = process.env.BYBIT_VIDEO_FILE_ID;
-const GROUP_CHAT_ID = process.env.CRYPTO_GROUP_CHAT_ID
+const GROUP_CHAT_ID = process.env.CRYPTO_GROUP_CHAT_ID;
 
 // MongoDB connection function
 async function connectDB() {
@@ -56,7 +53,9 @@ export default function (bot: Telegraf<BotContext>) {
   if (mongoose.connection.readyState === 1) {
     const db = mongoose.connection.db;
     if (!db) {
-      console.error("❌ Mongoose connected but db is undefined. Crypto session middleware skipped");
+      console.error(
+        "❌ Mongoose connected but db is undefined. Crypto session middleware skipped"
+      );
     } else {
       bot.use(
         session(db, {
@@ -67,7 +66,9 @@ export default function (bot: Telegraf<BotContext>) {
       console.log("✅ Crypto Bot MongoDB session middleware enabled");
     }
   } else {
-    console.error("❌ Mongoose not connected. Crypto session middleware skipped");
+    console.error(
+      "❌ Mongoose not connected. Crypto session middleware skipped"
+    );
   }
 
   bot.use(async (ctx, next) => {
@@ -97,18 +98,20 @@ export default function (bot: Telegraf<BotContext>) {
         {
           parse_mode: "HTML",
           reply_markup: Markup.inlineKeyboard([
-            Markup.button.callback("🔗 Click to Get Link", "get_invite_link")
-          ]).reply_markup
+            Markup.button.callback("🔗 Click to Get Link", "get_invite_link"),
+          ]).reply_markup,
         }
       );
     } else if (user.status === "rejected") {
       const isBybit = !!user.bybitUid;
       const uidType = isBybit ? "Bybit" : "Blofin";
       const userUid = isBybit ? user.bybitUid : user.blofinUid;
-      const registerLink = isBybit ? process.env.BYBIT_LINK : process.env.BLOFIN_LINK;
+      const registerLink = isBybit
+        ? process.env.BYBIT_LINK
+        : process.env.BLOFIN_LINK;
 
       const caption =
-        `<b>👆👆👆</b>\n\n` +
+        `<b>VIDEO INSTRUCTION </b>👆👆👆\n\n` +
         `<b>🚫 Application Rejected</b>\n\n` +
         `👤 <b>Your ${uidType} UID:</b> <code>${userUid}</code>\n` +
         `⚠️ <i>This UID was not registered using our affiliate link.</i>\n\n` +
@@ -116,8 +119,7 @@ export default function (bot: Telegraf<BotContext>) {
         `1️⃣ <b>Create a new ${uidType} account</b> using our official affiliate link below:\n` +
         `<a href="${registerLink}">🔗 Register Here</a>\n\n` +
         `2️⃣ After registration, <b>click /start</b> to begin the process again.\n\n` +
-         `🎥 <b>Need help?</b> Watch the step-by-step guide in the video above 👆👆👆 to register.\n\n` +
-        `<i>Thank you for your understanding and cooperation!</i> 🙏`;
+        `🎥 <b>Need help?</b> Watch the step-by-step guide in the <b>VIDEO INSTRUCTION</b> above 👆👆👆 to register.` ;
 
       try {
         if (VIDEO_FILE_ID) {
@@ -131,7 +133,10 @@ export default function (bot: Telegraf<BotContext>) {
           });
         }
       } catch (error) {
-        console.error("[notifyUserOnStatusChange] Error sending rejection message:", error);
+        console.error(
+          "[notifyUserOnStatusChange] Error sending rejection message:",
+          error
+        );
       }
     }
   }
@@ -142,19 +147,26 @@ export default function (bot: Telegraf<BotContext>) {
         fullDocument: "updateLookup",
       });
       changeStream.on("change", (change) => {
-        if (change.operationType === "update" && change.updateDescription.updatedFields?.status) {
+        if (
+          change.operationType === "update" &&
+          change.updateDescription.updatedFields?.status
+        ) {
           notifyUserOnStatusChange(change);
         }
       });
     } catch (error) {
-      console.error("[watchUserStatusChanges] Error setting up change stream:", error);
+      console.error(
+        "[watchUserStatusChanges] Error setting up change stream:",
+        error
+      );
     }
   }
 
   const getLinkLimiter = rateLimit({
     window: 60_000,
     limit: 3,
-    onLimitExceeded: (ctx: any) => ctx.reply("🚫 Too many link requests! Try again later."),
+    onLimitExceeded: (ctx: any) =>
+      ctx.reply("🚫 Too many link requests! Try again later."),
   });
 
   bot.start(async (ctx) => {
@@ -174,6 +186,7 @@ export default function (bot: Telegraf<BotContext>) {
         `✅ <b>Step 2:</b> Choose Your Country 🌍\n` +
         `✅ <b>Step 3:</b> Register on <b>Bybit</b> / <b>Blofin</b> and provide your <b>Login UID</b> \n` +
         `✅ <b>Step 4:</b> Wait for Verification ⏳\n\n` +
+        `<i>(If you have any issues during the process, message support 👉 @Francis_Nbtc)</i>\n\n` +
         `👉 <b>Click the <b>Continue</b> button to start:</b>`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 CONTINUE", "continue_to_captcha"),
@@ -250,7 +263,9 @@ export default function (bot: Telegraf<BotContext>) {
     const userId = ctx.from?.id.toString();
     const session = userSession[userId];
     if (!userId || !session || session.step !== "final_confirmation") {
-      console.error(`[cancel_final] Invalid userId (${userId}) or session step (${session?.step})`);
+      console.error(
+        `[cancel_final] Invalid userId (${userId}) or session step (${session?.step})`
+      );
       await ctx.replyWithHTML(
         `<b>⚠️ Error</b>\n\n` +
           `🚫 Invalid action. Please start over with /start.`
@@ -309,8 +324,18 @@ export default function (bot: Telegraf<BotContext>) {
       case "country": {
         const normalized = text.trim().toLowerCase();
         session.country = text;
-        const isUSA = ["usa", "us", "united states", "united states of america"].includes(normalized);
-        const isUK = ["uk", "united kingdom", "england", "great britain"].includes(normalized);
+        const isUSA = [
+          "usa",
+          "us",
+          "united states",
+          "united states of america",
+        ].includes(normalized);
+        const isUK = [
+          "uk",
+          "united kingdom",
+          "england",
+          "great britain",
+        ].includes(normalized);
         const isCanada = ["canada"].includes(normalized);
 
         if (isUSA || isUK || isCanada) {
@@ -387,7 +412,9 @@ export default function (bot: Telegraf<BotContext>) {
         session.blofinUid = text;
         session.step = "final_confirmation";
         const details = session.requiresBoth
-          ? `Bybit UID: ${session.bybitUid || "Not provided"}\nBlofin UID: ${session.blofinUid || "Not provided"}`
+          ? `Bybit UID: ${session.bybitUid || "Not provided"}\nBlofin UID: ${
+              session.blofinUid || "Not provided"
+            }`
           : `Blofin UID: ${session.blofinUid || "Not provided"}`;
         const videoPrompt = session.bybitUid
           ? `🎥 <b>Need help?</b> Check the step-by-step Bybit registration video above.\n`
@@ -398,7 +425,7 @@ export default function (bot: Telegraf<BotContext>) {
             `📌 <b>Your Details:</b>\n` +
             `${details}\n\n` +
             `${videoPrompt}` +
-            `⚠️ <b>Not correct?</b> Type <b>/start</b> to restart the process.\n\n` +
+            `⚠️ <b>correct?</b>\n\n` +
             `👉 Click <b>Confirm</b> to submit or <b>Cancel</b> to start over.`,
           Markup.inlineKeyboard([
             Markup.button.callback("🔵 CONFIRM", "confirm_final"),
@@ -434,13 +461,13 @@ export default function (bot: Telegraf<BotContext>) {
 
     if (!VIDEO_FILE_ID) {
       await ctx.replyWithHTML(
-       
         `<b>📈 Step 3: Bybit Registration</b>\n\n` +
           `<b>Why Bybit?</b>\n` +
           `📊 <i>Most Trustworthy Exchange</i>\n\n` +
           `📌 <b>Sign up here</b> 👉 <a href="${process.env.BYBIT_LINK}">Bybit Registration Link</a>\n\n` +
-          `❗ <b>Important:</b> If you already have a Bybit account, you <u>cannot</u> gain access.\n\n` +
-         
+          `❗ <b>IMPORTANT</b>\n\n` +
+          ` If you already have a Bybit account.\n` +
+          ` We can't give you access.\n` +
           `<b>✅ Once done, click the "Done" button below to continue.</b>\n\n`,
         Markup.inlineKeyboard([Markup.button.callback("🔵 Done", "done_bybit")])
       );
@@ -450,13 +477,15 @@ export default function (bot: Telegraf<BotContext>) {
     try {
       await ctx.replyWithVideo(VIDEO_FILE_ID, {
         caption:
-         `<b>👆👆👆</b>\n\n` +
+          `<b>VIDEO INSTRUCTION 👆👆👆</b>\n\n` +
           `<b>📈 Step 3: Bybit Registration</b>\n\n` +
           `<b>Why Bybit?</b>\n` +
           `📊 <i>Most Trustworthy Exchange</i>\n\n` +
           `📌 <b>Sign up here</b> 👉 <a href="${process.env.BYBIT_LINK}">Bybit Registration Link</a>\n\n` +
-          `❗ <b>Important:</b> If you already have a Bybit account, you <u>cannot</u> gain access.\n\n` +
-          `🎥 <b>Need help?</b> Watch the step-by-step guide in the video above 👆👆👆 to register.\n\n` +
+          `❗ <b>IMPORTANT</b>\n\n` +
+          ` If you already have a Bybit account.\n` +
+          ` We can't give you access.\n` +
+          `🎥 Watch the <b>VIDEO INSTRUCTION</b> above to gain access.\n\n` +
           `✅ Once done, click the <b>Done</b> button to continue.`,
         parse_mode: "HTML",
         reply_markup: Markup.inlineKeyboard([
@@ -470,7 +499,9 @@ export default function (bot: Telegraf<BotContext>) {
           `<b>Why Bybit?</b>\n` +
           `📊 <i>Most Trustworthy Exchange</i>\n\n` +
           `📌 <b>Sign up here</b> 👉 <a href="${process.env.BYBIT_LINK}">Bybit Registration Link</a>\n\n` +
-          `❗ <b>Important:</b> If you already have a Bybit account, you <u>cannot</u> gain access.\n\n` +
+           `❗ <b>IMPORTANT</b>\n\n` +
+          ` If you already have a Bybit account.\n` +
+          ` We can't give you access.\n` +
           `❌ Video unavailable. Please try again later or contact support.\n\n` +
           `✅ Once done, click the <b>Done</b> button to continue.`,
         Markup.inlineKeyboard([Markup.button.callback("🔵 Done", "done_bybit")])
@@ -529,7 +560,9 @@ export default function (bot: Telegraf<BotContext>) {
     const userId = ctx.from?.id.toString();
     const session = userSession[userId];
     if (!userId || !session) {
-      console.error(`[confirm_final] Error: Invalid userId (${userId}) or session not found`);
+      console.error(
+        `[confirm_final] Error: Invalid userId (${userId}) or session not found`
+      );
       await ctx.replyWithHTML(
         `<b>⚠️ Error</b>\n\n` +
           `🚫 Session expired or invalid. Please start over with /start.`
@@ -538,7 +571,9 @@ export default function (bot: Telegraf<BotContext>) {
     }
 
     if (session.step !== "final_confirmation") {
-      console.error(`[confirm_final] Error: Invalid session step (${session.step}) for user ${userId}`);
+      console.error(
+        `[confirm_final] Error: Invalid session step (${session.step}) for user ${userId}`
+      );
       await ctx.replyWithHTML(
         `<b>⚠️ Error</b>\n\n` +
           `🚫 Invalid step. Please start over with /start or try again.`
@@ -552,17 +587,26 @@ export default function (bot: Telegraf<BotContext>) {
       session.step = "final";
     } catch (error: any) {
       console.error(`[confirm_final] Error for user ${userId}:`, error);
-      let errorMessage = "🚫 Failed to submit your details. Please try again or contact an admin.";
+      let errorMessage =
+        "🚫 Failed to submit your details. Please try again or contact an admin.";
       if (error.message.includes("MONGODB_URI")) {
-        errorMessage = "🚫 Server configuration error (database). Please contact an admin.";
+        errorMessage =
+          "🚫 Server configuration error (database). Please contact an admin.";
       } else if (error.message.includes("GROUP_CHAT_ID")) {
-        errorMessage = "🚫 Server configuration error (group chat). Please contact an admin.";
+        errorMessage =
+          "🚫 Server configuration error (group chat). Please contact an admin.";
       } else if (error.message.includes("Country is missing")) {
-        errorMessage = "🚫 Missing country information. Please start over with /start.";
+        errorMessage =
+          "🚫 Missing country information. Please start over with /start.";
       } else if (error.message.includes("UID must be provided")) {
-        errorMessage = "🚫 No Bybit or Blofin UID provided. Please start over with /start.";
-      } else if (error.name === "MongooseError" || error.name === "MongoServerError") {
-        errorMessage = "🚫 Database connection issue. Please try again later or contact an admin.";
+        errorMessage =
+          "🚫 No Bybit or Blofin UID provided. Please start over with /start.";
+      } else if (
+        error.name === "MongooseError" ||
+        error.name === "MongoServerError"
+      ) {
+        errorMessage =
+          "🚫 Database connection issue. Please try again later or contact an admin.";
       }
       await ctx.replyWithHTML(`<b>⚠️ Error</b>\n\n${errorMessage}`);
     }
@@ -571,13 +615,18 @@ export default function (bot: Telegraf<BotContext>) {
   async function saveAndNotify(ctx: any, session: any) {
     const telegramId = ctx.from.id.toString();
     try {
-      console.log(`[saveAndNotify] Processing for user ${telegramId}, session:`, session);
+      console.log(
+        `[saveAndNotify] Processing for user ${telegramId}, session:`,
+        session
+      );
 
       if (!process.env.MONGODB_URI) {
         throw new Error("MONGODB_URI is not defined in environment variables");
       }
       if (!process.env.GROUP_CHAT_ID) {
-        throw new Error("GROUP_CHAT_ID is not defined in environment variables");
+        throw new Error(
+          "GROUP_CHAT_ID is not defined in environment variables"
+        );
       }
 
       if (!session.country) {
@@ -590,7 +639,9 @@ export default function (bot: Telegraf<BotContext>) {
       const updatePayload: Partial<ICRYPTO_User> = {
         telegramId,
         username: ctx.from.username || "unknown",
-        fullName: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Unknown User",
+        fullName:
+          `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() ||
+          "Unknown User",
         botType: "crypto",
         country: session.country,
         status: "pending",
@@ -607,7 +658,10 @@ export default function (bot: Telegraf<BotContext>) {
         }
       }
 
-      console.log(`[saveAndNotify] Saving user data for ${telegramId}:`, updatePayload);
+      console.log(
+        `[saveAndNotify] Saving user data for ${telegramId}:`,
+        updatePayload
+      );
 
       const user = await CryptoUserModel.findOneAndUpdate(
         { telegramId, botType: session.botType },
@@ -625,7 +679,9 @@ export default function (bot: Telegraf<BotContext>) {
 
       console.log(`[saveAndNotify] Sending admin alert for user ${telegramId}`);
       await sendAdminAlertCrypto(user);
-      console.log(`[saveAndNotify] Admin alert sent successfully for user ${telegramId}`);
+      console.log(
+        `[saveAndNotify] Admin alert sent successfully for user ${telegramId}`
+      );
     } catch (error) {
       console.error(`[saveAndNotify] Error for user ${telegramId}:`, error);
       throw error;
@@ -635,7 +691,10 @@ export default function (bot: Telegraf<BotContext>) {
   watchUserStatusChanges();
 
   bot.catch((err, ctx) => {
-    console.error(`🚨 Crypto Bot Error for update ${ctx.update.update_id}:`, err);
+    console.error(
+      `🚨 Crypto Bot Error for update ${ctx.update.update_id}:`,
+      err
+    );
     ctx.reply("❌ An error occurred. Please try again later.");
   });
 }
