@@ -7,7 +7,7 @@ dotenv.config();
 
 const seedMultipleAdmins = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI!);
+    await mongoose.connect(process.env.MONGODB_URI!);
 
     const defaultPassword = "Admin@123";
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);

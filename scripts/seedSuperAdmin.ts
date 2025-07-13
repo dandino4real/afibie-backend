@@ -8,10 +8,10 @@ dotenv.config();
 
 const seedSuperAdmin = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI!);
+    await mongoose.connect(process.env.MONGODB_URI!);
 
-    const email = "abc@gmail.com" 
-    const existing = await AdminModel.findOne({ email: "abc@gmail.com" });
+    const email = "ifyd47@gmail.com" 
+    const existing = await AdminModel.findOne({ email: "ifyd47@gmail.com" });
     if (existing) {
       console.log("AdminModel already exists.");
       return process.exit(0);

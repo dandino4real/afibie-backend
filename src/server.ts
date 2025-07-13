@@ -52,7 +52,7 @@ app.use(express.json());
 
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
-  : ["https://afibie-fx.vercel.app"];
+  : ["https://afibie.vercel.app"];
 
 app.use(
   cors({
@@ -103,7 +103,7 @@ forexBotHandler(forexBot);
 const setupBots = async () => {
   const baseUrl = process.env.VERCEL_URL 
     ? `https://${process.env.VERCEL_URL}` 
-    : 'https://telegram-api-k5mk.vercel.app';
+    : 'https://afibie-api.vercel.app';
 
   console.log(`Setting webhooks for base URL: ${baseUrl}`);
   
