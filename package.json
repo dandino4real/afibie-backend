@@ -1,0 +1,51 @@
+{
+  "name": "t-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "seed:super-admin": "ts-node scripts/seedSuperAdmin.ts",
+    "seed:crypto-user": "ts-node scripts/seedCryptoUser.ts",
+    "seed:forex-user": "ts-node scripts/seedForexUser.ts",
+    "seed:admins": "ts-node scripts/seedAdmin.ts",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.1",
+    "geoip-lite": "^1.4.10",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "nodemailer": "^7.0.3",
+    "nodemon": "^3.1.10",
+    "redis": "^5.5.6",
+    "telegraf": "^4.16.3",
+    "telegraf-ratelimit": "^2.0.0",
+    "telegraf-session-mongodb": "^2.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "uuid": "^11.1.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/geoip-lite": "^1.4.4",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^6.4.17",
+    "@vercel/node": "^5.3.1"
+  }
+}
