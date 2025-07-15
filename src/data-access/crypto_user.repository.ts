@@ -34,7 +34,10 @@ export const CryptoUserRepository = {
     const users = await CryptoUserModel.find(combinedFilter)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+     .sort({ 
+    status: 1, 
+    createdAt: -1
+  });
 
     const total = await CryptoUserModel.countDocuments(combinedFilter);
 

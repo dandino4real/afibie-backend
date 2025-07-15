@@ -341,7 +341,7 @@ console.log("BASE_URL:", process.env.BASE_URL || "Not set");
 console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
 console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
 console.log("REDIS_URL:", process.env.REDIS_URL ? "exists" : "MISSING");
-
+console.log("BYBIT_VIDEO_FILE_ID", process.env.BYBIT_VIDEO_FILE_ID ? "exists" : "MISSING");
 // Validate critical environment variables
 const requiredEnvVars = [
   "BOT_TOKEN_CRYPTO",
