@@ -23,7 +23,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} -p ${{ secrets.VPS_PORT }} << 'EOF'
             cd /var/www/afibie-backend
             git pull origin main
-            npm install
+            npm install --legacy-peer-deps
             npm run build    # If you have a build step (e.g. TypeScript)
             pm2 restart all  # Restart all apps managed by PM2
           EOF

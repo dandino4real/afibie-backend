@@ -187,7 +187,7 @@ export default function (bot: Telegraf<BotContext>) {
         `✅ <b>Step 2:</b> Register at Exco Trader, deposit <b>$100</b> or more, and provide your <b>Login ID</b> 💰\n` +
         `✅ <b>Step 3:</b> Create Deriv account (Optional) 📊\n\n` +
         `⏳ <b>Once all steps are completed, you will gain full access to Afibie FX Signals - where strategy meets profitability!</b> 💰📊\n\n` +
-         `<i>(If you have any issues during the process, message support 👉&nbsp;@Francis_Nbtc)</i>\n\n` +
+         `<i>(If you have any issues during the process, message support 👉 @Francis_Nbtc)</i>\n\n` +
         `👉 Click <b>CONTINUE</b> to start:`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 CONTINUE", "continue_to_captcha"),

@@ -135,7 +135,7 @@ export default function (bot: Telegraf<BotContext>) {
         `✅ <b>Step 2:</b> Choose Your Country 🌍\n` +
         `✅ <b>Step 3:</b> Register on <b>Bybit</b> / <b>Blofin</b> and provide your <b>Login UID</b> \n` +
         `✅ <b>Step 4:</b> Wait for Verification ⏳\n\n` +
-        `<i>(If you have any issues during the process, message support 👉&nbsp;@Francis_Nbtc)</i>\n\n` +
+        `<i>(If you have any issues during the process, message support 👉 @Francis_Nbtc)</i>\n\n` +
         `👉 <b>Click the <b>Continue</b> button to start:</b>`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 CONTINUE", "continue_to_captcha"),
