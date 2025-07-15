@@ -5,6 +5,7 @@ export interface IFOREX_User extends Document {
   username?: string;
   fullName?: string;
   botType:  "forex";
+  country?: string;
   excoTraderLoginId?: string;
   isApproved: boolean;
   isRejected: boolean;
@@ -30,6 +31,7 @@ const UserSchema: Schema = new Schema({
   username: String,
   fullName: String,
   botType: { type: String, enum: ["forex"], required: true },
+  country: String,
   excoTraderLoginId: String,
   isApproved: { type: Boolean, default: false },
   isRejected: { type: Boolean, default: false },
