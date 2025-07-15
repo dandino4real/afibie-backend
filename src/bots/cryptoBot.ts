@@ -705,7 +705,6 @@
 
 
 
-// hostinger
 // src/bots/crypto.ts
 import { Telegraf, Markup } from "telegraf";
 import { message } from "telegraf/filters";

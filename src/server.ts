@@ -312,7 +312,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import { Telegraf, session } from "telegraf";
+import { Telegraf} from "telegraf";
 import { connectDB } from "./config/db";
 import { BotContext } from "./telegrafContext";
 import Redis from "ioredis";

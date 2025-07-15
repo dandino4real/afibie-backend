@@ -1,11 +1,8 @@
 import app from './server';
 
-// const env = process.env.NODE_ENV || 'development';
-// const PORT = process.env['APP_PORT'] || 3001; 
+const PORT = process.env.PORT || 3000;
 
-
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running at http://localhost:${PORT}`);
-// });
-
-export default app
+app.listen(PORT, () => {
+  console.log(`🚀 Server listening on port ${PORT}`);
+});
+// export default app
