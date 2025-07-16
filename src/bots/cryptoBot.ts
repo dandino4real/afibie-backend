@@ -70,7 +70,9 @@ export default function (bot: Telegraf<BotContext>) {
         `1️⃣ <b>Create a new ${uidType} account</b> using our official affiliate link below:\n` +
         `<a href="${registerLink}">🔗 Register Here</a>\n\n` +
         `2️⃣ After registration, <b>click /start</b> to begin the process again.\n\n` +
-        `🎥 <b>Need help?</b> Watch the step-by-step guide in the <b>VIDEO INSTRUCTION</b> above 👆👆👆 to register.`;
+        `🎥 <b>Need help?</b> Watch the step-by-step guide in the <b>VIDEO INSTRUCTION</b> above 👆👆👆 to register.`+
+        `❓ <b>Still having issues?</b> <i>Kindly message our support 👉 @Francis_Nbtc for assistance.</i>`;
+        
 
       try {
         if (VIDEO_FILE_ID) {

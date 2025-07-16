@@ -1,5 +1,3 @@
-
-
 // src/bots/forexBot.ts
 import { Telegraf, Markup } from "telegraf";
 import { message } from "telegraf/filters";
@@ -38,7 +36,7 @@ export default function (bot: Telegraf<BotContext>) {
       ctx.session = {
         step: "welcome",
         botType: "forex",
-        retryCount: 0
+        retryCount: 0,
       };
     } else {
       // Initialize missing properties
@@ -97,7 +95,7 @@ export default function (bot: Telegraf<BotContext>) {
             user.telegramId,
             `<b>❌ Sorry, your registration was rejected.</b>\n\n` +
               `🚫 You have exceeded the maximum retry attempts.\n` +
-              `📩 Please contact an admin for assistance.`,
+              `📩 <i>Kindly message support 👉 @Francis_Nbtc for assistance.</i>`,
             { parse_mode: "HTML" }
           );
           return;
@@ -106,7 +104,7 @@ export default function (bot: Telegraf<BotContext>) {
         // Update session
         session.step = "login_id";
         session.retryCount = (session.retryCount || 0) + 1;
-        
+
         // Save updated session to Redis
         await redis.set(sessionKey, JSON.stringify(session), "EX", 86400); // 24h TTL
 
@@ -121,10 +119,12 @@ export default function (bot: Telegraf<BotContext>) {
           user.rejectionReason === "no_affiliate_link"
             ? `To gain access to Afibie FX signals, register a new Exco Trader account using our affiliate link:\n\n` +
               `👉 <a href="${process.env.EXCO_LINK}">Exco Trader Registration Link</a>\n\n` +
-              `Once registered, click /start to begin again.`
+              `Once registered, click /start to begin again.\n\n` +
+              `❓ <b>Still having issues?</b> <i>Kindly message our support 👉 @Francis_Nbtc for assistance.</i>`
             : user.rejectionReason === "insufficient_deposit"
             ? `To proceed, please deposit at least $100 into your Exco Trader account.\n\n` +
-              `Once deposited, click /start to begin again.`
+              `Once deposited, click /start to begin again.\n\n` +
+              `❓ <b>Still having issues?</b> <i>Kindly message our support 👉 @Francis_Nbtc for assistance.</i>`
             : `Please contact an admin for assistance on next steps.`;
 
         const rejectionMessage =
@@ -172,7 +172,7 @@ export default function (bot: Telegraf<BotContext>) {
     ctx.session = {
       step: "welcome",
       botType: "forex",
-      retryCount: 0
+      retryCount: 0,
     };
 
     // Save session to Redis
@@ -187,7 +187,7 @@ export default function (bot: Telegraf<BotContext>) {
         `✅ <b>Step 2:</b> Register at Exco Trader, deposit <b>$100</b> or more, and provide your <b>Login ID</b> 💰\n` +
         `✅ <b>Step 3:</b> Create Deriv account (Optional) 📊\n\n` +
         `⏳ <b>Once all steps are completed, you will gain full access to Afibie FX Signals - where strategy meets profitability!</b> 💰📊\n\n` +
-         `<i>(If you have any issues during the process, message support 👉 @Francis_Nbtc)</i>\n\n` +
+        `<i>(If you have any issues during the process, message support 👉 @Francis_Nbtc)</i>\n\n` +
         `👉 Click <b>CONTINUE</b> to start:`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 CONTINUE", "continue_to_captcha"),
@@ -198,7 +198,7 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("continue_to_captcha", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session) return;
-    
+
     if (ctx.session.step !== "welcome") {
       await ctx.replyWithHTML(
         `<b>⚠️ Error</b>\n\n` +
@@ -271,7 +271,7 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("confirm_final", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session) return;
-    
+
     if (ctx.session.step !== "final_confirmation") {
       await ctx.replyWithHTML(
         `<b>⚠️ Error</b>\n\n` +
@@ -283,7 +283,7 @@ export default function (bot: Telegraf<BotContext>) {
     try {
       await saveAndNotify(ctx);
       ctx.session.step = "final";
-      
+
       // Update Redis session
       const sessionKey = `forex:${ctx.from.id}`;
       await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -317,12 +317,12 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("cancel_final", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session) return;
-    
+
     // Reset to clean state
     ctx.session = {
       step: "welcome",
       botType: "forex",
-      retryCount: 0
+      retryCount: 0,
     };
 
     // Update Redis session
@@ -339,18 +339,18 @@ export default function (bot: Telegraf<BotContext>) {
 
   bot.on(message("text"), async (ctx) => {
     if (!ctx.session) return;
-    
+
     const text = ctx.message.text.trim();
 
     switch (ctx.session.step) {
       case "captcha": {
         if (verifyCaptcha(text, ctx.session.captcha || "")) {
           ctx.session.step = "captcha_confirmed";
-          
+
           // Update Redis session
           const sessionKey = `forex:${ctx.from.id}`;
           await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-          
+
           await ctx.replyWithHTML(
             `✅ <b>Correct!</b>\n\n` +
               `You've passed the captcha verification.\n\n` +
@@ -362,11 +362,11 @@ export default function (bot: Telegraf<BotContext>) {
         } else {
           const newCaptcha = generateCaptcha();
           ctx.session.captcha = newCaptcha;
-          
+
           // Update Redis session
           const sessionKey = `forex:${ctx.from.id}`;
           await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-          
+
           await ctx.replyWithHTML(
             `❌ <b>Incorrect Captcha</b>\n\n` +
               `🚫 Please try again:\n` +
@@ -379,11 +379,11 @@ export default function (bot: Telegraf<BotContext>) {
       case "country": {
         ctx.session.country = text;
         ctx.session.step = "waiting_for_done";
-        
+
         // Update Redis session
         const sessionKey = `forex:${ctx.from.id}`;
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-        
+
         await ctx.replyWithHTML(
           `<b>🌍 Step 2: Exco Trader Registration</b>\n\n` +
             `📌 <b>Sign up here</b> 👉 <a href="${process.env.EXCO_LINK}">Exco Trader Registration Link</a>\n\n` +
@@ -412,11 +412,11 @@ export default function (bot: Telegraf<BotContext>) {
         }
         ctx.session.excoTraderLoginId = text;
         ctx.session.step = "exco_confirmed";
-        
+
         // Update Redis session
         const sessionKey = `forex:${ctx.from.id}`;
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-        
+
         await ctx.replyWithHTML(
           `<b>✅ You've provided your Exco Trader Login ID!</b>\n\n` +
             `👉 Click <b>CONTINUE</b> to proceed to Deriv registration (optional).`,
@@ -438,11 +438,11 @@ export default function (bot: Telegraf<BotContext>) {
         }
         ctx.session.derivLoginId = text;
         ctx.session.step = "final_confirmation";
-        
+
         // Update Redis session
         const sessionKey = `forex:${ctx.from.id}`;
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-        
+
         const details = [
           `Exco Trader Login ID: ${
             ctx.session.excoTraderLoginId || "Not provided"
@@ -479,11 +479,11 @@ export default function (bot: Telegraf<BotContext>) {
         }
         ctx.session.excoTraderLoginId = text;
         ctx.session.step = "exco_confirmed";
-        
+
         // Update Redis session
         const sessionKey = `forex:${ctx.from.id}`;
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-        
+
         await ctx.replyWithHTML(
           `<b>✅ You've provided your Exco Trader Login ID!</b>\n\n` +
             `👉 Click <b>CONTINUE</b> to proceed to Deriv registration (optional).`,
@@ -499,13 +499,13 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("continue_to_country", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session || ctx.session.step !== "captcha_confirmed") return;
-    
+
     ctx.session.step = "country";
-    
+
     // Update Redis session
     const sessionKey = `forex:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-    
+
     await ctx.replyWithHTML(
       `<b>🌍 Country Selection</b>\n\n` + `What is your country of residence?`,
       Markup.keyboard([["USA", "Canada", "UK"], ["Rest of the world"]])
@@ -517,13 +517,13 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("done_exco", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session || ctx.session.step !== "waiting_for_done") return;
-    
+
     ctx.session.step = "exco_login";
-    
+
     // Update Redis session
     const sessionKey = `forex:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-    
+
     await ctx.replyWithHTML(
       `<b>🔹 Submit Your Exco Trader Login ID</b>\n\n` +
         `Please enter your <b>Exco Trader Login ID</b> below.\n\n` +
@@ -535,13 +535,13 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("continue_to_deriv", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session || ctx.session.step !== "exco_confirmed") return;
-    
+
     ctx.session.step = "deriv";
-    
+
     // Update Redis session
     const sessionKey = `forex:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-    
+
     await ctx.replyWithHTML(
       `<b>📌 Step 3: Deriv Registration (Optional)</b>\n\n` +
         `We also give synthetic signals.\n` +
@@ -559,16 +559,20 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("done_deriv", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session || ctx.session.step !== "deriv") return;
-    
+
     ctx.session.step = "final_confirmation";
-    
+
     // Update Redis session
     const sessionKey = `forex:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
-    
+
     const details = [
-      `Exco Trader Login ID: ${ctx.session.excoTraderLoginId || "Not provided"}`,
-      ctx.session.derivLoginId ? `Deriv Login ID: ${ctx.session.derivLoginId}` : null,
+      `Exco Trader Login ID: ${
+        ctx.session.excoTraderLoginId || "Not provided"
+      }`,
+      ctx.session.derivLoginId
+        ? `Deriv Login ID: ${ctx.session.derivLoginId}`
+        : null,
     ]
       .filter(Boolean)
       .join("\n");
@@ -589,7 +593,7 @@ export default function (bot: Telegraf<BotContext>) {
   bot.action("continue_to_login_id", async (ctx) => {
     await ctx.answerCbQuery();
     if (!ctx.session || ctx.session.step !== "login_id") return;
-    
+
     await ctx.replyWithHTML(
       `<b>🔹 Submit Your Exco Trader Login ID</b>\n\n` +
         `Please enter your <b>Exco Trader Login ID</b> below.\n\n` +
@@ -600,7 +604,7 @@ export default function (bot: Telegraf<BotContext>) {
 
   async function saveAndNotify(ctx: any) {
     if (!ctx.session || !ctx.from) return;
-    
+
     const telegramId = ctx.from.id.toString();
     try {
       if (!ctx.session.country) {
