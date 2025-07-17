@@ -5,7 +5,7 @@ import { message } from "telegraf/filters";
 import { ICRYPTO_User, CryptoUserModel } from "../models/crypto_user.model";
 import { sendAdminAlertCrypto } from "../utils/services/notifier-crypto";
 import { generateCaptcha, verifyCaptcha } from "../utils/captcha";
-import { isValidUID } from "../utils/validate";
+import { isValidBlofinUID, isValidBybitUID } from "../utils/validate";
 import rateLimit from "telegraf-ratelimit";
 import { BotContext } from "../telegrafContext";
 import dotenv from "dotenv";
@@ -304,10 +304,10 @@ export default function (bot: Telegraf<BotContext>) {
       }
 
       case "bybit_uid": {
-        if (!isValidUID(text)) {
+        if (!isValidBybitUID(text)) {
           await ctx.replyWithHTML(
             `❌ <b>Invalid UID</b>\n\n` +
-              `🚫 Enter a <b>numeric UID</b> between <b>5 to 20 digits</b>.\n\n` +
+              `🚫 Enter a <b>numeric UID</b> between <b>8 to 10 digits</b>.\n\n` +
               `📌 <i>Example:</i> <code>123456789</code>`
           );
           return;
@@ -340,11 +340,11 @@ export default function (bot: Telegraf<BotContext>) {
       }
 
       case "blofin_uid": {
-        if (!isValidUID(text)) {
+        if (!isValidBlofinUID(text)) {
           await ctx.replyWithHTML(
             `❌ <b>Invalid UID</b>\n\n` +
-              `🚫 Enter a <b>numeric UID</b> between <b>5 to 20 digits</b>.\n\n` +
-              `📌 <i>Example:</i> <code>87654321</code>`
+              `🚫 Enter a <b>numeric UID</b> between <b>11 to 13 digits</b>.\n\n` +
+              `📌 <i>Example:</i> <code>87654321949</code>`
           );
           return;
         }

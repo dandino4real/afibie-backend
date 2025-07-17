@@ -4,7 +4,7 @@ import { message } from "telegraf/filters";
 import { IFOREX_User, ForexUserModel } from "../models/forex_user.model";
 import { sendAdminAlertForex } from "../utils/services/notifier-forex";
 import { generateCaptcha, verifyCaptcha } from "../utils/captcha";
-import { isValidLoginID } from "../utils/validate";
+import { isValidExcoUID} from "../utils/validate";
 import rateLimit from "telegraf-ratelimit";
 import { createLogger, transports, format } from "winston";
 import { BotContext } from "../telegrafContext";
@@ -402,11 +402,11 @@ export default function (bot: Telegraf<BotContext>) {
       }
 
       case "exco_login": {
-        if (!isValidLoginID(text)) {
+        if (!isValidExcoUID(text)) {
           await ctx.replyWithHTML(
             `❌ <b>Invalid Login ID</b>\n\n` +
-              `🚫 Please enter a valid alphanumeric Login ID (5-20 characters).\n` +
-              `📌 <b>Example:</b> <code>123456565</code>`
+              `🚫 Please enter a valid numeric Login ID (6-9 characters).\n` +
+              `📌 <b>Example:</b> <code>12345656</code>`
           );
           return;
         }
@@ -428,11 +428,11 @@ export default function (bot: Telegraf<BotContext>) {
       }
 
       case "deriv": {
-        if (!isValidLoginID(text)) {
+        if (!isValidExcoUID(text)) {
           await ctx.replyWithHTML(
             `❌ <b>Invalid Deriv Login ID</b>\n\n` +
-              `🚫 Please enter a valid alphanumeric Login ID (5-20 characters).\n` +
-              `📌 <b>Example:</b> <code>DR123456</code>`
+              `🚫 Please enter a valid numeric Login ID (6-9 characters).\n` +
+              `📌 <b>Example:</b> <code>1234564</code>`
           );
           return;
         }
@@ -469,11 +469,11 @@ export default function (bot: Telegraf<BotContext>) {
       }
 
       case "login_id": {
-        if (!isValidLoginID(text)) {
+        if (!isValidExcoUID(text)) {
           await ctx.replyWithHTML(
             `❌ <b>Invalid Login ID</b>\n\n` +
-              `🚫 Please enter a valid alphanumeric Login ID (5-20 characters).\n` +
-              `📌 <b>Example:</b> <code>EX123456</code>`
+              `🚫 Please enter a valid numeric Login ID (6-9 characters).\n` +
+              `📌 <b>Example:</b> <code>1234568</code>`
           );
           return;
         }
