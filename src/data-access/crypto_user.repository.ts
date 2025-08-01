@@ -1,4 +1,3 @@
-// import { CryptoUserModel } from "../db/models/CryptoUser";
 import { FilterQuery } from "mongoose";
 import { CryptoUserModel } from "../models/crypto_user.model";
 
