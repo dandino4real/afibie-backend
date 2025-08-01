@@ -9,7 +9,7 @@ export interface IFOREX_User extends Document {
   excoTraderLoginId?: string;
   isApproved: boolean;
   isRejected: boolean;
-  status: "pending" | "approved" | "rejected";
+  status:  "approved" | "pending" |"rejected";
   createdAt: Date;
   approvedAt?: Date;
   rejectedAt?: Date;
@@ -37,7 +37,7 @@ const UserSchema: Schema = new Schema({
   isRejected: { type: Boolean, default: false },
   status: {
     type: String,
-    enum: ["pending", "approved", "rejected"],
+    enum: [ "approved", "pending", "rejected"],
     default: "pending",
   },
   createdAt: { type: Date, default: Date.now },
