@@ -30,13 +30,34 @@ export const CryptoUserRepository = {
       ...searchConditions,
     };
 
-    const users = await CryptoUserModel.find(combinedFilter)
-     .sort({ 
-    status: 1, 
-    createdAt: -1
-    })
-    .skip(skip)
-    .limit(limit);
+    // const users = await CryptoUserModel.find(combinedFilter)
+    //  .sort({ 
+    // status: 1, 
+    // createdAt: -1
+    // })
+    // .skip(skip)
+    // .limit(limit);
+
+    const users = await CryptoUserModel.aggregate([
+      { $match: combinedFilter },
+      {
+        $addFields: {
+          statusOrder: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$status", "pending"] }, then: 0 },
+                { case: { $eq: ["$status", "approved"] }, then: 1 },
+                { case: { $eq: ["$status", "rejected"] }, then: 2 },
+              ],
+              default: 3,
+            },
+          },
+        },
+      },
+      { $sort: { statusOrder: 1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ]);
 
     const total = await CryptoUserModel.countDocuments(combinedFilter);
 
