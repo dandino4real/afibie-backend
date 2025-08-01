@@ -481,7 +481,7 @@ export default function (bot: Telegraf<BotContext>) {
       `<b>🔹 Submit Your Blofin UID</b>\n\n` +
         `Please enter your <b>Blofin UID</b> below to continue.\n\n` +
         `💡 <i>You can find your UID in the account section of the Blofin platform after logging in.</i>\n\n` +
-        `📌 <b>Example:</b> <code>87654321</code>`
+        `📌 <b>Example:</b> <code>87654321949</code>`
     );
   });
 
