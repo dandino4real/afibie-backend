@@ -5,19 +5,6 @@ import { PipelineStage } from "mongoose";
 export const ForexUserRepository = {
   findAllWithFilters: async (filters: any, page: number, limit: number) => {
     const skip = (page - 1) * limit;
-    // const query = ForexUserModel.find(filters)
-    //   .sort({
-    //     status: 1,
-    //     createdAt: -1,
-    //   })
-    //   .skip(skip)
-    //   .limit(limit);
-
-
-    // const [users, total] = await Promise.all([
-    //   query.exec(),
-    //   ForexUserModel.countDocuments(filters),
-    // ]);
 
      const aggregationPipeline: PipelineStage[] = [
       { $match: filters },

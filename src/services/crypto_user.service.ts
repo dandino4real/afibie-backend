@@ -16,7 +16,7 @@ export const CryptoUserService = {
     const filter: any = {};
 
     if (status) filter.status = status;
-    if (platform) filter.platform = platform;
+    if (platform) filter.registeredVia = platform;
     if (country) filter.country = country;
 
     if (dateFrom && dateTo) {

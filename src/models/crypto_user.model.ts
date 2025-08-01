@@ -11,7 +11,6 @@ export interface ICRYPTO_User extends Document {
   blofinUid?: string;
   isApproved: boolean;
   isRejected: boolean;
-  platform?: "bybit" | "blofin" | "both" | undefined;
   status:  "approved" |"pending" | "rejected";
   createdAt: Date;
   approvedAt?: Date;
@@ -46,11 +45,6 @@ const UserSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now },
   approvedAt: { type: Date },
   rejectedAt: { type: Date },
-  platform: {
-    type: String,
-    enum: ["bybit", "blofin", "both", undefined],
-    default: undefined,
-  },
   registeredVia: { type: String, enum: ['bybit', 'blofin', 'both', undefined] },
   approvedBy: {
     name: String,

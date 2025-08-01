@@ -18,7 +18,7 @@ export const CryptoUserRepository = {
           { username: regex },
           { fullName: regex },
           { country: regex },
-          { platform: regex },
+          { registeredVia: regex },
           { bybitUid: regex },
           { blofinUid: regex },
         ],
@@ -29,14 +29,6 @@ export const CryptoUserRepository = {
       ...filter,
       ...searchConditions,
     };
-
-    // const users = await CryptoUserModel.find(combinedFilter)
-    //  .sort({ 
-    // status: 1, 
-    // createdAt: -1
-    // })
-    // .skip(skip)
-    // .limit(limit);
 
     const users = await CryptoUserModel.aggregate([
       { $match: combinedFilter },
