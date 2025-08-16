@@ -15,6 +15,7 @@ export interface ICRYPTO_User extends Document {
   createdAt: Date;
   approvedAt?: Date;
   rejectedAt?: Date;
+  rejectionReason?: "no_affiliate_link" | "no_kyc";
   registeredVia?: 'bybit' | 'blofin' | 'both' | undefined;
 
   approvedBy?: {
@@ -46,6 +47,11 @@ const UserSchema: Schema = new Schema({
   approvedAt: { type: Date },
   rejectedAt: { type: Date },
   registeredVia: { type: String, enum: ['bybit', 'blofin', 'both', undefined] },
+  rejectionReason: {
+    type: String,
+    enum: ["no_affiliate_link", "no_kyc"],
+    required: false,
+  },
   approvedBy: {
     name: String,
     email: String,

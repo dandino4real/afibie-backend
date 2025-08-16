@@ -44,7 +44,7 @@ const UserSchema: Schema = new Schema({
   approvedAt: { type: Date },
   rejectedAt: { type: Date },
   registeredVia: { type: String, enum: ["exco"] },
-   rejectionReason: {
+  rejectionReason: {
     type: String,
     enum: ["no_affiliate_link", "insufficient_deposit"],
     required: false,
