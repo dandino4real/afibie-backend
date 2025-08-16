@@ -27,19 +27,44 @@ export const CryptoUserController = {
     }
   },
 
-  rejectCryptoUser: async (req: Request, res: Response): Promise<any> => {
-    try {
-      const { id } = req.params;
-      const admin = (req as any).admin;
-      const result = await CryptoUserService.rejectUser(id, {
-        name: admin.name,
-        email: admin.email,
-      });
-      res.status(200).json({ message: "User rejected", data: result });
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+  // rejectCryptoUser: async (req: Request, res: Response): Promise<any> => {
+  //   try {
+  //     const { id } = req.params;
+  //     const admin = (req as any).admin;
+  //     const result = await CryptoUserService.rejectUser(id, {
+  //       name: admin.name,
+  //       email: admin.email,
+  //     });
+  //     res.status(200).json({ message: "User rejected", data: result });
+  //   } catch (err: any) {
+  //     res.status(400).json({ message: err.message });
+  //   }
+  // },
+
+  rejectCryptoUser : async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const admin = (req as any).admin;
+    const { rejectionReason } = req.body;
+
+    if (!rejectionReason) {
+      return res.status(400).json({ message: "Rejection reason is required" });
     }
-  },
+
+    if (!["no_affiliate_link", "no_kyc"].includes(rejectionReason)) {
+      return res.status(400).json({ message: "Invalid rejection reason" });
+    }
+
+    const result = await CryptoUserService.rejectUser(id, {
+      name: admin.name,
+      email: admin.email,
+    }, rejectionReason);
+
+    res.status(200).json({ message: "User rejected", data: result });
+  } catch (err: any) {
+    res.status(400).json({ message: err.message });
+  }
+},
 
    deleteUser: async (req: Request, res: Response): Promise<any> => {
     try {

@@ -59,14 +59,31 @@ export const CryptoUserService = {
     return updated;
   },
 
-  rejectUser: async (
+  // rejectUser: async (
+  //   userId: string,
+  //   admin: { name: string; email: string }
+  // ) => {
+  //   const updated = await CryptoUserRepository.rejectUser(
+  //     userId,
+  //     admin.name,
+  //     admin.email
+  //   );
+  //   if (!updated) throw new Error("User already processed or not found");
+  //   return updated;
+  // },
+rejectUser: async (
     userId: string,
-    admin: { name: string; email: string }
+    admin: { name: string; email: string },
+    rejectionReason: 'no_affiliate_link' | 'no_kyc'
   ) => {
+    if (!['no_affiliate_link', 'no_kyc'].includes(rejectionReason)) {
+      throw new Error("Invalid rejection reason");
+    }
     const updated = await CryptoUserRepository.rejectUser(
       userId,
       admin.name,
-      admin.email
+      admin.email,
+      rejectionReason
     );
     if (!updated) throw new Error("User already processed or not found");
     return updated;

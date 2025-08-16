@@ -74,15 +74,34 @@ export const CryptoUserRepository = {
     );
   },
 
-  rejectUser: async (id: string, name: string, email: string) => {
+  // rejectUser: async (id: string, name: string, email: string) => {
+  //   return CryptoUserModel.findOneAndUpdate(
+  //     { _id: id, status: "pending" },
+  //     {
+  //       status: "rejected",
+  //       isApproved: false,
+  //       rejectedAt: new Date(),
+  //       rejectedBy: { name, email },
+  //       $unset: { approvedAt: "", approvedBy: "" },
+  //     },
+  //     { new: true }
+  //   );
+  // },
+   rejectUser: async (
+    id: string,
+    name: string,
+    email: string,
+    rejectionReason: 'no_affiliate_link' | 'no_kyc'
+  ) => {
     return CryptoUserModel.findOneAndUpdate(
-      { _id: id, status: "pending" },
+      { _id: id, status: 'pending' },
       {
-        status: "rejected",
+        status: 'rejected',
         isApproved: false,
         rejectedAt: new Date(),
         rejectedBy: { name, email },
-        $unset: { approvedAt: "", approvedBy: "" },
+        rejectionReason,
+        $unset: { approvedAt: '', approvedBy: '' },
       },
       { new: true }
     );
