@@ -725,10 +725,9 @@ export default function (bot: Telegraf<BotContext>) {
           const rejectionMessage =
             `🚫 <b>Access Denied</b>\n\n` +
             `<b>REASON: NO KYC</b>\n\n` +
-            `You cannot join this Telegram group because you have not completed the required KYC verification.\n` +
+            `You cannot join this Telegram group because you have not completed the required KYC verification.\n\n` +
             `✅ <b>Please complete your KYC first, then try again.</b>\n` +
             `This helps us keep our community safe and secure.\n\n` +
-            `📌 <b>This is your last trial.</b>\n\n` +
             `❓ <b>Still having issues?</b> <i>Kindly message our support 👉 @Francis_Nbtc for assistance.</i>`;
 
           await bot.telegram.sendMessage(user.telegramId, rejectionMessage, {
