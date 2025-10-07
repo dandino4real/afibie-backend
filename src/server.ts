@@ -1,58 +1,42 @@
 
-// import express, { Request, Response, NextFunction } from "express";
+
+
+// import express, { Request, Response } from "express";
 // import cors from "cors";
 // import helmet from "helmet";
 // import dotenv from "dotenv";
-// import { Telegraf } from "telegraf";
+// import { Telegraf, session } from "telegraf";
+// import Redis from "ioredis";
 // import { connectDB } from "./config/db";
 // import { BotContext } from "./telegrafContext";
 
-// // Import routes
+// // Routes
 // import cryptoUserRoutes from "./routes/crypto_user.routes";
 // import forexUserRoutes from "./routes/forex_user.routes";
+// import forexNewUserRoutes from "./routes/forex_new_user.routes";
 // import staticticsRoutes from "./routes/users_stats.routes";
 // import authRoutes from "./routes/auth.routes";
 // import adminRoutes from "./routes/admin.routes";
 
+// // Bot handlers
+// import cryptoBotHandler from "./bots/cryptoBot";
+// // import forexBotHandler from "./bots/forexBot";
+// import newforexBotHandler from "./bots/newForexBot";
+
+// // Load environment variables
+// dotenv.config();
+
 // const app = express();
 
-// // Load environment variables FIRST
-// dotenv.config({
-//   path:
-//     process.env.NODE_ENV === "production" ? ".env.production" : ".env",
-// });
-
-
-// // Add debug log for environment variables
-// console.log("Environment variables loaded:");
-// console.log("CORS_ORIGINS:", process.env.CORS_ORIGINS || "Not set");
-// console.log("BOT_TOKEN_CRYPTO:", process.env.BOT_TOKEN_CRYPTO ? "exists" : "MISSING");
-// console.log("BOT_TOKEN_FOREX:", process.env.BOT_TOKEN_FOREX ? "exists" : "MISSING");
-// console.log("VERCEL_URL:", process.env.VERCEL_URL || "Not set");
-// console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
-// console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
-
-// // Validate critical environment variables
-// const requiredEnvVars = [
-//   "BOT_TOKEN_CRYPTO",
-//   "BOT_TOKEN_FOREX",
-//   "MONGODB_URI",
-//   "WEBHOOK_SECRET",
-// ];
-
-// const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
-// if (missingVars.length > 0) {
-//   console.error("❌ Missing required environment variables:", missingVars);
-//   process.exit(1);
-// }
-
+// // =====================================================
 // // Middleware setup
+// // =====================================================
 // app.use(helmet());
 // app.use(express.json());
 
 // const corsOrigins = process.env.CORS_ORIGINS
-//   ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
-//   : ["https://afibie.vercel.app"];
+//   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+//   : ["http://localhost:4000"];
 
 // app.use(
 //   cors({
@@ -63,239 +47,164 @@
 //   })
 // );
 
-// // Debug middleware
-// app.use((req, res, next) => {
-//   console.log(`Received ${req.method} request at ${req.path}`);
+// // Debug log
+// app.use((req, _, next) => {
+//   console.log(`➡️  ${req.method} ${req.path}`);
 //   next();
 // });
 
 
-// // ===================================================================
-// // Create bot instances and set up bot logic
-// // ===================================================================
-// // Validate tokens before creating bots
-// if (!process.env.BOT_TOKEN_CRYPTO || !process.env.BOT_TOKEN_FOREX) {
-//   console.error("FATAL ERROR: Bot tokens are not configured in environment variables.");
-//   process.exit(1);
+
+//     // API routes
+//     app.use("/api/crypto-users", cryptoUserRoutes);
+//     app.use("/api/forex-users", forexUserRoutes);
+//     app.use("/api/new-forex-users", forexNewUserRoutes);
+//     app.use("/api/statistics", staticticsRoutes);
+//     app.use("/api/auth", authRoutes);
+//     app.use("/api/admins", adminRoutes);
+
+//     // Health check
+//     app.get("/health", (req: Request, res: Response) => {
+//       res.status(200).json({
+//         status: "OK",
+//         environment: process.env.NODE_ENV,
+//         sessionType: process.env.NODE_ENV === "production" ? "redis" : "memory",
+//       });
+//     });
+
+// // =====================================================
+// // BOT INITIALIZATION
+// // =====================================================
+
+// const bots = {
+//   cryptoBot: new Telegraf<BotContext>(process.env.BOT_TOKEN_CRYPTO!),
+//   // forexBot: new Telegraf<BotContext>(process.env.BOT_TOKEN_FOREX!),
+//   forexBot_New: new Telegraf<BotContext>(process.env.NEW_BOT_TOKEN_FOREX!),
+// };
+
+// // Assign botType to each bot context
+// bots.cryptoBot.context.botType = "crypto";
+// // bots.forexBot.context.botType = "forex";
+// bots.forexBot_New.context.botType = "forex_new";
+
+// // =====================================================
+// // DYNAMIC SESSION HANDLER
+// // =====================================================
+// const redisAdapter = (client: Redis) => ({
+//   get: async (key: string) => {
+//     const data = await client.get(key);
+//     return data ? JSON.parse(data) : undefined;
+//   },
+//   set: async (key: string, value: any) => {
+//     await client.set(key, JSON.stringify(value), "EX", 60 * 60 * 24 * 3); // 3 days TTL
+//   },
+//   delete: async (key: string) => {
+//     await client.del(key);
+//   },
+// });
+
+// let sessionMiddleware;
+
+// if (process.env.NODE_ENV === "production") {
+//   console.log("🔗 Using Redis session store (Hostinger Production)");
+
+//   const redis = new Redis(process.env.REDIS_URL!, {
+//     tls: process.env.BASE_URL?.startsWith("https") ? {} : undefined,
+//   });
+
+//   sessionMiddleware = session({
+//     store: redisAdapter(redis),
+//     defaultSession: () => ({}),
+//     getSessionKey: (ctx: BotContext) =>
+//       ctx.from ? `${ctx.botType}:${ctx.from.id}` : undefined,
+//   });
+// } else {
+//   console.log("⚙️ Using in-memory session (local development)");
+//   sessionMiddleware = session({ defaultSession: () => ({}) });
+// }
+
+// // Apply session middleware to all bots
+// Object.values(bots).forEach((bot) => bot.use(sessionMiddleware));
+
+// // =====================================================
+// // ATTACH BOT HANDLERS
+// // =====================================================
+// cryptoBotHandler(bots.cryptoBot);
+// // forexBotHandler(bots.forexBot);
+// newforexBotHandler(bots.forexBot_New);
+
+// // =====================================================
+// // APP INITIALIZATION
+// // =====================================================
+// const initializeApp = async () => {
+//   try {
+//     await connectDB();
+//     console.log("✅ MongoDB connected");
+
+//     const isProd = process.env.NODE_ENV === "production";
+//     const baseUrl = process.env.BASE_URL!;
+//     const webhookSecret = process.env.WEBHOOK_SECRET!;
+
+
+//     // Configure bots based on environment
+//    for (const [botName, botInstance] of Object.entries(bots)) {
+//   try {
+//     const webhookPath = `/webhook/${botName}`;
+//     const webhookUrl = `${baseUrl}${webhookPath}`;
+
+//     if (isProd) {
+//       console.log(`📡 Setting webhook for ${botName}: ${webhookUrl}`);
+
+//       await botInstance.telegram.setWebhook(webhookUrl, {
+//         secret_token: webhookSecret,
+//       });
+
+//       app.use(
+//         webhookPath,
+//         botInstance.webhookCallback(webhookPath, { secretToken: webhookSecret })
+//       );
+//     } else {
+//       console.log(`🚀 Launching bot: ${botName}`);
+//       await botInstance.launch();
+//       console.log(`🤖 ${botName} launched in polling mode`);
+//     }
+//   } catch (err) {
+//     console.error(`❌ Failed to launch ${botName}:`, err);
+//   }
 // }
 
 
-// // Create bot instances
-// const cryptoBot = new Telegraf<BotContext>(process.env.BOT_TOKEN_CRYPTO!);
-// const forexBot = new Telegraf<BotContext>(process.env.BOT_TOKEN_FOREX!);
-
-// // Set botType in context
-// cryptoBot.context.botType = "crypto";
-// forexBot.context.botType = "forex";
-
-// // Import bot handlers AFTER creating bot instances
-// import cryptoBotHandler from "./bots/cryptoBot";
-// import forexBotHandler from "./bots/forexBot";
-
-// // Initialize bots
-// cryptoBotHandler(cryptoBot);
-// forexBotHandler(forexBot);
 
 
-// // ===================================================================
-// // Webhook setup function with enhanced logging
-// // ===================================================================
-// const setupBots = async () => {
-//   const baseUrl = process.env.VERCEL_URL 
-//     ? `https://${process.env.VERCEL_URL}` 
-//     : 'https://afibie-api.vercel.app';
-
-//   console.log(`Setting webhooks for base URL: ${baseUrl}`);
-  
-//   try {
-//     // CRYPTO BOT
-//     const cryptoWebhook = `${baseUrl}/webhook/crypto`;
-//     console.log(`Setting crypto webhook to: ${cryptoWebhook}`);
-    
-//     // Add secret token here
-//     await cryptoBot.telegram.setWebhook(cryptoWebhook, {
-//       secret_token: process.env.WEBHOOK_SECRET
-//     });
-//     console.log("✅ Crypto webhook set successfully");
-    
-//     // FOREX BOT
-//     const forexWebhook = `${baseUrl}/webhook/forex`;
-//     console.log(`Setting forex webhook to: ${forexWebhook}`);
-    
-//     // Add secret token here
-//     await forexBot.telegram.setWebhook(forexWebhook, {
-//       secret_token: process.env.WEBHOOK_SECRET
-//     });
-//     console.log("✅ Forex webhook set successfully");
-    
-//     return true;
+//     const PORT = process.env.PORT || 3000;
+//     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 //   } catch (error) {
-//     console.error("❌ Webhook setup error:", error);
-//     throw error;
+//     console.error("❌ App initialization error:", error);
+//     process.exit(1);
 //   }
 // };
 
-// // Asynchronous initialization
-// let isInitialized = false;
-// let initializationError: any = null;
+// initializeApp();
 
-// const initializeApp = async () => {
+// // =====================================================
+// // GRACEFUL SHUTDOWN
+// // =====================================================
+// const shutdown = async () => {
+//   console.log("🧹 Shutting down gracefully...");
 //   try {
-//     console.log("🚀 Starting application initialization...");
-    
-//     // 1. Connect to MongoDB
-//     console.log("Connecting to MongoDB...");
-//     await connectDB();
-//     console.log("✅ MongoDB connected successfully");
-    
-//     // 2. Set up webhooks
-//     console.log("Setting up webhooks...");
-//     await setupBots();
-    
-//     isInitialized = true;
-//     console.log("✅✅✅ Application initialization complete ✅✅✅");
-//     return true;
-//   } catch (error) {
-//     console.error("❌❌❌ Initialization failed:", error);
-//     initializationError = error;
-//     throw error;
+//     for (const bot of Object.values(bots)) {
+//       await bot.stop();
+//     }
+//     console.log("✅ All bots stopped successfully");
+//     process.exit(0);
+//   } catch (err) {
+//     console.error("❌ Error during shutdown:", err);
+//     process.exit(1);
 //   }
 // };
 
-
-// // Start initialization
-// initializeApp().catch((err) => {
-//   console.error("Initialization error:", err);
-// });
-
-// // Create a wrapper function for webhook handling
-// const createWebhookHandler = (bot: Telegraf<BotContext>) => {
-//   return (req: Request, res: Response, next: NextFunction) => {
-//     console.log(`Received ${req.method} request at ${req.path}`);
-    
-//     if (!isInitialized) {
-//       console.log("Server not initialized, returning 503");
-//       res.status(503).send("Server initializing. Please try again.");
-//       return;
-//     }
-
-//     // Verify secret token
-//     const receivedToken = req.headers["x-telegram-bot-api-secret-token"];
-//     if (receivedToken !== process.env.WEBHOOK_SECRET) {
-//       console.warn(
-//         `Unauthorized webhook access attempt to ${req.path} endpoint. ` +
-//         `Received: ${receivedToken}, Expected: ${process.env.WEBHOOK_SECRET}`
-//       );
-//       res.status(401).send("Unauthorized");
-//       return;
-//     }
-
-//     try {
-//       console.log("Processing Telegram update");
-//       bot.handleUpdate(req.body, res);
-//     } catch (error) {
-//       console.error(`Webhook error for ${req.path}:`, error);
-
-//       if (!res.headersSent) {
-//         res.status(500).send("Internal server error");
-//       }
-//     }
-//   };
-// };
-
-
-
-// // Start initialization with retry logic
-// const MAX_RETRIES = 3;
-// let retryCount = 0;
-
-// const startInitialization = async () => {
-//   while (retryCount < MAX_RETRIES && !isInitialized) {
-//     try {
-//       console.log(`Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
-//       await initializeApp();
-//     } catch (error) {
-//       console.error(`Initialization attempt ${retryCount + 1} failed`);
-//       retryCount++;
-      
-//       if (retryCount < MAX_RETRIES) {
-//         console.log(`Retrying in 5 seconds...`);
-//         await new Promise(resolve => setTimeout(resolve, 5000));
-//       } else {
-//         console.error("🚨🚨🚨 Maximum initialization attempts reached. Application failed to start. 🚨🚨🚨");
-//       }
-//     }
-//   }
-// };
-
-// // Start initialization
-// startInitialization();
-
-// // Apply the webhook handlers
-// app.post("/webhook/crypto", express.json(), createWebhookHandler(cryptoBot));
-// app.post("/webhook/forex", express.json(), createWebhookHandler(forexBot));
-
-// // API Routes
-// app.use("/api/auth", authRoutes);
-// app.use("/api/users", cryptoUserRoutes);
-// app.use("/api/users", staticticsRoutes);
-// app.use("/api/users", forexUserRoutes);
-// app.use("/api/admin", adminRoutes);
-
-// // Health check endpoint
-// app.get("/health", (req, res) => {
-//   const status = isInitialized ? "ok" : "initializing";
-//   const error = initializationError ? initializationError.message : null;
-
-//   res.status(200).json({
-//     status,
-//     error,
-//     bots: {
-//       crypto: !!process.env.BOT_TOKEN_CRYPTO,
-//       forex: !!process.env.BOT_TOKEN_FOREX,
-//     },
-//     initialized: isInitialized,
-//   });
-// });
-
-// // Graceful shutdown
-// process.once("SIGINT", async () => {
-//   console.log("SIGINT received. Shutting down gracefully...");
-//   await cryptoBot.stop("SIGINT");
-//   await forexBot.stop("SIGTERM");
-//   process.exit(0);
-// });
-
-// process.once("SIGTERM", async () => {
-//   console.log("SIGTERM received. Shutting down gracefully...");
-//   await cryptoBot.stop("SIGTERM");
-//   await forexBot.stop("SIGTERM");
-//   process.exit(0);
-// });
-
-// // Error handling middleware
-// app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-//   const status = err.status || 500;
-//   console.error(
-//     `❌ Error [${status}] at ${req.method} ${req.path}:`,
-//     err.message
-//   );
-
-//   // Only send response if headers haven't been sent yet
-//   if (!res.headersSent) {
-//     res.status(status).json({
-//       error: process.env.NODE_ENV === "production" ? null : err,
-//       message: err.message || "Internal Server Error",
-//     });
-//   }
-// });
-
-// // 404 Handler
-// app.use((req: Request, res: Response) => {
-//   res.status(404).json({
-//     message: `Endpoint ${req.method} ${req.path} not found`,
-//   });
-// });
+// process.on("SIGINT", shutdown);
+// process.on("SIGTERM", shutdown);
 
 // export default app;
 
@@ -303,69 +212,58 @@
 
 
 
-
-
-/// hostinger code
-
-// src/server.ts
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-import { Telegraf} from "telegraf";
+import { Telegraf, session } from "telegraf";
+import Redis from "ioredis";
 import { connectDB } from "./config/db";
 import { BotContext } from "./telegrafContext";
-import Redis from "ioredis";
-import RedisSession from "telegraf-session-redis";
-
-// Import routes
+import cryptoBotHandler from "./bots/cryptoBot";
+import newforexBotHandler from "./bots/forexBot";
 import cryptoUserRoutes from "./routes/crypto_user.routes";
 import forexUserRoutes from "./routes/forex_user.routes";
+import forexNewUserRoutes from "./routes/forex_new_user.routes";
 import staticticsRoutes from "./routes/users_stats.routes";
 import authRoutes from "./routes/auth.routes";
 import adminRoutes from "./routes/admin.routes";
 
+dotenv.config();
+
 const app = express();
 
-// Load environment variables FIRST
-dotenv.config({
-  path: process.env.NODE_ENV === "production" ? ".env.production" : ".env",
-});
-
-// Add debug log for environment variables
-console.log("Environment variables loaded:");
-console.log("CORS_ORIGINS:", process.env.CORS_ORIGINS || "Not set");
-console.log("BOT_TOKEN_CRYPTO:", process.env.BOT_TOKEN_CRYPTO ? "exists" : "MISSING");
-console.log("BOT_TOKEN_FOREX:", process.env.BOT_TOKEN_FOREX ? "exists" : "MISSING");
-console.log("BASE_URL:", process.env.BASE_URL || "Not set");
-console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
-console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
-console.log("REDIS_URL:", process.env.REDIS_URL ? "exists" : "MISSING");
-console.log("BYBIT_VIDEO_FILE_ID", process.env.BYBIT_VIDEO_FILE_ID ? "exists" : "MISSING");
-// Validate critical environment variables
+// Validate environment variables
 const requiredEnvVars = [
   "BOT_TOKEN_CRYPTO",
-  "BOT_TOKEN_FOREX",
+  "NEW_BOT_TOKEN_FOREX",
   "MONGODB_URI",
   "WEBHOOK_SECRET",
   "BASE_URL",
-  "REDIS_URL"
 ];
-
 const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 if (missingVars.length > 0) {
   console.error("❌ Missing required environment variables:", missingVars);
   process.exit(1);
 }
 
+// Debug environment variables
+console.log("Environment variables loaded:");
+console.log("CORS_ORIGINS:", process.env.CORS_ORIGINS || "Not set");
+console.log("BOT_TOKEN_CRYPTO:", process.env.BOT_TOKEN_CRYPTO ? "exists" : "MISSING");
+console.log("NEW_BOT_TOKEN_FOREX:", process.env.NEW_BOT_TOKEN_FOREX ? "exists" : "MISSING");
+console.log("BASE_URL:", process.env.BASE_URL || "Not set");
+console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
+console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
+console.log("REDIS_URL:", process.env.REDIS_URL ? "exists" : "Not set");
+
 // Middleware setup
 app.use(helmet());
 app.use(express.json());
 
 const corsOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
-  : ["https://yourdomain.com"]; // Update with Hostinger domain
-
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+  : ["http://localhost:3000"];
 app.use(
   cors({
     origin: corsOrigins,
@@ -375,82 +273,73 @@ app.use(
   })
 );
 
-// Debug middleware
-app.use((req, res, next) => {
-  console.log(`Received ${req.method} request at ${req.path}`);
+app.use((req, _, next) => {
+  console.log(`➡️  ${req.method} ${req.path}`);
   next();
 });
 
-// ===================================================================
-// Create bot instances and set up bot logic
-// ===================================================================
-// Create bot instances
-const cryptoBot = new Telegraf<BotContext>(process.env.BOT_TOKEN_CRYPTO!);
-const forexBot = new Telegraf<BotContext>(process.env.BOT_TOKEN_FOREX!);
+// Bot initialization
+const bots = {
+  cryptoBot: new Telegraf<BotContext>(process.env.BOT_TOKEN_CRYPTO!),
+  forexBot_New: new Telegraf<BotContext>(process.env.NEW_BOT_TOKEN_FOREX!),
+};
 
-// Set botType in context
-cryptoBot.context.botType = "crypto";
-forexBot.context.botType = "forex";
+bots.cryptoBot.context.botType = "crypto";
+bots.forexBot_New.context.botType = "forex_new";
 
-// Configure Redis connection
-const redis = new Redis(process.env.REDIS_URL!);
+// Session middleware
+let sessionMiddleware;
+if (process.env.NODE_ENV === "production" && process.env.REDIS_URL) {
+  console.log("🔗 Using Redis session store (production)");
+  const redis = new Redis(process.env.REDIS_URL, {
+    tls: process.env.BASE_URL?.startsWith("https") ? {} : undefined,
+  });
+  redis.on("connect", () => console.log("✅ Redis connected"));
+  redis.on("error", (err) => console.error("❌ Redis error:", err));
 
-// Create Redis session store with proper typing
-const sessionMiddleware = new RedisSession({
-  store: {
-    host: process.env.REDIS_HOST || "127.0.0.1",
-    port: parseInt(process.env.REDIS_PORT || "6379", 10),
-    db: parseInt(process.env.REDIS_DB || "0", 10),
-    ...(process.env.REDIS_PASSWORD && { password: process.env.REDIS_PASSWORD }),
-  },
-  // TTL should be at the top level, not inside store
-  ttl: 86400, // 24 hours
-  getSessionKey: (ctx: BotContext) => {
-    if (!ctx.from) return "";
-    return `${ctx.botType}:${ctx.from.id}`;
-  }
-});
+  const redisAdapter = (client: Redis) => ({
+    get: async (key: string) => {
+      const data = await client.get(key);
+      return data ? JSON.parse(data) : undefined;
+    },
+    set: async (key: string, value: any) => {
+      await client.set(key, JSON.stringify(value), "EX", 60 * 60 * 24 * 3);
+    },
+    delete: async (key: string) => {
+      await client.del(key);
+    },
+  });
 
-// Apply Redis session middleware
-// Apply session middleware to both bots
-cryptoBot.use(sessionMiddleware);
-forexBot.use(sessionMiddleware);
-console.log("✅ Redis session middleware enabled for both bots");
+  sessionMiddleware = session({
+    store: redisAdapter(redis),
+    defaultSession: () => ({}),
+    getSessionKey: (ctx: BotContext) => (ctx.from ? `${ctx.botType}:${ctx.from.id}` : undefined),
+  });
+} else {
+  console.log("⚙️ Using in-memory session (local development)");
+  sessionMiddleware = session({ defaultSession: () => ({}) });
+}
 
-// Import bot handlers AFTER creating bot instances
-import cryptoBotHandler from "./bots/cryptoBot";
-import forexBotHandler from "./bots/forexBot";
+Object.values(bots).forEach((bot) => bot.use(sessionMiddleware));
 
-// Initialize bots
-cryptoBotHandler(cryptoBot);
-forexBotHandler(forexBot);
+// Attach handlers
+cryptoBotHandler(bots.cryptoBot);
+newforexBotHandler(bots.forexBot_New);
 
-// ===================================================================
-// Webhook setup function with enhanced logging
-// ===================================================================
+// Webhook setup
 const setupBots = async () => {
-  const baseUrl = process.env.BASE_URL;
+  const baseUrl = process.env.BASE_URL!;
+  const webhookSecret = process.env.WEBHOOK_SECRET!;
   console.log(`Setting webhooks for base URL: ${baseUrl}`);
-  
+
   try {
-    // CRYPTO BOT
-    const cryptoWebhook = `${baseUrl}/webhook/crypto`;
-    console.log(`Setting crypto webhook to: ${cryptoWebhook}`);
-    
-    await cryptoBot.telegram.setWebhook(cryptoWebhook, {
-      secret_token: process.env.WEBHOOK_SECRET
-    });
-    console.log("✅ Crypto webhook set successfully");
-    
-    // FOREX BOT
-    const forexWebhook = `${baseUrl}/webhook/forex`;
-    console.log(`Setting forex webhook to: ${forexWebhook}`);
-    
-    await forexBot.telegram.setWebhook(forexWebhook, {
-      secret_token: process.env.WEBHOOK_SECRET
-    });
-    console.log("✅ Forex webhook set successfully");
-    
+    for (const [botName, botInstance] of Object.entries(bots)) {
+      const webhookPath = `/webhook/${botName}`;
+      const webhookUrl = `${baseUrl}${webhookPath}`;
+      console.log(`📡 Setting webhook for ${botName}: ${webhookUrl}`);
+      await botInstance.telegram.setWebhook(webhookUrl, { secret_token: webhookSecret });
+      console.log(`✅ Webhook set for ${botName}`);
+    }
     return true;
   } catch (error) {
     console.error("❌ Webhook setup error:", error);
@@ -458,87 +347,22 @@ const setupBots = async () => {
   }
 };
 
-// Asynchronous initialization
-let isInitialized = false;
-let initializationError: any = null;
-
-const initializeApp = async () => {
-  try {
-    console.log("🚀 Starting application initialization...");
-    
-    // 1. Connect to MongoDB
-    console.log("Connecting to MongoDB...");
-    await connectDB();
-    console.log("✅ MongoDB connected successfully");
-    
-    // 2. Set up webhooks
-    console.log("Setting up webhooks...");
-    await setupBots();
-    
-    isInitialized = true;
-    console.log("✅✅✅ Application initialization complete ✅✅✅");
-    return true;
-  } catch (error) {
-    console.error("❌❌❌ Initialization failed:", error);
-    initializationError = error;
-    throw error;
-  }
-};
-
-// Start initialization with retry logic
-const MAX_RETRIES = 5;
-let retryCount = 0;
-
-const startInitialization = async () => {
-  while (retryCount < MAX_RETRIES && !isInitialized) {
-    try {
-      console.log(`Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
-      await initializeApp();
-    } catch (error) {
-      console.error(`Initialization attempt ${retryCount + 1} failed`);
-      retryCount++;
-      
-      if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying in 5 seconds...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      } else {
-        console.error("🚨🚨🚨 Maximum initialization attempts reached. Application failed to start. 🚨🚨🚨");
-      }
-    }
-  }
-};
-
-// Start initialization
-startInitialization();
-
-// Create a wrapper function for webhook handling
+// Webhook handler
 const createWebhookHandler = (bot: Telegraf<BotContext>) => {
   return (req: Request, res: Response, next: NextFunction) => {
     console.log(`Received ${req.method} request at ${req.path}`);
-    
-    if (!isInitialized) {
-      console.log("Server not initialized, returning 503");
-      res.status(503).send("Server initializing. Please try again.");
-      return;
-    }
-
-    // Verify secret token
     const receivedToken = req.headers["x-telegram-bot-api-secret-token"];
     if (receivedToken !== process.env.WEBHOOK_SECRET) {
       console.warn(
-        `Unauthorized webhook access attempt to ${req.path} endpoint. ` +
-        `Received: ${receivedToken}, Expected: ${process.env.WEBHOOK_SECRET}`
+        `Unauthorized webhook access attempt to ${req.path}. Received: ${receivedToken}, Expected: ${process.env.WEBHOOK_SECRET}`
       );
       res.status(401).send("Unauthorized");
       return;
     }
-
     try {
-      console.log("Processing Telegram update");
       bot.handleUpdate(req.body, res);
     } catch (error) {
       console.error(`Webhook error for ${req.path}:`, error);
-
       if (!res.headersSent) {
         res.status(500).send("Internal server error");
       }
@@ -546,72 +370,71 @@ const createWebhookHandler = (bot: Telegraf<BotContext>) => {
   };
 };
 
-// Apply the webhook handlers
-app.post("/webhook/crypto", express.json(), createWebhookHandler(cryptoBot));
-app.post("/webhook/forex", express.json(), createWebhookHandler(forexBot));
+// Apply webhook handlers
+app.post("/webhook/cryptoBot", express.json(), createWebhookHandler(bots.cryptoBot));
+app.post("/webhook/forexBot_New", express.json(), createWebhookHandler(bots.forexBot_New));
 
-// API Routes
+// API routes
+app.use("/api/crypto-users", cryptoUserRoutes);
+app.use("/api/forex-users", forexUserRoutes);
+app.use("/api/new-forex-users", forexNewUserRoutes);
+app.use("/api/statistics", staticticsRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/users", cryptoUserRoutes);
-app.use("/api/users", staticticsRoutes);
-app.use("/api/users", forexUserRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admins", adminRoutes);
 
-// Health check endpoint
-app.get("/health", (req, res) => {
-  const status = isInitialized ? "ok" : "initializing";
-  const error = initializationError ? initializationError.message : null;
-
+// Health check
+app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
-    status,
-    error,
+    status: "OK",
+    environment: process.env.NODE_ENV,
+    sessionType: process.env.NODE_ENV === "production" ? "redis" : "memory",
     bots: {
       crypto: !!process.env.BOT_TOKEN_CRYPTO,
-      forex: !!process.env.BOT_TOKEN_FOREX,
+      forex_new: !!process.env.NEW_BOT_TOKEN_FOREX,
     },
-    initialized: isInitialized,
-    redis: redis.status,
   });
 });
+
+// App initialization
+const initializeApp = async () => {
+  try {
+    console.log("🚀 Starting application initialization...");
+    await connectDB();
+    console.log("✅ MongoDB connected successfully");
+    await setupBots();
+    console.log("✅ Webhooks set successfully");
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  } catch (error) {
+    console.error("❌ App initialization error:", error);
+    process.exit(1);
+  }
+};
+
+initializeApp();
 
 // Graceful shutdown
-process.once("SIGINT", async () => {
-  console.log("SIGINT received. Shutting down gracefully...");
-  await cryptoBot.stop("SIGINT");
-  await forexBot.stop("SIGTERM");
-  await redis.quit();
-  process.exit(0);
-});
-
-process.once("SIGTERM", async () => {
-  console.log("SIGTERM received. Shutting down gracefully...");
-  await cryptoBot.stop("SIGTERM");
-  await forexBot.stop("SIGTERM");
-  await redis.quit();
-  process.exit(0);
-});
-
-// Error handling middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  const status = err.status || 500;
-  console.error(
-    `❌ Error [${status}] at ${req.method} ${req.path}:`,
-    err.message
-  );
-
-  if (!res.headersSent) {
-    res.status(status).json({
-      error: process.env.NODE_ENV === "production" ? null : err,
-      message: err.message || "Internal Server Error",
-    });
+const shutdown = async () => {
+  console.log("🧹 Shutting down gracefully...");
+  try {
+    for (const bot of Object.values(bots)) {
+      await bot.stop();
+    }
+    if (process.env.NODE_ENV === "production") {
+      const redis = new Redis(process.env.REDIS_URL!);
+      await redis.quit();
+    }
+    console.log("✅ All bots and Redis stopped successfully");
+    process.exit(0);
+  } catch (err) {
+    console.error("❌ Error during shutdown:", err);
+    process.exit(1);
   }
-});
+};
 
-// 404 Handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    message: `Endpoint ${req.method} ${req.path} not found`,
-  });
-});
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 export default app;

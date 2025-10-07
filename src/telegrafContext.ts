@@ -11,7 +11,13 @@ export interface SessionData {
   excoTraderLoginId?: string;
   derivLoginId?: string;
   retryCount?: number;
-  
+  loginId?: string;
+  awaitingLoginId?: boolean;
+  awaitingScreenshot?: boolean;
+  awaitingTestTradesScreenshot?: boolean;
+  broker?: string;
+  group?: string;
+
   
 }
 
