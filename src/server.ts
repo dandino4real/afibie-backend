@@ -445,8 +445,8 @@ const initializeApp = async () => {
     await setupBots();
     console.log("✅ Webhooks set successfully");
 
-    // const PORT = process.env.PORT || 3000;
-    // app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   } catch (error) {
     console.error("❌ App initialization error:", error);
     process.exit(1);
