@@ -1170,7 +1170,9 @@ Thanks for waiting
     if (ctx.session.step === "country") {
       const result = fuse.search(text);
       if (result.length === 0) {
-        await ctx.reply(`❌ Couldn’t recognize "${text}". Try again.`);
+        // await ctx.reply(`❌ Couldn’t recognize "${text}". Try again.`);
+        await handleCountry(ctx, text);
+
         return;
       }
 
