@@ -1947,13 +1947,13 @@ If you need help, contact @Francis_Nbtc.
   watchUserStatusChanges();
   // getting the video file id from
 
-  bot.on("video", async (ctx) => {
-    const fileId = ctx.message.video.file_id;
-    console.log("🎥 Video File ID:", fileId);
+  // bot.on("video", async (ctx) => {
+  //   const fileId = ctx.message.video.file_id;
+  //   console.log("🎥 Video File ID:", fileId);
 
-    await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
-      parse_mode: "HTML",
-    });
-  });
+  //   await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
+  //     parse_mode: "HTML",
+  //   });
+  // });
 }
 
