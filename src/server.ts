@@ -288,39 +288,80 @@ bots.cryptoBot.context.botType = "crypto";
 bots.forexBot_New.context.botType = "forex_new";
 
 // Session middleware
+// let sessionMiddleware;
+// if (process.env.NODE_ENV === "production" && process.env.REDIS_URL) {
+//   console.log("🔗 Using Redis session store (production)");
+//   const redis = new Redis(process.env.REDIS_URL, {
+//     tls: process.env.BASE_URL?.startsWith("https") ? {} : undefined,
+//   });
+//   redis.on("connect", () => console.log("✅ Redis connected"));
+//   redis.on("error", (err) => console.error("❌ Redis error:", err));
+
+//   const redisAdapter = (client: Redis) => ({
+//     get: async (key: string) => {
+//       const data = await client.get(key);
+//       return data ? JSON.parse(data) : undefined;
+//     },
+//     set: async (key: string, value: any) => {
+//       await client.set(key, JSON.stringify(value), "EX", 60 * 60 * 24 * 3);
+//     },
+//     delete: async (key: string) => {
+//       await client.del(key);
+//     },
+//   });
+
+//   sessionMiddleware = session({
+//     store: redisAdapter(redis),
+//     defaultSession: () => ({}),
+//     getSessionKey: (ctx: BotContext) => (ctx.from ? `${ctx.botType}:${ctx.from.id}` : undefined),
+//   });
+// } else {
+//   console.log("⚙️ Using in-memory session (local development)");
+//   sessionMiddleware = session({ defaultSession: () => ({}) });
+// }
+
+// Object.values(bots).forEach((bot) => bot.use(sessionMiddleware));
+
+// Session middleware
+// Session middleware
+let redis: Redis | null = null;
 let sessionMiddleware;
 if (process.env.NODE_ENV === "production" && process.env.REDIS_URL) {
-  console.log("🔗 Using Redis session store (production)");
-  const redis = new Redis(process.env.REDIS_URL, {
-    tls: process.env.BASE_URL?.startsWith("https") ? {} : undefined,
-  });
-  redis.on("connect", () => console.log("✅ Redis connected"));
-  redis.on("error", (err) => console.error("❌ Redis error:", err));
+  console.log("🔗 Attempting to use Redis session store (production)");
+  try {
+    redis = new Redis(process.env.REDIS_URL); // Remove tls option for localhost
+    redis.on("connect", () => console.log("✅ Redis connected"));
+    redis.on("error", (err) => console.error("❌ Redis error:", err));
 
-  const redisAdapter = (client: Redis) => ({
-    get: async (key: string) => {
-      const data = await client.get(key);
-      return data ? JSON.parse(data) : undefined;
-    },
-    set: async (key: string, value: any) => {
-      await client.set(key, JSON.stringify(value), "EX", 60 * 60 * 24 * 3);
-    },
-    delete: async (key: string) => {
-      await client.del(key);
-    },
-  });
+    const redisAdapter = (client: Redis) => ({
+      get: async (key: string) => {
+        const data = await client.get(key);
+        return data ? JSON.parse(data) : undefined;
+      },
+      set: async (key: string, value: any) => {
+        await client.set(key, JSON.stringify(value), "EX", 60 * 60 * 24 * 3);
+      },
+      delete: async (key: string) => {
+        await client.del(key);
+      },
+    });
 
-  sessionMiddleware = session({
-    store: redisAdapter(redis),
-    defaultSession: () => ({}),
-    getSessionKey: (ctx: BotContext) => (ctx.from ? `${ctx.botType}:${ctx.from.id}` : undefined),
-  });
+    sessionMiddleware = session({
+      store: redisAdapter(redis),
+      defaultSession: () => ({}),
+      getSessionKey: (ctx: BotContext) => (ctx.from ? `${ctx.botType}:${ctx.from.id}` : undefined),
+    });
+  } catch (error) {
+    console.error("❌ Failed to initialize Redis, falling back to in-memory session:", error);
+    sessionMiddleware = session({ defaultSession: () => ({}) });
+  }
 } else {
-  console.log("⚙️ Using in-memory session (local development)");
+  console.log("⚙️ Using in-memory session (local development or Redis unavailable)");
   sessionMiddleware = session({ defaultSession: () => ({}) });
 }
 
 Object.values(bots).forEach((bot) => bot.use(sessionMiddleware));
+
 
 // Attach handlers
 cryptoBotHandler(bots.cryptoBot);
