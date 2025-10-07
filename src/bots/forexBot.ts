@@ -1297,7 +1297,7 @@ Thanks for waiting
     else if (groupBCountries.includes(country)) group = "B";
     else if (groupCCountries.includes(country)) group = "C";
     else if (groupDcountries.includes(country)) group = "D";
-    else group = "Unknown";
+    else group = "B";
 
     ctx.session.group = group;
 
