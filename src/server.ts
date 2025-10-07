@@ -416,12 +416,12 @@ app.post("/webhook/cryptoBot", express.json(), createWebhookHandler(bots.cryptoB
 app.post("/webhook/forexBot_New", express.json(), createWebhookHandler(bots.forexBot_New));
 
 // API routes
-app.use("/api/crypto-users", cryptoUserRoutes);
-app.use("/api/forex-users", forexUserRoutes);
+app.use("/api/users", cryptoUserRoutes);
+app.use("/api/users", forexUserRoutes);
 app.use("/api/new-forex-users", forexNewUserRoutes);
-app.use("/api/statistics", staticticsRoutes);
+app.use("/api/users", staticticsRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/admins", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check
 app.get("/health", (req: Request, res: Response) => {
@@ -445,8 +445,8 @@ const initializeApp = async () => {
     await setupBots();
     console.log("✅ Webhooks set successfully");
 
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    // const PORT = process.env.PORT || 3000;
+    // app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   } catch (error) {
     console.error("❌ App initialization error:", error);
     process.exit(1);

@@ -87,13 +87,14 @@ export const AdminController = {
     }
   },
    getProfile: async (req: Request, res: Response) : Promise<any>  => {
-    console.log('got here')
+    console.log('got here admin controller')
     try {
       const adminId = (req as any).admin?.id;
       console.log('adminId', adminId)
       if (!adminId) return res.status(401).json({ message: "Unauthorized" });
 
       const profile = await AdminService.getAdminProfile(adminId);
+      console.log({profile})
       if (!profile) return res.status(404).json({ message: "Profile not found" });
 
       return res.status(200).json({ profile });
