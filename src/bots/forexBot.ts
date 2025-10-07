@@ -863,16 +863,16 @@ Please submit a <b>live</b> trading account Login ID</b> and <b>click the button
     let brokerLink = "";
     switch (user.broker) {
       case "Exness":
-        brokerLink = process.env.EXNESS_LINK || "https://exness.com";
+        brokerLink = EXNESS_LINK || "https://exness.com";
         break;
       case "AXI":
-        brokerLink = process.env.AXI_LINK || "https://axi.com";
+        brokerLink = AXI_LINK || "https://axi.com";
         break;
       case "Exco":
-        brokerLink = process.env.EXCO_TRADER_LINK || "https://exco.com";
+        brokerLink = EXCO_LINK || "https://exco.com";
         break;
       case "Oanda":
-        brokerLink = process.env.MT4_ALL_LINK || "https://oanda.com";
+        brokerLink = OANDO_LINK || "https://oanda.com";
         break;
       default:
         brokerLink = process.env.BROKER_LINK || "https://defaultbroker.com";
@@ -1343,7 +1343,7 @@ Thanks for waiting
       );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="https://axi.com">AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="${AXI_LINK}">AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -1609,16 +1609,16 @@ Thanks for waiting
 
     switch (broker) {
       case "Exness":
-        brokerLink = process.env.EXNESS_LINK || "https://exness.com";
+        brokerLink = EXNESS_LINK || "https://exness.com";
         break;
       case "AXI":
-        brokerLink = process.env.AXI_LINK || "https://axi.com";
+        brokerLink = AXI_LINK || "https://axi.com";
         break;
       case "Exco":
-        brokerLink = process.env.EXCO_TRADER_LINK || "https://exco.com";
+        brokerLink = EXCO_LINK || "https://exco.com";
         break;
       case "Oanda":
-        brokerLink = process.env.MT4_ALL_LINK || "https://oanda.com";
+        brokerLink = OANDO_LINK || "https://oanda.com";
         break;
       default:
         brokerLink = process.env.BROKER_LINK || "https://defaultbroker.com";
