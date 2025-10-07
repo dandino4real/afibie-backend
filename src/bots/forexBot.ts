@@ -693,6 +693,14 @@ const AXI_LINK = process.env.AXI_LINK || "https://axi.com";
 const EXCO_LINK = process.env.EXCO_TRADER_LINK || "https://exco.com";
 const OANDO_LINK = process.env.MT4_ALL_LINK || "https://oanda.com";
 
+console.log({
+  GROUP_CHAT_ID,
+  EXNESS_LINK,
+  AXI_LINK,
+  EXCO_LINK,
+  OANDO_LINK,
+})
+
 let redis: Redis;
 try {
   redis =
