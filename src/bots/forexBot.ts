@@ -1724,6 +1724,14 @@ Thanks for waiting
     }
   }
 
+
+
+const contactAdminButton = Markup.inlineKeyboard([
+  [Markup.button.callback("💬 Contact Admin", "contact_admin")],
+]);
+
+
+
   // ---------------- START ----------------
   bot.start(async (ctx) => {
     const text = ctx.message.text.trim();
@@ -1881,11 +1889,14 @@ Thanks for waiting
           86400
         );
 
-        await ctx.replyWithHTML(
-          `✅ Thank you. We’ve received your <b>Login ID</b>.\n\n` +
-            `⏳ <i>Review Process:</i>\n` +
-            `⏳ <i>We are verifying your account… it might take several minutes.</i>`
-        );
+       await ctx.replyWithHTML(
+  `✅ <b>Thank you!</b> We’ve received your <b>Login ID</b>.\n\n` +
+    `⏳ <i>Review in Progress:</i>\n` +
+    `Our team is currently verifying your details. This process may take up to an hour.\n\n` +
+    `💡 <b>If you haven’t received feedback after one hour, kindly click “Contact Admin” below to chat with our support team.</b>`,
+  contactAdminButton
+);
+
 
         // --- Save or Update User in MongoDB ---
         try {
@@ -2567,6 +2578,17 @@ If you need help, contact @Francis_Nbtc.
     }
   });
 
+  // 🟢 Button for user to contact admin
+bot.action("contact_admin", async (ctx) => {
+  ctx.session.mode = "chat"; // Switch to chat mode automatically
+  await ctx.answerCbQuery();
+  await ctx.replyWithHTML(
+    `💬 <b>Chat mode activated.</b>\n\n` +
+      `🗨️ You can now send a message to our admin.\n\n` +
+      `Once your issue has been resolved, you’ll automatically exit chat mode.`
+  );
+});
+
   // ---------------- HANDLE SCREENSHOT ----------------
   bot.on("photo", async (ctx) => {
     try {
@@ -2598,7 +2620,14 @@ If you need help, contact @Francis_Nbtc.
         ctx.session.awaitingScreenshot = false;
         ctx.session.awaitingTestTradesScreenshot = false;
         ctx.session.mode = "chat"; // Enable chat mode
-        await ctx.reply("📸 Screenshot received. Awaiting admin approval ⏳");
+        // await ctx.reply("📸 Screenshot received. Awaiting admin approval ⏳");
+        await ctx.replyWithHTML(
+  `📸 <b> MT4/MT5 Screenshot Received!</b>\n\n` +
+    `⏳ <i>Your submission is being reviewed by our team.</i>\n\n` +
+    `💡 <b>If your submission hasn’t been approved after one hour, please click “Contact Admin” below to reach our support team.</b>`,
+  contactAdminButton
+);
+
       } else if (ctx.session.awaitingTestTradesScreenshot) {
         // Save test trades screenshot
         await FOREX_User.findOneAndUpdate(
@@ -2615,9 +2644,16 @@ If you need help, contact @Francis_Nbtc.
         ctx.session.awaitingScreenshot = false;
         ctx.session.awaitingTestTradesScreenshot = false;
         ctx.session.mode = "chat"; // Enable chat mode
-        await ctx.reply(
-          "📸 Test trades screenshot received. Awaiting admin approval ⏳"
-        );
+        // await ctx.reply(
+        //   "📸 Test trades screenshot received. Awaiting admin approval ⏳"
+        // );
+        await ctx.replyWithHTML(
+  `📸 <b>Test Trade Screenshot Received!</b>\n\n` +
+    `⏳ <i>Your submission is being reviewed by our team.</i>\n\n` +
+    `💡 <b>If your submission hasn’t been approved after one hour, please click “Contact Admin” below to reach our support team.</b>`,
+  contactAdminButton
+);
+
       }
     } catch (err) {
       console.error("❌ Screenshot upload failed:", err);

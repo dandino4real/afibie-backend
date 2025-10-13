@@ -94,5 +94,8 @@ export const ForexUserService = {
     return await ForexUserDAL.deleteById(id);
   },
 
+  async getChatMessagesByTelegramId(telegramId: string) {
+    return await ForexUserDAL.findChatbyTelegramId(telegramId);
+  }
 
 };

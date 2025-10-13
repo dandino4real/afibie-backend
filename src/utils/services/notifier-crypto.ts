@@ -16,7 +16,7 @@ export async function sendAdminAlertCrypto(user: ICRYPTO_User) {
 📌 Name: ${user.fullName}
 🌍 Country: ${user.country}
 💼 Bybit UID: ${user.bybitUid || 'N/A'}
-💼 Blofin UID: ${user.blofinUid || 'N/A'}
+💼 Weex UID: ${user.weexUid || 'N/A'}
 🕒 Status: Pending Approval
   `;
 

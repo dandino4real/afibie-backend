@@ -53,7 +53,7 @@ export const ForexUserDAL = {
   },
 
   async findById(id: string) {
-    return FOREX_User.findOne({_id: id });
+    return FOREX_User.findOne({ _id: id });
   },
 
   async approveLoginId(id: string) {
@@ -70,16 +70,25 @@ export const ForexUserDAL = {
     );
   },
 
-  async rejectLoginId(id: string, reason: "deposit_missing" | "deposit_incomplete" | "duplicate_id" | "wrong_link" | "demo_account" | "other", customReason?: string) {
-
+  async rejectLoginId(
+    id: string,
+    reason:
+      | "deposit_missing"
+      | "deposit_incomplete"
+      | "duplicate_id"
+      | "wrong_link"
+      | "demo_account"
+      | "other",
+    customReason?: string
+  ) {
     return FOREX_User.findOneAndUpdate(
-      {_id: id },
+      { _id: id },
       {
         loginId_status: "rejected",
         loginId_rejectedAt: new Date(),
         loginId_rejectionReason: reason,
         loginId_customRejectionReason: customReason,
-        mode:"default",
+        mode: "default",
       },
       { new: true }
     );
@@ -105,7 +114,7 @@ export const ForexUserDAL = {
     reason: "blurry_image" | "wrong_screenshot" | "other",
     customReason?: string
   ) {
-    console.log({objectid: id, reason: reason})
+    console.log({ objectid: id, reason: reason });
     return FOREX_User.findOneAndUpdate(
       { _id: id },
       {
@@ -141,7 +150,7 @@ export const ForexUserDAL = {
     customReason?: string
   ) {
     return FOREX_User.findOneAndUpdate(
-      {_id: id },
+      { _id: id },
       {
         testTradesScreenshotUrl_status: "rejected",
         testTradesScreenshotUrl_rejectedAt: new Date(),
@@ -154,6 +163,14 @@ export const ForexUserDAL = {
   },
 
   async deleteById(id: string) {
-    return await FOREX_User.findOneAndDelete({_id: id });
+    return await FOREX_User.findOneAndDelete({ _id: id });
+  },
+
+  // Updated function to return only the messages array
+  async findChatbyTelegramId(telegramId: string) {
+    return await FOREX_User.findOne(
+      { telegramId },
+      { messages: 1 } // Select only the messages field
+    );
   },
 };

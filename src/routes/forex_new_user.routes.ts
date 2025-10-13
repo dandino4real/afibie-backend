@@ -69,5 +69,12 @@ router.delete(
   ForexUserController.deleteForexUser
 );
 
+router.get(
+  "/chat/:telegramId/messages",
+  authenticateAdmin,
+  authorizePermission("approve_registration"),
+  ForexUserController.getChatMessagesByTelegramId
+);
+
 
 export default router;
