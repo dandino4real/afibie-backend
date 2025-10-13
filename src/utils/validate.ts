@@ -16,7 +16,10 @@ export function isValidLoginID(uid: string): boolean {
 
 
 export function isValidBybitUID(uid: string): boolean {
-  return /^\d{8,10}$/.test(uid); // numeric, 8-10 digits
+  return /^\d{5,10}$/.test(uid); // numeric, 8-10 digits
+}
+export function isValidWeexUID(uid: string): boolean {
+  return /^\d{5,10}$/.test(uid); // numeric, 8-10 digits
 }
 export function isValidBlofinUID(uid: string): boolean {
   return /^\d{11,13}$/.test(uid); // numeric, 11-13 digits
