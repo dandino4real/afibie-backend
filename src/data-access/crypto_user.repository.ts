@@ -21,6 +21,7 @@ export const CryptoUserRepository = {
           { registeredVia: regex },
           { bybitUid: regex },
           { blofinUid: regex },
+          { weexUid: regex },
         ],
       };
     }
@@ -87,27 +88,27 @@ export const CryptoUserRepository = {
   //     { new: true }
   //   );
   // },
-   rejectUser: async (
+  rejectUser: async (
     id: string,
     name: string,
     email: string,
-    rejectionReason: 'no_affiliate_link' | 'no_kyc'
+    rejectionReason: "no_affiliate_link" | "no_kyc"
   ) => {
     return CryptoUserModel.findOneAndUpdate(
-      { _id: id, status: 'pending' },
+      { _id: id, status: "pending" },
       {
-        status: 'rejected',
+        status: "rejected",
         isApproved: false,
         rejectedAt: new Date(),
         rejectedBy: { name, email },
         rejectionReason,
-        $unset: { approvedAt: '', approvedBy: '' },
+        $unset: { approvedAt: "", approvedBy: "" },
       },
       { new: true }
     );
   },
 
-    deleteById: async (id: string) => {
+  deleteById: async (id: string) => {
     return CryptoUserModel.findByIdAndDelete(id);
   },
 };
