@@ -1584,7 +1584,7 @@ export default function (bot: Telegraf<BotContext>) {
       `<b>🔹 Submit Your Weex UID</b>\n\n` +
       `Please enter your <b>Weex UID</b> below to continue.\n\n` +
       `💡 <i>You can find your UID in the account section of the Weex platform after logging in.</i>\n\n` +
-      `📌 <i>Example:</i> <code>87654321949</code>`;
+      `📌 <i>Example:</i> <code>4321949</code>`;
 
     if (WEEX_GIF_FILE_ID) {
       try {
