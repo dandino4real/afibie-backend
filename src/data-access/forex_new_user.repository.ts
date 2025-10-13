@@ -64,6 +64,7 @@ export const ForexUserDAL = {
         loginId_approvedAt: new Date(),
         loginId_rejectedAt: null,
         loginId_rejectionReason: null,
+        mode: "default",
       },
       { new: true }
     );
@@ -78,6 +79,7 @@ export const ForexUserDAL = {
         loginId_rejectedAt: new Date(),
         loginId_rejectionReason: reason,
         loginId_customRejectionReason: customReason,
+        mode:"default",
       },
       { new: true }
     );
@@ -92,6 +94,7 @@ export const ForexUserDAL = {
         screenshotUrl_approvedAt: new Date(),
         screenshotUrl_rejectedAt: null,
         screenshotUrl_rejectionReason: null,
+        mode: "default",
       },
       { new: true }
     );
@@ -110,6 +113,7 @@ export const ForexUserDAL = {
         screenshotUrl_rejectedAt: new Date(),
         screenshotUrl_rejectionReason: reason,
         screenshotUrl_customRejectionReason: customReason,
+        mode: "default",
       },
       { new: true }
     );
@@ -125,6 +129,7 @@ export const ForexUserDAL = {
         testTradesScreenshotUrl_approvedAt: new Date(),
         testTradesScreenshotUrl_rejectedAt: null,
         testTradesScreenshotUrl_rejectionReason: null,
+        mode: "default",
       },
       { new: true }
     );
@@ -142,6 +147,7 @@ export const ForexUserDAL = {
         testTradesScreenshotUrl_rejectedAt: new Date(),
         testTradesScreenshotUrl_rejectionReason: reason,
         testTradesScreenshotUrl_customRejectionReason: customReason,
+        mode: "default",
       },
       { new: true }
     );

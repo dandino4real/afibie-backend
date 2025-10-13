@@ -9,6 +9,7 @@ export interface ICRYPTO_User extends Document {
   country?: string;
   bybitUid?: string;
   blofinUid?: string;
+  weexUid?: string;
   isApproved: boolean;
   isRejected: boolean;
   status:  "approved" |"pending" | "rejected";
@@ -16,7 +17,7 @@ export interface ICRYPTO_User extends Document {
   approvedAt?: Date;
   rejectedAt?: Date;
   rejectionReason?: "no_affiliate_link" | "no_kyc";
-  registeredVia?: 'bybit' | 'blofin' | 'both' | undefined;
+  registeredVia?: 'bybit' | 'blofin' | 'both' | 'weex' | undefined;
 
   approvedBy?: {
     name: string;
@@ -35,6 +36,7 @@ const UserSchema: Schema = new Schema({
   botType: { type: String, enum: ["crypto"], required: true },
   country: String,
   bybitUid: String,
+  weexUid: String,
   blofinUid: String,
   isApproved: { type: Boolean, default: false },
   isRejected: { type: Boolean, default: false },
@@ -46,7 +48,7 @@ const UserSchema: Schema = new Schema({
   createdAt: { type: Date, default: Date.now },
   approvedAt: { type: Date },
   rejectedAt: { type: Date },
-  registeredVia: { type: String, enum: ['bybit', 'blofin', 'both', undefined] },
+  registeredVia: { type: String, enum: ['bybit', 'blofin', 'both', 'weex',  undefined] },
   rejectionReason: {
     type: String,
     enum: ["no_affiliate_link", "no_kyc"],

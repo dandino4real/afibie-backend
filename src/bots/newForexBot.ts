@@ -90,25 +90,24 @@ We confirmed that you used the recommended link and have made the minimum deposi
     }
   }
 
+  async function notifyUserRejected(user: IFOREX_User, reason: string) {
+    let message = "";
+    let buttonText = "";
+    let callbackData = "";
 
-async function notifyUserRejected(user: IFOREX_User, reason: string) {
-  let message = "";
-  let buttonText = "";
-  let callbackData = "";
+    const predefinedReasons = [
+      "deposit_missing",
+      "deposit_incomplete",
+      "duplicate_id",
+      "wrong_link",
+      "demo_account",
+    ];
 
-  const predefinedReasons = [
-    "deposit_missing",
-    "deposit_incomplete",
-    "duplicate_id",
-    "wrong_link",
-    "demo_account",
-  ];
+    const isCustom = !predefinedReasons.includes(reason);
 
-  const isCustom = !predefinedReasons.includes(reason);
-
-  // 🟡 Handle custom reason
-  if (isCustom || reason === "other") {
-    message = `
+    // 🟡 Handle custom reason
+    if (isCustom || reason === "other") {
+      message = `
 Thanks for waiting
 
 ❌ <b>Your Login ID was rejected</b>
@@ -117,13 +116,13 @@ Thanks for waiting
 
 Please correct this issue and <b>click the button below</b> to resubmit your Login ID.
 `;
-    buttonText = "🔄 Click to Retry Submission";
-    callbackData = "broker_done";
-  }
+      buttonText = "🔄 Click to Retry Submission";
+      callbackData = "broker_done";
+    }
 
-  // 🟠 Deposit Missing
-  else if (reason === "deposit_missing") {
-    message = `
+    // 🟠 Deposit Missing
+    else if (reason === "deposit_missing") {
+      message = `
 Thanks for waiting
 
 ❌ <b>Rejected – Deposit Missing</b>
@@ -133,13 +132,13 @@ We confirmed that you used the recommended link but have not made the required m
 ⚠️ Please make your deposit first, then <b>click the button below</b> to resubmit your Login ID.  
 (One last chance; repeated unfunded resubmits = permanent block.)
 `;
-    buttonText = "💰 Click to ReSubmit";
-    callbackData = "broker_done";
-  }
+      buttonText = "💰 Click to ReSubmit";
+      callbackData = "broker_done";
+    }
 
-  // 🟢 Deposit Incomplete
-  else if (reason === "deposit_incomplete") {
-    message = `
+    // 🟢 Deposit Incomplete
+    else if (reason === "deposit_incomplete") {
+      message = `
 Thanks for waiting
 
 ❌ <b>Rejected – Incomplete Deposit</b>
@@ -148,13 +147,13 @@ Your deposit amount does not meet the required minimum.
 
 Please fund your account with at least <b>$160</b>, then <b>click the button below</b> to resubmit your Login ID.
 `;
-    buttonText = "💵 Click to ReSubmit After Funding";
-    callbackData = "broker_done";
-  }
+      buttonText = "💵 Click to ReSubmit After Funding";
+      callbackData = "broker_done";
+    }
 
-  // 🔵 Duplicate ID
-  else if (reason === "duplicate_id") {
-    message = `
+    // 🔵 Duplicate ID
+    else if (reason === "duplicate_id") {
+      message = `
 Thanks for waiting
 
 ❌ <b>Rejected – Duplicate Login ID</b>
@@ -163,13 +162,13 @@ The Login ID you provided is already associated with another user.
 
 Please double-check your broker account and <b>click the button below</b> to resubmit the correct Login ID.
 `;
-    buttonText = "🔄 Click to ReSubmit Login ID";
-    callbackData = "broker_done";
-  }
+      buttonText = "🔄 Click to ReSubmit Login ID";
+      callbackData = "broker_done";
+    }
 
-  // 🟣 Demo Account
-  else if (reason === "demo_account") {
-    message = `
+    // 🟣 Demo Account
+    else if (reason === "demo_account") {
+      message = `
  Thanks for waiting
     
 ❌ <b>Rejected – Demo Account Detected</b>
@@ -178,31 +177,31 @@ It seems the account you provided is a <b>demo</b> account.
 
 Please submit a <b>live</b> trading account Login ID</b> and <b>click the button below</b> to continue.
 `;
-    buttonText = "🎯 Click to Submit Live Account";
-    callbackData = "broker_done";
-  }
-
-  // 🔴 Wrong Link
-  else if (reason === "wrong_link") {
-    let brokerLink = "";
-    switch (user.broker) {
-      case "Exness":
-        brokerLink = process.env.EXNESS_LINK || "https://exness.com";
-        break;
-      case "AXI":
-        brokerLink = process.env.AXI_LINK || "https://axi.com";
-        break;
-      case "Exco":
-        brokerLink = process.env.EXCO_TRADER_LINK || "https://exco.com";
-        break;
-      case "Oanda":
-        brokerLink = process.env.MT4_ALL_LINK || "https://oanda.com";
-        break;
-      default:
-        brokerLink = process.env.BROKER_LINK || "https://defaultbroker.com";
+      buttonText = "🎯 Click to Submit Live Account";
+      callbackData = "broker_done";
     }
 
-    message = `
+    // 🔴 Wrong Link
+    else if (reason === "wrong_link") {
+      let brokerLink = "";
+      switch (user.broker) {
+        case "Exness":
+          brokerLink = process.env.EXNESS_LINK || "https://exness.com";
+          break;
+        case "AXI":
+          brokerLink = process.env.AXI_LINK || "https://axi.com";
+          break;
+        case "Exco":
+          brokerLink = process.env.EXCO_TRADER_LINK || "https://exco.com";
+          break;
+        case "Oanda":
+          brokerLink = process.env.MT4_ALL_LINK || "https://oanda.com";
+          break;
+        default:
+          brokerLink = process.env.BROKER_LINK || "https://defaultbroker.com";
+      }
+
+      message = `
  Thanks for waiting 
 
 ❌ <b>Rejected – Wrong Registration Link</b>
@@ -213,22 +212,22 @@ Your Login ID is not found in our record, which means you did not register using
 
 <a href="${brokerLink}">${user.broker} Registration Link</a>
 `;
-    buttonText = "🔗 Click After Registering";
-    callbackData = "retry_broker";
-  }
+      buttonText = "🔗 Click After Registering";
+      callbackData = "retry_broker";
+    }
 
-  // ✅ Send message
-  try {
-    await bot.telegram.sendMessage(user.telegramId, message, {
-      parse_mode: "HTML",
-      reply_markup: Markup.inlineKeyboard([
-        [Markup.button.callback(buttonText, callbackData)],
-      ]).reply_markup,
-    });
-  } catch (err) {
-    console.error("❌ Failed to notify user (rejected):", err);
+    // ✅ Send message
+    try {
+      await bot.telegram.sendMessage(user.telegramId, message, {
+        parse_mode: "HTML",
+        reply_markup: Markup.inlineKeyboard([
+          [Markup.button.callback(buttonText, callbackData)],
+        ]).reply_markup,
+      });
+    } catch (err) {
+      console.error("❌ Failed to notify user (rejected):", err);
+    }
   }
-}
 
   // ---------------- notify user after mt4/mt5 screenshot upload ----------------
 
@@ -251,33 +250,37 @@ Your Login ID is not found in our record, which means you did not register using
     }
   }
 
-  
-  async function notifyUserScreenshotRejected(user: IFOREX_User, reason: string) {
-  try {
-    const readableReason = reason || "Unspecified";
+  async function notifyUserScreenshotRejected(
+    user: IFOREX_User,
+    reason: string
+  ) {
+    try {
+      const readableReason = reason || "Unspecified";
 
-    await bot.telegram.sendMessage(
-      user.telegramId,
-      `Thanks for waiting\n\n❌ <b>Your screenshot was rejected.</b>\n\n<b>Reason:</b> ${readableReason}\n\nPlease upload a new screenshot to continue.`,
-      {
-        parse_mode: "HTML",
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: "🔄 Retry Screenshot Upload",
-                callback_data: "retry_screenshot_upload",
-              },
+      await bot.telegram.sendMessage(
+        user.telegramId,
+        `Thanks for waiting\n\n❌ <b>Your screenshot was rejected.</b>\n\n<b>Reason:</b> ${readableReason}\n\nPlease upload a new screenshot to continue.`,
+        {
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "🔄 Retry Screenshot Upload",
+                  callback_data: "retry_screenshot_upload",
+                },
+              ],
             ],
-          ],
-        },
-      }
-    );
-  } catch (err) {
-    console.error("❌ Failed to notify user about screenshot rejection:", err);
+          },
+        }
+      );
+    } catch (err) {
+      console.error(
+        "❌ Failed to notify user about screenshot rejection:",
+        err
+      );
+    }
   }
-}
-
 
   // ================== NOTIFY USER: TEST TRADE SCREENSHOT APPROVED ==================
   async function notifyUserTestTradeScreenshotApproved(user: IFOREX_User) {
@@ -285,7 +288,6 @@ Your Login ID is not found in our record, which means you did not register using
       await bot.telegram.sendMessage(
         user.telegramId,
         `Thanks for waiting\n\n✅ Your Test Trades screenshot has been approved! 🎉\n\n` +
-
           `Please click <b>Continue</b> below to move forward with the final onboarding steps.`,
         {
           parse_mode: "HTML",
@@ -311,11 +313,14 @@ Your Login ID is not found in our record, which means you did not register using
 
   // ================== NOTIFY USER: TEST TRADE SCREENSHOT REJECTED ==================
 
-async function notifyUserTestTradeScreenshotRejected(user: IFOREX_User, reason: string) {
-  try {
-    const readableReason = reason || "Unspecified";
+  async function notifyUserTestTradeScreenshotRejected(
+    user: IFOREX_User,
+    reason: string
+  ) {
+    try {
+      const readableReason = reason || "Unspecified";
 
-    const message = `
+      const message = `
 Thanks for waiting
 
 ❌ <b>Your Test Trades screenshot was rejected</b>
@@ -325,24 +330,26 @@ Thanks for waiting
 👉 Please click the button below to <b>Resubmit Screenshot</b>.
 `;
 
-    await bot.telegram.sendMessage(user.telegramId, message, {
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "📸 Resubmit Screenshot",
-              callback_data: "resubmit_test_trades",
-            },
+      await bot.telegram.sendMessage(user.telegramId, message, {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "📸 Resubmit Screenshot",
+                callback_data: "resubmit_test_trades",
+              },
+            ],
           ],
-        ],
-      },
-    });
-  } catch (err) {
-    console.error("❌ Failed to notify user about Test Trades screenshot rejection:", err);
+        },
+      });
+    } catch (err) {
+      console.error(
+        "❌ Failed to notify user about Test Trades screenshot rejection:",
+        err
+      );
+    }
   }
-}
-
 
   // ---------------- WATCH FOR STATUS CHANGES IN MONGODB ----------------
   async function watchUserStatusChanges() {
@@ -365,10 +372,10 @@ Thanks for waiting
           }
 
           if (updated.loginId_status === "rejected") {
-             const reason =
-            user.loginId_customRejectionReason ||
-            user.loginId_rejectionReason ||
-            "Unspecified";
+            const reason =
+              user.loginId_customRejectionReason ||
+              user.loginId_rejectionReason ||
+              "Unspecified";
             await notifyUserRejected(user, reason);
           }
 
@@ -378,13 +385,12 @@ Thanks for waiting
           }
 
           if (updated.screenshotUrl_status === "rejected") {
-
             const reason =
-            user.screenshotUrl_customRejectionReason ||
-            user.screenshotUrl_rejectionReason ||
-            "Unspecified";
+              user.screenshotUrl_customRejectionReason ||
+              user.screenshotUrl_rejectionReason ||
+              "Unspecified";
 
-          await notifyUserScreenshotRejected(user, reason);
+            await notifyUserScreenshotRejected(user, reason);
           }
 
           // ✅ Test Trades Screenshot
@@ -393,12 +399,12 @@ Thanks for waiting
           }
 
           if (updated.testTradesScreenshotUrl_status === "rejected") {
-              const reason =
-            user.testTradesScreenshotUrl_customRejectionReason ||
-            user.testTradesScreenshotUrl_rejectionReason ||
-            "Unspecified";
+            const reason =
+              user.testTradesScreenshotUrl_customRejectionReason ||
+              user.testTradesScreenshotUrl_rejectionReason ||
+              "Unspecified";
 
-          await notifyUserTestTradeScreenshotRejected(user, reason);
+            await notifyUserTestTradeScreenshotRejected(user, reason);
           }
         }
       });
@@ -412,6 +418,18 @@ Thanks for waiting
 
   // ---------------- START ----------------
   bot.start(async (ctx) => {
+    const text = ctx.message.text.trim();
+    const telegramId = ctx.from?.id?.toString();
+    if (!telegramId) return;
+
+    const user = await FOREX_User.findOne({ telegramId });
+
+    if (user && user.mode === "chat") {
+      ctx.session.mode = "chat";
+    } else {
+      ctx.session.mode = "default";
+    }
+
     ctx.session.step = "welcome";
     await redis.set(
       `forex:${ctx.from?.id}`,
@@ -458,6 +476,30 @@ Thanks for waiting
     const text = ctx.message.text.trim();
     const telegramId = ctx.from?.id?.toString();
     if (!telegramId) return;
+
+    // ✅ If user is in chat mode
+    if (ctx.session.mode === "chat") {
+      // Save message to DB (append)
+      await FOREX_User.updateOne(
+        { telegramId },
+        {
+          $push: {
+            messages: {
+              from: "user",
+              text,
+              timestamp: new Date(),
+            },
+          },
+          $set: { updatedAt: new Date() },
+        }
+      );
+
+      // Send to admin via WebSocket
+      globalThis.forexChatHandler?.sendToAdmin(telegramId, text);
+
+      // await ctx.reply("📩 Message sent to admin. Please wait for a reply.");
+      return;
+    }
 
     // ✅ Captcha verification
     if (ctx.session.step === "captcha") {
@@ -521,6 +563,7 @@ Thanks for waiting
       if (/^\d{5,8}$/.test(text)) {
         ctx.session.loginId = text;
         ctx.session.awaitingLoginId = false;
+        ctx.session.mode = "chat"; // Enable chat mode
 
         ctx.session.step = "screenshot";
         await redis.set(
@@ -559,6 +602,7 @@ Thanks for waiting
             existingUser.broker = ctx.session.broker || "";
             existingUser.loginId = ctx.session.loginId || "";
             existingUser.loginId_status = "awaiting_approval";
+            existingUser.mode = "chat",
             existingUser.updatedAt = new Date();
 
             await existingUser.save();
@@ -577,6 +621,7 @@ Thanks for waiting
               country: ctx.session.country,
               broker: ctx.session.broker,
               loginId: ctx.session.loginId,
+              mode: "chat",
             });
 
             await newUser.save();
@@ -591,8 +636,6 @@ Thanks for waiting
             "⚠️ An error occurred while saving your details. Please try again later."
           );
         }
-
-       
       } else {
         await ctx.replyWithHTML(
           `❌ Invalid Login ID format.\n\n` +
@@ -845,84 +888,81 @@ Thanks for waiting
     );
   });
 
-  
-
   bot.action("broker_done", async (ctx) => {
-  try {
-    // Always attempt to acknowledge callback, but ignore stale ones
     try {
-      await ctx.answerCbQuery();
-    } catch (err: any) {
-      if (
-        err.description?.includes("query is too old") ||
-        err.description?.includes("query ID is invalid")
-      ) {
-        console.warn("⚠️ Ignored stale callback query for broker_done");
-      } else {
-        console.error("⚠️ Error answering callback query:", err);
-      }
-    }
-
-    const telegramId = ctx.from?.id?.toString();
-    if (!telegramId) {
-      console.error("❌ ctx.from is undefined. Cannot save session.");
-      return;
-    }
-
-    await ctx.replyWithHTML(
-      `<b> Deposit Requirement and Verification</b>\n\n` +
-        `✅ Verify your account and make a minimum deposit of <b>$160</b>.\n\n` +
-        `💡 However, I Recommended minimum deposit of:\n` +
-        `▫️ <b>$300</b> for solid risk management on normal trades\n` +
-        `▫️ <b>$500</b> if you plan to trade our <b>Gold Signals</b> safely\n\n` +
-        `👉 Once Funded, send me your <b>Login ID</b> for Verification\n\n` +
-        `⚠️ <b>Do not send your password.</b>\n\n` +
-        `⚠️ <b>You can watch the video below for a video guide 👇</b>`
-    );
-
-    // 🔹 Send broker-specific video if available
-    let videoFileId: string | undefined;
-    switch (ctx.session.broker) {
-      case "Exness":
-        videoFileId = process.env.EXNESS_VIDEO_FILE_ID;
-        break;
-      case "AXI":
-        videoFileId = process.env.AXI_VIDEO_FILE_ID;
-        break;
-      case "Exco":
-        videoFileId = process.env.EXCO_VIDEO_FILE_ID;
-        break;
-      case "Oanda":
-        videoFileId = process.env.MT4_ALL_VIDEO_FILE_ID;
-        break;
-    }
-
-    if (videoFileId && ctx.chat) {
+      // Always attempt to acknowledge callback, but ignore stale ones
       try {
-        await ctx.telegram.sendVideo(ctx.chat.id, videoFileId, {
-          caption: "Here’s how to find your Login ID",
-        });
-      } catch (err) {
-        await ctx.replyWithHTML(
-          `⚠️ <i>Video guide unavailable at the moment.</i>\n` +
-            `Please check your broker’s welcome email for instructions.`
-        );
+        await ctx.answerCbQuery();
+      } catch (err: any) {
+        if (
+          err.description?.includes("query is too old") ||
+          err.description?.includes("query ID is invalid")
+        ) {
+          console.warn("⚠️ Ignored stale callback query for broker_done");
+        } else {
+          console.error("⚠️ Error answering callback query:", err);
+        }
       }
+
+      const telegramId = ctx.from?.id?.toString();
+      if (!telegramId) {
+        console.error("❌ ctx.from is undefined. Cannot save session.");
+        return;
+      }
+
+      await ctx.replyWithHTML(
+        `<b> Deposit Requirement and Verification</b>\n\n` +
+          `✅ Verify your account and make a minimum deposit of <b>$160</b>.\n\n` +
+          `💡 However, I Recommended minimum deposit of:\n` +
+          `▫️ <b>$300</b> for solid risk management on normal trades\n` +
+          `▫️ <b>$500</b> if you plan to trade our <b>Gold Signals</b> safely\n\n` +
+          `👉 Once Funded, send me your <b>Login ID</b> for Verification\n\n` +
+          `⚠️ <b>Do not send your password.</b>\n\n` +
+          `⚠️ <b>You can watch the video below for a video guide 👇</b>`
+      );
+
+      // 🔹 Send broker-specific video if available
+      let videoFileId: string | undefined;
+      switch (ctx.session.broker) {
+        case "Exness":
+          videoFileId = process.env.EXNESS_VIDEO_FILE_ID;
+          break;
+        case "AXI":
+          videoFileId = process.env.AXI_VIDEO_FILE_ID;
+          break;
+        case "Exco":
+          videoFileId = process.env.EXCO_VIDEO_FILE_ID;
+          break;
+        case "Oanda":
+          videoFileId = process.env.MT4_ALL_VIDEO_FILE_ID;
+          break;
+      }
+
+      if (videoFileId && ctx.chat) {
+        try {
+          await ctx.telegram.sendVideo(ctx.chat.id, videoFileId, {
+            caption: "Here’s how to find your Login ID",
+          });
+        } catch (err) {
+          await ctx.replyWithHTML(
+            `⚠️ <i>Video guide unavailable at the moment.</i>\n` +
+              `Please check your broker’s welcome email for instructions.`
+          );
+        }
+      }
+
+      ctx.session.awaitingLoginId = true;
+      ctx.session.step = "awaitingLoginId";
+      await redis.set(
+        `forex:${telegramId}`,
+        JSON.stringify(ctx.session),
+        "EX",
+        86400
+      );
+    } catch (err) {
+      console.error("❌ Error in broker_done handler:", err);
     }
-
-    ctx.session.awaitingLoginId = true;
-    ctx.session.step = "awaitingLoginId";
-    await redis.set(
-      `forex:${telegramId}`,
-      JSON.stringify(ctx.session),
-      "EX",
-      86400
-    );
-  } catch (err) {
-    console.error("❌ Error in broker_done handler:", err);
-  }
-});
-
+  });
 
   // ----------------RETRY BROKER FOR WRONG LINK ----------------
 
@@ -1076,28 +1116,27 @@ To confirm everything works correctly:
       return;
     }
 
-// 🎥 Use one universal video (regardless of broker)
-  const universalVideoFileId = process.env.MT4_ALL_VIDEO_FILE_ID!;
+    // 🎥 Use one universal video (regardless of broker)
+    const universalVideoFileId = process.env.MT4_ALL_VIDEO_FILE_ID!;
 
-//     // Send instructions
+    //     // Send instructions
     await ctx.replyWithHTML(testTradesMessage, {
       link_preview_options: { is_disabled: true },
     });
 
-// Send universal video if available
-  if (universalVideoFileId) {
-    try {
-      await ctx.replyWithVideo(universalVideoFileId, {
-        caption: "🎥 Watch this short guide before placing your test trades",
-      });
-    } catch (err) {
-      console.error("⚠️ Failed to send video:", err);
-      await ctx.replyWithHTML(
-        `⚠️ <i>Video guide unavailable at the moment.</i>\nPlease follow the written steps carefully.`
-      );
+    // Send universal video if available
+    if (universalVideoFileId) {
+      try {
+        await ctx.replyWithVideo(universalVideoFileId, {
+          caption: "🎥 Watch this short guide before placing your test trades",
+        });
+      } catch (err) {
+        console.error("⚠️ Failed to send video:", err);
+        await ctx.replyWithHTML(
+          `⚠️ <i>Video guide unavailable at the moment.</i>\nPlease follow the written steps carefully.`
+        );
+      }
     }
-  }
-
 
     // Switch session state → expect screenshot of test trades
     ctx.session.awaitingTestTradesScreenshot = true;
@@ -1250,6 +1289,7 @@ If you need help, contact @Francis_Nbtc.
         );
         ctx.session.awaitingScreenshot = false;
         ctx.session.awaitingTestTradesScreenshot = false;
+        ctx.session.mode = "chat"; // Enable chat mode
         await ctx.reply("📸 Screenshot received. Awaiting admin approval ⏳");
       } else if (ctx.session.awaitingTestTradesScreenshot) {
         // Save test trades screenshot
@@ -1266,6 +1306,7 @@ If you need help, contact @Francis_Nbtc.
         );
         ctx.session.awaitingScreenshot = false;
         ctx.session.awaitingTestTradesScreenshot = false;
+        ctx.session.mode = "chat"; // Enable chat mode
         await ctx.reply(
           "📸 Test trades screenshot received. Awaiting admin approval ⏳"
         );

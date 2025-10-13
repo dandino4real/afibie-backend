@@ -10,7 +10,7 @@ export const AdminRepository = {
     name: string;
     email: string;
     password: string;
-    role?: "admin" | "superadmin";
+    role?: "admin" | "admin_crypto" | "admin_forex" | "superadmin";
     permissions?: string[];
   }) => {
     const existing = await AdminModel.findOne({ email: data.email });
@@ -31,8 +31,9 @@ export const AdminRepository = {
       name?: string;
       email?: string;
       status?: "active" | "inactive" | "suspended";
-      password?:string;
+      password?: string;
       permissions?: string[];
+      role?: "admin" | "admin_crypto" | "admin_forex" | "superadmin";
     }
   ) => {
     return await AdminModel.findByIdAndUpdate(id, data, { new: true });
@@ -42,7 +43,7 @@ export const AdminRepository = {
   },
 
   findById: async (id: string) => {
-    return await AdminModel.findById(id).select("-password");;
+    return await AdminModel.findById(id).select("-password");
   },
   updateRefreshToken: async (adminId: string, token: string | null) => {
     return await AdminModel.findByIdAndUpdate(
@@ -117,19 +118,58 @@ export const AdminRepository = {
     };
   },
 
+  // getAdminStats: async () => {
+  //   const totalAdmins = await AdminModel.countDocuments({ role: "admin" });
+  //   const activeAdmins = await AdminModel.countDocuments({
+  //     role: "admin",
+  //     status: "active",
+  //   });
+  //   const inactiveAdmins = await AdminModel.countDocuments({
+  //     role: "admin",
+  //     status: "inactive",
+  //   });
+  //   const suspendedAdmins = await AdminModel.countDocuments({
+  //     role: "admin",
+  //     status: "suspended",
+  //   });
+
+  //   return {
+  //     totalAdmins,
+  //     activeAdmins,
+  //     inactiveAdmins,
+  //     suspendedAdmins,
+  //   };
+  // },
+
   getAdminStats: async () => {
-    const totalAdmins = await AdminModel.countDocuments({ role: "admin" });
+    // Count all admins except superadmin
+    const totalAdmins = await AdminModel.countDocuments({
+      role: { $ne: "superadmin" },
+    });
+
     const activeAdmins = await AdminModel.countDocuments({
-      role: "admin",
+      role: { $ne: "superadmin" },
       status: "active",
     });
+
     const inactiveAdmins = await AdminModel.countDocuments({
-      role: "admin",
+      role: { $ne: "superadmin" },
       status: "inactive",
     });
+
     const suspendedAdmins = await AdminModel.countDocuments({
-      role: "admin",
+      role: { $ne: "superadmin" },
       status: "suspended",
+    });
+
+    // Optional — count by specific roles
+    const adminCount = await AdminModel.countDocuments({ role: "admin" });
+    const cryptoCount = await AdminModel.countDocuments({
+      role: "admin_crypto",
+    });
+    const forexCount = await AdminModel.countDocuments({ role: "admin_forex" });
+    const superadminCount = await AdminModel.countDocuments({
+      role: "superadmin",
     });
 
     return {
@@ -137,8 +177,15 @@ export const AdminRepository = {
       activeAdmins,
       inactiveAdmins,
       suspendedAdmins,
+      byRole: {
+        admin: adminCount,
+        admin_crypto: cryptoCount,
+        admin_forex: forexCount,
+        superadmin: superadminCount,
+      },
     };
   },
+
   getProfileById: async (id: string) => {
     return await AdminModel.findById(id);
   },
@@ -152,7 +199,7 @@ export const AdminRepository = {
   updateAdminById: async (id: string, update: Partial<any>) => {
     return AdminModel.findByIdAndUpdate(id, update, { new: true });
   },
-   saveAdmin: (admin: any) => admin.save(),
+  saveAdmin: (admin: any) => admin.save(),
 
   findByEmailAndOTP: (email: string, otp: string) =>
     AdminModel.findOne({

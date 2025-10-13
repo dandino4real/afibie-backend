@@ -12,7 +12,13 @@ export interface IFOREX_User extends Document {
   loginId_status: "awaiting_approval" | "approved" | "rejected";
   loginId_approvedAt?: Date;
   loginId_rejectedAt?: Date;
-  loginId_rejectionReason?: "deposit_missing" | "deposit_incomplete" | "duplicate_id" | "wrong_link" | "demo_account" | "other";
+  loginId_rejectionReason?:
+    | "deposit_missing"
+    | "deposit_incomplete"
+    | "duplicate_id"
+    | "wrong_link"
+    | "demo_account"
+    | "other";
   loginId_customRejectionReason?: string; // ✅ for custom text
   screenshotUrl?: string;
   screenshotUrl_status:
@@ -37,6 +43,12 @@ export interface IFOREX_User extends Document {
     | "wrong_screenshot"
     | "other";
   testTradesScreenshotUrl_customRejectionReason?: string; // ✅ for custom text
+  messages: {
+    sender: "user" | "admin";
+    text: string;
+    timestamp: Date;
+  }[];
+  mode: "default" | "chat";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,7 +76,14 @@ const ForexUserSchema = new Schema<IFOREX_User>(
     loginId_rejectedAt: Date,
     loginId_rejectionReason: {
       type: String,
-      enum: ["deposit_missing" , "deposit_incomplete" , "duplicate_id" , "wrong_link" , "demo_account" , "other"],
+      enum: [
+        "deposit_missing",
+        "deposit_incomplete",
+        "duplicate_id",
+        "wrong_link",
+        "demo_account",
+        "other",
+      ],
     },
     loginId_customRejectionReason: {
       type: String,
@@ -96,6 +115,18 @@ const ForexUserSchema = new Schema<IFOREX_User>(
       enum: ["blurry_image", "wrong_screenshot", "other"],
     },
     testTradesScreenshotUrl_customRejectionReason: { type: String },
+    messages: [
+      {
+        sender: { type: String, enum: ["user", "admin"], required: true },
+        text: { type: String, required: true },
+        timestamp: { type: Date, default: Date.now },
+      },
+    ],
+    mode: {
+      type: String,
+      enum: ["default", "chat"],
+      default: "default",
+    },
   },
   { timestamps: true }
 );

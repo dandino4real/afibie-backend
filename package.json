@@ -42,7 +42,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "uuid": "^11.1.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -51,6 +52,7 @@
     "@types/geoip-lite": "^1.4.4",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^6.4.17",
+    "@types/ws": "^8.18.1",
     "@vercel/node": "^5.3.1"
   }
 }

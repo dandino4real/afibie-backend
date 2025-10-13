@@ -8,7 +8,7 @@ export interface AdminType extends mongoose.Document {
   email: string;
   password: string;
   phone?: string;
-  role: 'admin' | 'superadmin';
+  role: 'admin_crypto' | 'admin_forex' |'admin' | 'superadmin';
   permissions: string[];
   refreshToken?: string | null;
   resetPasswordOTP?: string | null;
@@ -29,7 +29,7 @@ const AdminSchema = new mongoose.Schema({
   },
   password: { type: String, required: true },
   phone: { type: String, required: false, default: '' },
-  role: { type: String, enum: ['admin', 'superadmin'], default: 'admin' },
+  role: { type: String, enum: ['admin_crypto', 'admin_forex', "admin" ,'superadmin'], default: 'admin' },
   permissions: {
     type: [String],
     default: [],

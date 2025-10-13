@@ -5,7 +5,9 @@ export interface SessionData {
   captcha?: string;
   country?: string;
   bybitUid?: string;
+  hasBybitAccount?: boolean;
   blofinUid?: string;
+  weexUid?:string;
   requiresBoth?: boolean;
   botType?: string;
   excoTraderLoginId?: string;
@@ -17,6 +19,7 @@ export interface SessionData {
   awaitingTestTradesScreenshot?: boolean;
   broker?: string;
   group?: string;
+  mode?: "chat" | "default";
 
   
 }
