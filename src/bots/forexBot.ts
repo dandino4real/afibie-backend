@@ -1377,14 +1377,14 @@ export default function (bot: Telegraf<BotContext>) {
 
   async function notifyUserApproved(user: IFOREX_User) {
     const message = `
-✅ <b>Approved</b>
+   ✅ <b>Approved</b>
 
-Thanks for waiting
+   Thanks for waiting
 
-We confirmed that you used the recommended link and have made the minimum deposit.  
+   We confirmed that you used the recommended link and have made the minimum deposit.  
 
-🎉 Congratulations! The next step is to make sure your account is set up correctly for trading.
-`;
+   🎉 Congratulations! The next step is to make sure your account is set up correctly for trading.
+  `;
 
     try {
       await bot.telegram.sendMessage(user.telegramId, message, {
@@ -1416,14 +1416,14 @@ We confirmed that you used the recommended link and have made the minimum deposi
     // 🟡 Handle custom reason
     if (isCustom || reason === "other") {
       message = `
-Thanks for waiting
+   Thanks for waiting
 
-❌ <b>Your Login ID was rejected</b>
+   ❌ <b>Your Login ID was rejected</b>
 
-<b>Reason:</b> ${reason || "Unspecified issue"}
+   <b>Reason:</b> ${reason || "Unspecified issue"}
 
-Please correct this issue and <b>click the button below</b> to resubmit your Login ID.
-`;
+   Please correct this issue and <b>click the button below</b> to resubmit your Login ID.
+   `;
       buttonText = "🔄 Click to Retry Submission";
       callbackData = "broker_done";
     }
@@ -1431,15 +1431,15 @@ Please correct this issue and <b>click the button below</b> to resubmit your Log
     // 🟠 Deposit Missing
     else if (reason === "deposit_missing") {
       message = `
-Thanks for waiting
+  Thanks for waiting
 
-❌ <b>Rejected – Deposit Missing</b>
+  ❌ <b>Rejected – Deposit Missing</b>
 
-We confirmed that you used the recommended link but have not made the required minimum deposit.  
+  We confirmed that you used the recommended link but have not made the required minimum deposit.  
 
-⚠️ Please make your deposit first, then <b>click the button below</b> to resubmit your Login ID.  
-(One last chance; repeated unfunded resubmits = permanent block.)
-`;
+ ⚠️ Please make your deposit first, then <b>click the button below</b> to resubmit your Login ID.  
+ (One last chance; repeated unfunded resubmits = permanent block.)
+ `;
       buttonText = "💰 Click to ReSubmit";
       callbackData = "broker_done";
     }
