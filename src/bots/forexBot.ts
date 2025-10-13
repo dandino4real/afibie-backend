@@ -1738,6 +1738,8 @@ const contactAdminButton = Markup.inlineKeyboard([
     const telegramId = ctx.from?.id?.toString();
     if (!telegramId) return;
 
+     ctx.session.mode = "default";
+
     const user = await FOREX_User.findOne({ telegramId });
 
     if (user && user.mode === "chat") {
