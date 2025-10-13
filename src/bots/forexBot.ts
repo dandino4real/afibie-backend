@@ -1802,6 +1802,7 @@ const contactAdminButton = Markup.inlineKeyboard([
           $push: {
             messages: {
               from: "user",
+              user: ctx.from?.first_name || "User",
               text,
               timestamp: new Date(),
             },

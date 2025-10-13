@@ -70,6 +70,7 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
                 $push: {
                   messages: {
                     from: "admin",
+                    user: "Admin",
                     text: message,
                     timestamp: new Date(),
                   },
