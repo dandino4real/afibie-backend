@@ -430,6 +430,16 @@ const initializeApp = async () => {
     console.log("🚀 Starting application initialization...");
     await connectDB();
     console.log("✅ MongoDB connected successfully");
+
+// Debug environment variables
+console.log("Environment variables loaded:");
+console.log("CORS_ORIGINS:", process.env.CORS_ORIGINS || "Not set");
+console.log("BOT_TOKEN_CRYPTO:", process.env.BOT_TOKEN_CRYPTO ? "exists" : "MISSING");
+console.log("NEW_BOT_TOKEN_FOREX:", process.env.NEW_BOT_TOKEN_FOREX ? "exists" : "MISSING");
+console.log("BASE_URL:", process.env.BASE_URL || "Not set");
+console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
+console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
+console.log("REDIS_URL:", process.env.REDIS_URL ? "exists" : "Not set");
     await setupBots();
     console.log("✅ Webhooks set successfully");
 
