@@ -10,7 +10,7 @@ export const ForexUserDAL = {
     loginId_status,
     screenshotUrl_status,
     testTradesScreenshotUrl_status,
-    hasUnreadMessages,
+    
   }: any) {
     const query: any = {};
 
@@ -31,62 +31,16 @@ export const ForexUserDAL = {
     if (testTradesScreenshotUrl_status)
       query.testTradesScreenshotUrl_status = testTradesScreenshotUrl_status;
 
-    // NEW: Filter by unread if requested
-  if (hasUnreadMessages !== undefined) {
-    query['messages'] = {
-      $elemMatch: {
-        sender: 'user',
-        readByAdmin: hasUnreadMessages === 'true' || hasUnreadMessages === true ? false : true,
-      },
-    };
-  }
-
-
-
     const skip = (page - 1) * limit;
 
-
-
-  // Use aggregation to add hasUnreadMessages flag
-  const aggregation = [
-    { $match: query },
-    {
-      $addFields: {
-        hasUnreadMessages: {
-          $gt: [
-            {
-              $size: {
-                $filter: {
-                  input: '$messages',
-                  cond: { $and: [{ $eq: ['$$this.sender', 'user'] }, { $eq: ['$$this.readByAdmin', false] }] },
-                },
-              },
-            },
-            0,
-          ],
-        },
-      },
-    },
-    { $sort: { createdAt: -1 as const } },
-    { $skip: skip },
-    { $limit: limit },
-  ];
-
-  const [users, total] = await Promise.all([
-    FOREX_User.aggregate(aggregation).exec(),
-    FOREX_User.countDocuments(query),
-  ]);
-
-
-
-    // const [users, total] = await Promise.all([
-    //   FOREX_User.find(query)
-    //     .sort({ createdAt: -1 })
-    //     .skip(skip)
-    //     .limit(limit)
-    //     .lean(),
-    //   FOREX_User.countDocuments(query),
-    // ]);
+    const [users, total] = await Promise.all([
+      FOREX_User.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      FOREX_User.countDocuments(query),
+    ]);
 
     return {
       users,
