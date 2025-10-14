@@ -45,6 +45,7 @@ export interface IFOREX_User extends Document {
   testTradesScreenshotUrl_customRejectionReason?: string; // ✅ for custom text
   messages: {
     sender: "user" | "admin";
+    user: "User" | "Admin";
     text: string;
     timestamp: Date;
   }[];
@@ -118,6 +119,7 @@ const ForexUserSchema = new Schema<IFOREX_User>(
     messages: [
       {
         sender: { type: String, enum: ["user", "admin"], required: true },
+        user: { type: String, enum: ["User", "Admin"], required: true },
         text: { type: String, required: true },
         timestamp: { type: Date, default: Date.now },
       },
