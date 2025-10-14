@@ -11,6 +11,7 @@ export const ForexUserService = {
     loginId_status?: string;
     screenshotUrl_status?: string;
     testTradesScreenshotUrl_status?: string;
+    hasUnreadMessages?: boolean;
   }) {
     return await ForexUserDAL.findAll(filters);
   },

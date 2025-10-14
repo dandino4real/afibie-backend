@@ -1807,6 +1807,7 @@ const contactAdminButton = Markup.inlineKeyboard([
               sender: "user",
               user: "User",
               text,
+              readByAdmin: false, // Explicitly unread
               timestamp: new Date(),
             },
           },

@@ -73,6 +73,7 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
                     sender: "admin",
                     user: "Admin",
                     text: message,
+                    readByAdmin: true, // Explicitly unread
                     timestamp: new Date(),
                   },
                 },

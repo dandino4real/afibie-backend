@@ -43,10 +43,12 @@ export interface IFOREX_User extends Document {
     | "wrong_screenshot"
     | "other";
   testTradesScreenshotUrl_customRejectionReason?: string; // ✅ for custom text
+  botType: "forex_new" | "crypto" | "other"; // Always 'forex_new' for this model
   messages: {
     sender: "user" | "admin";
     user: "User" | "Admin";
     text: string;
+    readByAdmin: { type: Boolean; default: false };
     timestamp: Date;
   }[];
   mode: "default" | "chat";
@@ -116,11 +118,19 @@ const ForexUserSchema = new Schema<IFOREX_User>(
       enum: ["blurry_image", "wrong_screenshot", "other"],
     },
     testTradesScreenshotUrl_customRejectionReason: { type: String },
+    botType: {
+      type: String,
+      enum: ["forex_new", "crypto", "other"],
+      default: "forex_new", // Always default to forex_new for this model
+      required: true,
+    },
     messages: [
       {
         sender: { type: String, enum: ["user", "admin"], required: true },
         user: { type: String, enum: ["User", "Admin"], required: true },
         text: { type: String, required: true },
+        readByAdmin: { type: Boolean, default: false },
+
         timestamp: { type: Date, default: Date.now },
       },
     ],

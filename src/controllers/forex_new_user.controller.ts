@@ -13,6 +13,7 @@ export const ForexUserController = {
         loginId_status,
         screenshotUrl_status,
         testTradesScreenshotUrl_status,
+        hasUnreadMessages,
       } = req.query;
 
       const result = await ForexUserService.getAllForexUsers({
@@ -28,6 +29,7 @@ export const ForexUserController = {
         testTradesScreenshotUrl_status: testTradesScreenshotUrl_status
           ? String(testTradesScreenshotUrl_status)
           : undefined,
+        hasUnreadMessages: hasUnreadMessages === "true" ? true : hasUnreadMessages === "false" ? false : undefined,
       });
 
       res.status(200).json(result);
