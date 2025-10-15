@@ -1881,7 +1881,7 @@ const contactAdminButton = Markup.inlineKeyboard([
 
     // ✅ Login ID validation (5–8 digits only)
     if (ctx.session.awaitingLoginId) {
-      if (/^\d{5,8}$/.test(text)) {
+      if (/^[a-zA-Z0-9]{3,30}$/.test(text)) {
         ctx.session.loginId = text;
         ctx.session.awaitingLoginId = false;
         ctx.session.mode = "chat"; // Enable chat mode
