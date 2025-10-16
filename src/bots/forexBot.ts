@@ -1881,7 +1881,7 @@ const contactAdminButton = Markup.inlineKeyboard([
 
     // ✅ Login ID validation (5–8 digits only)
     if (ctx.session.awaitingLoginId) {
-      if (/^[a-zA-Z0-9]{3,30}$/.test(text)) {
+      if (/^\d{5,10}$/.test(text)) {
         ctx.session.loginId = text;
         ctx.session.awaitingLoginId = false;
         ctx.session.mode = "chat"; // Enable chat mode
@@ -1963,7 +1963,7 @@ const contactAdminButton = Markup.inlineKeyboard([
       } else {
         await ctx.replyWithHTML(
           `❌ Invalid Login ID format.\n\n` +
-            `👉 Please send only the <b>numbers</b> from your broker’s welcome email (5–8 digits).`
+            `👉 Please send only the <b>numbers</b> from your broker’s welcome email (5–10 digits).`
         );
       }
       return;
