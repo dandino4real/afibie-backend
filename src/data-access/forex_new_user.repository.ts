@@ -15,6 +15,8 @@ export const ForexUserDAL = {
   }: any) {
     const query: any = {};
 
+    console.log('got here dal')
+
     if (search) {
       query.$or = [
         { username: { $regex: search, $options: "i" } },
@@ -36,6 +38,7 @@ export const ForexUserDAL = {
     if (typeof hasReadMessages === "boolean") {
       // Use $expr to allow aggregation operators in the query.
       // This allows us to inspect the LAST element of the messages array.
+      console.log("hasReadMessages:", hasReadMessages);
       query.$expr = {
         $eq: [
           // The $last operator gets the last element from an array.
