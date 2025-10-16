@@ -130,7 +130,6 @@ const ForexUserSchema = new Schema<IFOREX_User>(
         user: { type: String, enum: ["User", "Admin"], required: true },
         text: { type: String, required: true },
         readByAdmin: { type: Boolean, default: false },
-
         timestamp: { type: Date, default: Date.now },
       },
     ],

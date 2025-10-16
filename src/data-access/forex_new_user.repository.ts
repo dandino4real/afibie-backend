@@ -10,6 +10,7 @@ export const ForexUserDAL = {
     loginId_status,
     screenshotUrl_status,
     testTradesScreenshotUrl_status,
+    hasReadMessages,
     
   }: any) {
     const query: any = {};
@@ -30,6 +31,21 @@ export const ForexUserDAL = {
     if (screenshotUrl_status) query.screenshotUrl_status = screenshotUrl_status;
     if (testTradesScreenshotUrl_status)
       query.testTradesScreenshotUrl_status = testTradesScreenshotUrl_status;
+
+
+    if (typeof hasReadMessages === "boolean") {
+      // Use $expr to allow aggregation operators in the query.
+      // This allows us to inspect the LAST element of the messages array.
+      query.$expr = {
+        $eq: [
+          // The $last operator gets the last element from an array.
+          // "$messages.readByAdmin" creates a temporary array of all readByAdmin values,
+          // and $last gets the final one.
+          { $last: "$messages.readByAdmin" },
+          hasReadMessages,
+        ],
+      };
+    }
 
     const skip = (page - 1) * limit;
 
