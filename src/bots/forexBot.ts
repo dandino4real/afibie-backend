@@ -1,4 +1,3 @@
-
 // import { Telegraf, Markup } from "telegraf";
 // import rateLimit from "telegraf-ratelimit";
 // import cloudinary from "../config/cloudinary";
@@ -82,7 +81,7 @@
 
 // Thanks for waiting
 
-// We confirmed that you used the recommended link and have made the minimum deposit.  
+// We confirmed that you used the recommended link and have made the minimum deposit.
 
 // 🎉 Congratulations! The next step is to make sure your account is set up correctly for trading.
 // `;
@@ -98,7 +97,6 @@
 //       console.error("❌ Failed to notify user (approved):", err);
 //     }
 //   }
-
 
 // async function notifyUserRejected(user: IFOREX_User, reason: string) {
 //   let message = "";
@@ -137,9 +135,9 @@
 
 // ❌ <b>Rejected – Deposit Missing</b>
 
-// We confirmed that you used the recommended link but have not made the required minimum deposit.  
+// We confirmed that you used the recommended link but have not made the required minimum deposit.
 
-// ⚠️ Please make your deposit first, then <b>click the button below</b> to resubmit your Login ID.  
+// ⚠️ Please make your deposit first, then <b>click the button below</b> to resubmit your Login ID.
 // (One last chance; repeated unfunded resubmits = permanent block.)
 // `;
 //     buttonText = "💰 Click to ReSubmit";
@@ -153,7 +151,7 @@
 
 // ❌ <b>Rejected – Incomplete Deposit</b>
 
-// Your deposit amount does not meet the required minimum.  
+// Your deposit amount does not meet the required minimum.
 
 // Please fund your account with at least <b>$160</b>, then <b>click the button below</b> to resubmit your Login ID.
 // `;
@@ -168,7 +166,7 @@
 
 // ❌ <b>Rejected – Duplicate Login ID</b>
 
-// The Login ID you provided is already associated with another user. 
+// The Login ID you provided is already associated with another user.
 
 // Please double-check your broker account and <b>click the button below</b> to resubmit the correct Login ID.
 // `;
@@ -180,10 +178,10 @@
 //   else if (reason === "demo_account") {
 //     message = `
 //  Thanks for waiting
-    
+
 // ❌ <b>Rejected – Demo Account Detected</b>
 
-// It seems the account you provided is a <b>demo</b> account.  
+// It seems the account you provided is a <b>demo</b> account.
 
 // Please submit a <b>live</b> trading account Login ID</b> and <b>click the button below</b> to continue.
 // `;
@@ -212,11 +210,11 @@
 //     }
 
 //     message = `
-//  Thanks for waiting 
+//  Thanks for waiting
 
 // ❌ <b>Rejected – Wrong Registration Link</b>
 
-// Your Login ID is not found in our record, which means you did not register using the correct link.  
+// Your Login ID is not found in our record, which means you did not register using the correct link.
 
 // 👉 Please register again using the correct link below, make your deposit, then <b>click the button below</b> to confirm.
 
@@ -260,7 +258,6 @@
 //     }
 //   }
 
-  
 //   async function notifyUserScreenshotRejected(user: IFOREX_User, reason: string) {
 //   try {
 //     const readableReason = reason || "Unspecified";
@@ -286,7 +283,6 @@
 //     console.error("❌ Failed to notify user about screenshot rejection:", err);
 //   }
 // }
-
 
 //   // ================== NOTIFY USER: TEST TRADE SCREENSHOT APPROVED ==================
 //   async function notifyUserTestTradeScreenshotApproved(user: IFOREX_User) {
@@ -351,7 +347,6 @@
 //     console.error("❌ Failed to notify user about Test Trades screenshot rejection:", err);
 //   }
 // }
-
 
 //   // ---------------- WATCH FOR STATUS CHANGES IN MONGODB ----------------
 //   async function watchUserStatusChanges() {
@@ -603,7 +598,6 @@
 //           );
 //         }
 
-       
 //       } else {
 //         await ctx.replyWithHTML(
 //           `❌ Invalid Login ID format.\n\n` +
@@ -856,8 +850,6 @@
 //     );
 //   });
 
-  
-
 //   bot.action("broker_done", async (ctx) => {
 //   try {
 //     // Always attempt to acknowledge callback, but ignore stale ones
@@ -934,7 +926,6 @@
 //   }
 // });
 
-
 //   // ----------------RETRY BROKER FOR WRONG LINK ----------------
 
 //   bot.action("retry_broker", async (ctx) => {
@@ -987,19 +978,19 @@
 //     const setupMessage = `
 // <b>📊 Setting Up Your Trading Platform</b>
 
-// 1️⃣ Check your email for broker login credentials (Account Number, Password, and Server).  
-// 2️⃣ Download MT4/MT5:  
+// 1️⃣ Check your email for broker login credentials (Account Number, Password, and Server).
+// 2️⃣ Download MT4/MT5:
 
-// 🔹 MT4 iPhone: <a href="https://apps.apple.com/ph/app/metatrader-4/id496212596">Download MT4 iOS</a>  
-// 🔹 MT4 Android: <a href="https://play.google.com/store/search?q=mt4&c=apps">Download MT4 Android</a>  
-// 🔹 MT5 iPhone: <a href="https://apps.apple.com/ph/app/metatrader-5/id413251709">Download MT5 iOS</a>  
-// 🔹 MT5 Android: <a href="https://play.google.com/store/apps/details?id=net.metaquotes.metatrader5">Download MT5 Android</a>  
+// 🔹 MT4 iPhone: <a href="https://apps.apple.com/ph/app/metatrader-4/id496212596">Download MT4 iOS</a>
+// 🔹 MT4 Android: <a href="https://play.google.com/store/search?q=mt4&c=apps">Download MT4 Android</a>
+// 🔹 MT5 iPhone: <a href="https://apps.apple.com/ph/app/metatrader-5/id413251709">Download MT5 iOS</a>
+// 🔹 MT5 Android: <a href="https://play.google.com/store/apps/details?id=net.metaquotes.metatrader5">Download MT5 Android</a>
 
-// 3️⃣ Log in to your account – use the credentials from the email (make sure it’s a LIVE account).  
+// 3️⃣ Log in to your account – use the credentials from the email (make sure it’s a LIVE account).
 
 // 4️⃣ Once logged in, <b>please send me a screenshot of your MT4/MT5 account</b> to confirm setup.
 
-// 📹 Watch the broker-specific video guide below.  
+// 📹 Watch the broker-specific video guide below.
 // 💡 If you run into any trouble, I’ll assist you step by step.
 // `;
 
@@ -1070,13 +1061,13 @@
 
 // To confirm everything works correctly:
 
-// 1️⃣ Open your MT4 app.  
-// 2️⃣ Add forex pairs.  
-// 3️⃣ Place <b>10 trades</b> (Buy/Sell, lot size = 0.01).  
-// 4️⃣ Keep them open for at least 10 minutes.  
-// 5️⃣ Send me a <b>screenshot of your open trades</b>.  
+// 1️⃣ Open your MT4 app.
+// 2️⃣ Add forex pairs.
+// 3️⃣ Place <b>10 trades</b> (Buy/Sell, lot size = 0.01).
+// 4️⃣ Keep them open for at least 10 minutes.
+// 5️⃣ Send me a <b>screenshot of your open trades</b>.
 
-// ⚠️ You may gain/lose a few dollars – this is just a system check.  
+// ⚠️ You may gain/lose a few dollars – this is just a system check.
 // 💡 I can assist live, but close trades after 10 minutes if I don’t respond.
 // `;
 
@@ -1108,7 +1099,6 @@
 //       );
 //     }
 //   }
-
 
 //     // Switch session state → expect screenshot of test trades
 //     ctx.session.awaitingTestTradesScreenshot = true;
@@ -1156,16 +1146,16 @@
 
 //     const finalOnboardingMessage = `
 
-// 🥳 Welcome to Afibie FX!  
+// 🥳 Welcome to Afibie FX!
 
-// Before you start trading signals, please watch my short speed course (10 minutes max).  
-// It shows how to copy trades correctly with proper risk management.  
+// Before you start trading signals, please watch my short speed course (10 minutes max).
+// It shows how to copy trades correctly with proper risk management.
 
-// 👉 <a href="https://t.me/afibie">t.me/afibie</a>  
+// 👉 <a href="https://t.me/afibie">t.me/afibie</a>
 
-// Once finished, click <b>Done</b> to generate your exclusive signal channel invite link.  
+// Once finished, click <b>Done</b> to generate your exclusive signal channel invite link.
 
-// ⚠️ <b>Note:</b> The link expires in 30 minutes after generation. Join immediately.  
+// ⚠️ <b>Note:</b> The link expires in 30 minutes after generation. Join immediately.
 // If you need help, contact @Francis_Nbtc.
 // `;
 
@@ -1299,12 +1289,6 @@
 //   //   });
 //   // });
 // }
-
-
-
-
-
-
 
 import { Telegraf, Markup } from "telegraf";
 import rateLimit from "telegraf-ratelimit";
@@ -1724,13 +1708,9 @@ Thanks for waiting
     }
   }
 
-
-
-const contactAdminButton = Markup.inlineKeyboard([
-  [Markup.button.callback("💬 Contact Admin", "contact_admin")],
-]);
-
-
+  const contactAdminButton = Markup.inlineKeyboard([
+    [Markup.button.callback("💬 Contact Admin", "contact_admin")],
+  ]);
 
   // ---------------- START ----------------
   bot.start(async (ctx) => {
@@ -1738,7 +1718,7 @@ const contactAdminButton = Markup.inlineKeyboard([
     const telegramId = ctx.from?.id?.toString();
     if (!telegramId) return;
 
-     ctx.session.mode = "default";
+    ctx.session.mode = "default";
 
     const user = await FOREX_User.findOne({ telegramId });
 
@@ -1894,14 +1874,13 @@ const contactAdminButton = Markup.inlineKeyboard([
           86400
         );
 
-       await ctx.replyWithHTML(
-  `✅ <b>Thank you!</b> We’ve received your <b>Login ID</b>.\n\n` +
-    `⏳ <i>Review in Progress:</i>\n` +
-    `Our team is currently verifying your details. This process may take up to an hour.\n\n` +
-    `💡 <b>If you haven’t received feedback after one hour, kindly click “Contact Admin” below to chat with our support team.</b>`,
-  contactAdminButton
-);
-
+        await ctx.replyWithHTML(
+          `✅ <b>Thank you!</b> We’ve received your <b>Login ID</b>.\n\n` +
+            `⏳ <i>Review in Progress:</i>\n` +
+            `Our team is currently verifying your details. This process may take up to an hour.\n\n` +
+            `💡 <b>If you haven’t received feedback after one hour, kindly click “Contact Admin” below to chat with our support team.</b>`,
+          contactAdminButton
+        );
 
         // --- Save or Update User in MongoDB ---
         try {
@@ -1926,8 +1905,7 @@ const contactAdminButton = Markup.inlineKeyboard([
             existingUser.broker = ctx.session.broker || "";
             existingUser.loginId = ctx.session.loginId || "";
             existingUser.loginId_status = "awaiting_approval";
-            existingUser.mode = "chat",
-            existingUser.updatedAt = new Date();
+            (existingUser.mode = "chat"), (existingUser.updatedAt = new Date());
 
             await existingUser.save();
             console.log("🔄 Forex user updated:", existingUser);
@@ -2063,13 +2041,11 @@ const contactAdminButton = Markup.inlineKeyboard([
       );
 
       await ctx.replyWithHTML(
-        `🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>Oanda</b>.\n\n👉 Register here: <a href="${OANDO_LINK}">Oanda Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `❌ Unfortunately due to the cumbersome US regulation <b>US regulation</b>,\nwe’re unable to recommend or onboard any US-based brokers at this time.\nSo we won’t be able to proceed with your registration.\n\nHowever, if you hold dual citizenship and can verify your account\nusing another eligible identity, please click <b>/start</b> to begin again.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
-            inline_keyboard: [
-              [{ text: "✅ Done", callback_data: "broker_done" }],
-            ],
+            inline_keyboard: [[{ text: "✅ start", callback_data: "start" }]],
           },
         }
       );
@@ -2425,8 +2401,8 @@ To confirm everything works correctly:
 
 1️⃣ Open your MT4 app.  
 2️⃣ Add forex pairs.  
-3️⃣ Place <b>10 trades</b> (Buy/Sell, lot size = 0.01).  
-4️⃣ Keep them open for at least 10 minutes.  
+3️⃣ Place 5 trades (Buy/Sell, lot size = 0.01).\nEURUSD, GBPUSD, USDJPY, and GBPJPY  
+4️⃣ Keep them open for at least 5 minutes.  
 5️⃣ Send me a <b>screenshot of your open trades</b>.  
 
 ⚠️ You may gain/lose a few dollars – this is just a system check.  
@@ -2584,15 +2560,15 @@ If you need help, contact @Francis_Nbtc.
   });
 
   // 🟢 Button for user to contact admin
-bot.action("contact_admin", async (ctx) => {
-  ctx.session.mode = "chat"; // Switch to chat mode automatically
-  await ctx.answerCbQuery();
-  await ctx.replyWithHTML(
-    `💬 <b>Chat mode activated.</b>\n\n` +
-      `🗨️ You can now send a message to our admin.\n\n` +
-      `Once your issue has been resolved, you’ll automatically exit chat mode.`
-  );
-});
+  bot.action("contact_admin", async (ctx) => {
+    ctx.session.mode = "chat"; // Switch to chat mode automatically
+    await ctx.answerCbQuery();
+    await ctx.replyWithHTML(
+      `💬 <b>Chat mode activated.</b>\n\n` +
+        `🗨️ You can now send a message to our admin.\n\n` +
+        `Once your issue has been resolved, you’ll automatically exit chat mode.`
+    );
+  });
 
   // ---------------- HANDLE SCREENSHOT ----------------
   bot.on("photo", async (ctx) => {
@@ -2627,12 +2603,11 @@ bot.action("contact_admin", async (ctx) => {
         ctx.session.mode = "chat"; // Enable chat mode
         // await ctx.reply("📸 Screenshot received. Awaiting admin approval ⏳");
         await ctx.replyWithHTML(
-  `📸 <b> MT4/MT5 Screenshot Received!</b>\n\n` +
-    `⏳ <i>Your submission is being reviewed by our team.</i>\n\n` +
-    `💡 <b>If your submission hasn’t been approved after one hour, please click “Contact Admin” below to reach our support team.</b>`,
-  contactAdminButton
-);
-
+          `📸 <b> MT4/MT5 Screenshot Received!</b>\n\n` +
+            `⏳ <i>Your submission is being reviewed by our team.</i>\n\n` +
+            `💡 <b>If your submission hasn’t been approved after one hour, please click “Contact Admin” below to reach our support team.</b>`,
+          contactAdminButton
+        );
       } else if (ctx.session.awaitingTestTradesScreenshot) {
         // Save test trades screenshot
         await FOREX_User.findOneAndUpdate(
@@ -2653,12 +2628,11 @@ bot.action("contact_admin", async (ctx) => {
         //   "📸 Test trades screenshot received. Awaiting admin approval ⏳"
         // );
         await ctx.replyWithHTML(
-  `📸 <b>Test Trade Screenshot Received!</b>\n\n` +
-    `⏳ <i>Your submission is being reviewed by our team.</i>\n\n` +
-    `💡 <b>If your submission hasn’t been approved after one hour, please click “Contact Admin” below to reach our support team.</b>`,
-  contactAdminButton
-);
-
+          `📸 <b>Test Trade Screenshot Received!</b>\n\n` +
+            `⏳ <i>Your submission is being reviewed by our team.</i>\n\n` +
+            `💡 <b>If your submission hasn’t been approved after one hour, please click “Contact Admin” below to reach our support team.</b>`,
+          contactAdminButton
+        );
       }
     } catch (err) {
       console.error("❌ Screenshot upload failed:", err);
@@ -2669,13 +2643,12 @@ bot.action("contact_admin", async (ctx) => {
   watchUserStatusChanges();
   // getting the video file id from
 
-  // bot.on("video", async (ctx) => {
-  //   const fileId = ctx.message.video.file_id;
-  //   console.log("🎥 Video File ID:", fileId);
+  bot.on("video", async (ctx) => {
+    const fileId = ctx.message.video.file_id;
+    console.log("🎥 Video File ID:", fileId);
 
-  //   await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
-  //     parse_mode: "HTML",
-  //   });
-  // });
+    await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
+      parse_mode: "HTML",
+    });
+  });
 }
-
