@@ -6,7 +6,7 @@ export interface IFOREX_User extends Document {
   fullName?: string;
   firstName?: string;
   country: string;
-  broker: string;
+  broker: "Exness" | "Oanda" | "AXI" | "Exco" | string;
   status?: "pending" | "approved" | "rejected";
   loginId: string;
   loginId_status: "awaiting_approval" | "approved" | "rejected";
@@ -63,7 +63,10 @@ const ForexUserSchema = new Schema<IFOREX_User>(
     fullName: { type: String },
     firstName: { type: String },
     country: { type: String, required: true },
-    broker: { type: String, required: true },
+    broker: {
+      type: String,
+      enum: ["Exness", "Oanda", "AXI", "Exco"],
+    }, 
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
