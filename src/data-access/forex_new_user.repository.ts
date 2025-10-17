@@ -16,6 +16,8 @@ export const ForexUserDAL = {
     const query: any = {};
 
     console.log('got here dal')
+      console.log("dal-hasReadMessages:", hasReadMessages);
+
 
     if (search) {
       query.$or = [
