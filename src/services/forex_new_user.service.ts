@@ -13,6 +13,8 @@ export const ForexUserService = {
     testTradesScreenshotUrl_status?: string;
     hasUnreadMessages?: boolean;
   }) {
+
+    console.log('service-hasUnreadMessages:', filters.hasUnreadMessages);
     return await ForexUserDAL.findAll(filters);
   },
 

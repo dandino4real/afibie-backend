@@ -16,6 +16,8 @@ export const ForexUserController = {
         hasUnreadMessages,
       } = req.query;
 
+      console.log('controller-hasUnreadMessages:', hasUnreadMessages);
+
       const result = await ForexUserService.getAllForexUsers({
         page: Number(page),
         limit: Number(limit),
