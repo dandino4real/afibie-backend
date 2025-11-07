@@ -145,5 +145,27 @@ export const ForexUserController = {
       console.error("❌ Get Chat Messages Error:", error);
       res.status(500).json({ message: "Server error", error: error.message });
     }
-  }
+  },
+
+    async approveUser(req: Request, res: Response): Promise<any> {
+    try {
+      const { id } = req.params;
+
+      // You can also get admin info from req.user if authentication is enabled
+      const user = await ForexUserService.approveUser(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.status(200).json({
+        message: "✅ User explicitly approved",
+        user,
+      });
+    } catch (err: any) {
+      console.error("❌ Approve User Error:", err);
+      res.status(400).json({ message: err.message });
+    }
+  },
+
 };

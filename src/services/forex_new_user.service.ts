@@ -99,6 +99,17 @@ export const ForexUserService = {
 
   async getChatMessagesByTelegramId(telegramId: string) {
     return await ForexUserDAL.findChatbyTelegramId(telegramId);
-  }
+  },
+
+  async approveUser(id: string) {
+  const user = await ForexUserDAL.findById(id);
+  if (!user) throw new Error("User not found");
+
+  if (user.status === "approved")
+    throw new Error("User already approved");
+
+  return ForexUserDAL.approveUser(id);
+},
+
 
 };

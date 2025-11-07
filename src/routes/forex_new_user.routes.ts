@@ -76,5 +76,15 @@ router.get(
   ForexUserController.getChatMessagesByTelegramId
 );
 
+// ===============================
+// FULL USER APPROVAL (ALL STEPS AT ONCE)
+// ===============================
+router.put(
+  "/approve/:id",
+  authenticateAdmin,
+  authorizePermission("approve_registration"),
+  ForexUserController.approveUser
+);
+
 
 export default router;

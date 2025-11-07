@@ -15,10 +15,6 @@ export const ForexUserDAL = {
   }: any) {
     const query: any = {};
 
-    console.log('got here dal')
-      console.log("dal-UnhasReadMessages:", hasUnReadMessages);
-
-
     if (search) {
       query.$or = [
         { username: { $regex: search, $options: "i" } },
@@ -197,6 +193,50 @@ export const ForexUserDAL = {
   },
 
 
+
+async approveUser(id: string, admin?: { name: string; email: string }) {
+  const updateData: any = {
+    status: "approved",
+
+    // --- Login ID approval fields ---
+    loginId_status: "approved",
+    loginId_approvedAt: new Date(),
+    loginId_rejectedAt: null,
+    loginId_rejectionReason: null,
+
+    // --- Account Screenshot approval fields ---
+    screenshotUrl_status: "approved",
+    screenshotUrl_approvedAt: new Date(),
+    screenshotUrl_rejectedAt: null,
+    screenshotUrl_rejectionReason: null,
+
+    // --- Test Trades Screenshot approval fields ---
+    testTradesScreenshotUrl_status: "approved",
+    testTradesScreenshotUrl_approvedAt: new Date(),
+    testTradesScreenshotUrl_rejectedAt: null,
+    testTradesScreenshotUrl_rejectionReason: null,
+
+    // --- Global approval fields ---
+    approvedAt: new Date(),
+    rejectedAt: null,
+    mode: "default",
+  };
+
+  if (admin) {
+    updateData.approvedBy = {
+      name: admin.name,
+      email: admin.email,
+    };
+  }
+
+  const user = await FOREX_User.findOneAndUpdate(
+    { _id: id },
+    updateData,
+    { new: true }
+  );
+
+  return user;
+}
 
 
 

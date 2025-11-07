@@ -24,7 +24,7 @@ const GROUP_CHAT_ID = process.env.FOREX_GROUP_CHAT_ID;
 const EXNESS_LINK = process.env.EXNESS_LINK || "https://exness.com";
 const AXI_LINK = process.env.AXI_LINK || "https://axi.com";
 const EXCO_LINK = process.env.EXCO_TRADER_LINK || "https://exco.com";
-const OANDO_LINK = process.env.MT4_ALL_LINK || "https://oanda.com";
+// const OANDO_LINK = process.env.MT4_ALL_LINK || "https://oanda.com";
 
 let redis: Redis;
 try {
@@ -448,6 +448,7 @@ Thanks for waiting
       `👋 Hey <b>${ctx.from?.first_name || "there"}</b>,\n\n` +
         `Welcome – and congratulations on taking the first real step toward consistent profits with our premium forex signals.\n\n` +
         `This bot will walk you through the process step by step. After answering a few quick questions, you’ll be connected to me and my team for verification.\n\n` +
+        `(If you have any issues during the process, message support 👉 @ab_pato1) \n\n` +
         `👉 If you’re ready, click Continue.`,
       {
         link_preview_options: { is_disabled: true },
@@ -1275,7 +1276,7 @@ If you need help, contact @Francis_Nbtc.
     await ctx.replyWithHTML(
       `💬 <b>Chat mode activated.</b>\n\n` +
         `🗨️ You can now send a message to our admin.\n\n` +
-        `Once your issue has been resolved, you’ll automatically exit chat mode.`
+        `To exit chat mode, type <b>/endchat</b> anytime.`
     );
   });
 
@@ -1333,10 +1334,60 @@ bot.action('start', async (ctx) => {
   }
 });
 
+// ================== HANDLE ENDCHAT ==================
+
+bot.command("endchat", async (ctx) => {
+  const telegramId = ctx.from?.id?.toString();
+  if (!telegramId) return;
+
+  // Fetch the user's record
+  const user = await FOREX_User.findOne({ telegramId });
+  if (!user) {
+    await ctx.reply("⚠️ You don’t have an active chat session.");
+    return;
+  }
+
+  // Check if user is already not in chat mode
+  if (ctx.session.mode !== "chat") {
+    await ctx.reply("ℹ️ You’re not currently in chat mode.");
+    return;
+  }
+
+  // Update session and DB
+  ctx.session.mode = "default";
+  await redis.set(
+    `forex:${telegramId}`,
+    JSON.stringify(ctx.session),
+    "EX",
+    86400
+  );
+
+  await FOREX_User.updateOne(
+    { telegramId },
+    { $set: { mode: "default", updatedAt: new Date() } }
+  );
+
+  // Notify user
+  await ctx.replyWithHTML(
+    `✅ <b>Chat mode exited</b>\n\nYou’re now back in the normal bot flow.\n\nIf you need to contact support again, click below.`,
+    Markup.inlineKeyboard([
+      [Markup.button.callback("💬 Contact Admin", "contact_admin")],
+    ])
+  );
+});
+
+
 
 
   // ---------------- HANDLE SCREENSHOT ----------------
   bot.on("photo", async (ctx) => {
+     // Check if user is currently in chat mode
+  if (ctx.session?.mode === "chat") {
+    await ctx.replyWithHTML(
+      `🚫 <b>You are currently in chat mode.</b>\n\nScreenshots cannot be sent while chatting with an admin.\n\nPlease type <b>/endchat</b> to exit chat mode, then resend your screenshot.`
+    );
+    return;
+  }
     try {
       const fileId = ctx.message.photo.pop()?.file_id;
       if (!fileId) return;
