@@ -508,7 +508,7 @@ Thanks for waiting
       // Send to admin via WebSocket
       globalThis.forexChatHandler?.sendToAdmin(telegramId, text);
 
-      // await ctx.reply("📩 Message sent to admin. Please wait for a reply.");
+      await ctx.reply("📩 Message sent to admin.");
       return;
     }
 

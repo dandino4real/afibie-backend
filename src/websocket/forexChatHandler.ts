@@ -6,10 +6,12 @@ import Redis from "ioredis";
 // --- Extend globalThis so TypeScript knows about forexChatHandler ---
 declare global {
   // eslint-disable-next-line no-var
-  var forexChatHandler: {
-    sendToAdmin: (telegramId: string, text: string) => Promise<void>;
-    sendToUser: (telegramId: string, text: string) => Promise<void>;
-  } | undefined;
+  var forexChatHandler:
+    | {
+        sendToAdmin: (telegramId: string, text: string) => Promise<void>;
+        sendToUser: (telegramId: string, text: string) => Promise<void>;
+      }
+    | undefined;
 }
 
 // ✅ Setup Redis (optional: use your existing connection if available)
@@ -61,7 +63,15 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
 
           case "admin_reply": {
             const { telegramId, message } = data;
-            await forexBot.telegram.sendMessage(telegramId, `👨‍💼 Admin: ${message}`);
+            await forexBot.telegram.sendMessage(
+              telegramId,
+              `👨‍💼 Admin: ${message}`
+            );
+            // 💡 Then send a helpful reminder about /endchat
+            await forexBot.telegram.sendMessage(
+              telegramId,
+              "💬 You can exit this chat anytime by typing /endchat."
+            );
 
             // Store message in DB
             await FOREX_User.updateOne(
