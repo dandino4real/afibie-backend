@@ -1,4 +1,3 @@
-
 import { Telegraf, Markup } from "telegraf";
 import rateLimit from "telegraf-ratelimit";
 import cloudinary from "../config/cloudinary";
@@ -38,8 +37,6 @@ try {
 }
 
 export default function (bot: Telegraf<BotContext>) {
-  console.log("💬 forexBot_New file loaded");
-
   // ---------------- COUNTRY GROUPS ----------------
   const allCountries = [
     ...groupACountries,
@@ -479,8 +476,59 @@ Thanks for waiting
     );
   });
 
+  // ---------------- ENDCHAT COMMAND ----------------
+  bot.command("endchat", async (ctx) => {
+    const telegramId = ctx.from?.id?.toString();
+    if (!telegramId) return;
+
+    // Fetch the user's record
+    const user = await FOREX_User.findOne({ telegramId });
+    if (!user) {
+      await ctx.reply("⚠️ You don’t have an active chat session.");
+      return;
+    }
+
+    // Check if user is already not in chat mode
+    if (ctx.session.mode !== "chat") {
+      await ctx.reply("ℹ️ You’re not currently in chat mode.");
+      return;
+    }
+
+    // Update session and DB
+    ctx.session.mode = "default";
+    await redis.set(
+      `forex:${telegramId}`,
+      JSON.stringify(ctx.session),
+      "EX",
+      86400
+    );
+
+    await FOREX_User.updateOne(
+      { telegramId },
+      { $set: { mode: "default", updatedAt: new Date() } }
+    );
+
+    // Notify user
+    await ctx.replyWithHTML(
+      `✅ <b>Chat mode exited</b>\n\nYou’re now back in the normal bot flow.\n\nIf you need to contact support again, click below.`,
+      Markup.inlineKeyboard([
+        [Markup.button.callback("💬 Contact Admin", "contact_admin")],
+      ])
+    );
+  });
+
   // ---------------- HANDLE TEXT ----------------
   bot.on("text", async (ctx) => {
+    const action = ctx.message.text.trim().toLowerCase();
+
+    // Check if user typed 'endchat' instead of '/endchat'
+    if (ctx.session.mode === "chat" && action === "endchat") {
+      await ctx.reply(
+        "⚠️ Did you mean /endchat ? Type /endchat to exit chat mode."
+      );
+      return;
+    }
+
     const text = ctx.message.text.trim();
     const telegramId = ctx.from?.id?.toString();
     if (!telegramId) return;
@@ -1280,114 +1328,67 @@ If you need help, contact @Francis_Nbtc.
     );
   });
 
+  // ================== HANDLE RESTART ==================
+  bot.action("start", async (ctx) => {
+    try {
+      await ctx.answerCbQuery(); // Acknowledge the click to avoid Telegram errors
 
-
-// ================== HANDLE RESTART ==================
-bot.action('start', async (ctx) => {
-  try {
-    await ctx.answerCbQuery(); // Acknowledge the click to avoid Telegram errors
-
-    // Reset session to initial state (same as /start)
-    ctx.session.mode = "default";
-    ctx.session.step = "welcome";
-
-    const telegramId = ctx.from?.id?.toString();
-    if (!telegramId) {
-      console.error("❌ ctx.from is undefined. Cannot proceed.");
-      return;
-    }
-
-    // Check DB for chat mode (same as /start)
-    const user = await FOREX_User.findOne({ telegramId });
-    if (user && user.mode === "chat") {
-      ctx.session.mode = "chat";
-    } else {
+      // Reset session to initial state (same as /start)
       ctx.session.mode = "default";
-    }
+      ctx.session.step = "welcome";
 
-    // Save reset session
-    await redis.set(
-      `forex:${telegramId}`,
-      JSON.stringify(ctx.session),
-      "EX",
-      86400
-    );
-
-    // Replay the welcome message (copied from /start for consistency)
-    await ctx.replyWithHTML(
-      `👋 Hey <b>${ctx.from?.first_name || "there"}</b>,\n\n` +
-        `Welcome – and congratulations on taking the first real step toward consistent profits with our premium forex signals.\n\n` +
-        `This bot will walk you through the process step by step. After answering a few quick questions, you’ll be connected to me and my team for verification.\n\n` +
-        `👉 If you’re ready, click Continue.`,
-      {
-        link_preview_options: { is_disabled: true },
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "✅ Continue", callback_data: "continue_to_captcha" }],
-          ],
-        },
+      const telegramId = ctx.from?.id?.toString();
+      if (!telegramId) {
+        console.error("❌ ctx.from is undefined. Cannot proceed.");
+        return;
       }
-    );
-  } catch (err) {
-    console.error("❌ Error in 'start' callback handler:", err);
-    await ctx.reply("⚠️ Something went wrong. Please try /start manually.");
-  }
-});
 
-// ================== HANDLE ENDCHAT ==================
+      // Check DB for chat mode (same as /start)
+      const user = await FOREX_User.findOne({ telegramId });
+      if (user && user.mode === "chat") {
+        ctx.session.mode = "chat";
+      } else {
+        ctx.session.mode = "default";
+      }
 
-bot.command("endchat", async (ctx) => {
-  const telegramId = ctx.from?.id?.toString();
-  if (!telegramId) return;
+      // Save reset session
+      await redis.set(
+        `forex:${telegramId}`,
+        JSON.stringify(ctx.session),
+        "EX",
+        86400
+      );
 
-  // Fetch the user's record
-  const user = await FOREX_User.findOne({ telegramId });
-  if (!user) {
-    await ctx.reply("⚠️ You don’t have an active chat session.");
-    return;
-  }
-
-  // Check if user is already not in chat mode
-  if (ctx.session.mode !== "chat") {
-    await ctx.reply("ℹ️ You’re not currently in chat mode.");
-    return;
-  }
-
-  // Update session and DB
-  ctx.session.mode = "default";
-  await redis.set(
-    `forex:${telegramId}`,
-    JSON.stringify(ctx.session),
-    "EX",
-    86400
-  );
-
-  await FOREX_User.updateOne(
-    { telegramId },
-    { $set: { mode: "default", updatedAt: new Date() } }
-  );
-
-  // Notify user
-  await ctx.replyWithHTML(
-    `✅ <b>Chat mode exited</b>\n\nYou’re now back in the normal bot flow.\n\nIf you need to contact support again, click below.`,
-    Markup.inlineKeyboard([
-      [Markup.button.callback("💬 Contact Admin", "contact_admin")],
-    ])
-  );
-});
-
-
-
+      // Replay the welcome message (copied from /start for consistency)
+      await ctx.replyWithHTML(
+        `👋 Hey <b>${ctx.from?.first_name || "there"}</b>,\n\n` +
+          `Welcome – and congratulations on taking the first real step toward consistent profits with our premium forex signals.\n\n` +
+          `This bot will walk you through the process step by step. After answering a few quick questions, you’ll be connected to me and my team for verification.\n\n` +
+          `👉 If you’re ready, click Continue.`,
+        {
+          link_preview_options: { is_disabled: true },
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "✅ Continue", callback_data: "continue_to_captcha" }],
+            ],
+          },
+        }
+      );
+    } catch (err) {
+      console.error("❌ Error in 'start' callback handler:", err);
+      await ctx.reply("⚠️ Something went wrong. Please try /start manually.");
+    }
+  });
 
   // ---------------- HANDLE SCREENSHOT ----------------
   bot.on("photo", async (ctx) => {
-     // Check if user is currently in chat mode
-  if (ctx.session?.mode === "chat") {
-    await ctx.replyWithHTML(
-      `🚫 <b>You are currently in chat mode.</b>\n\nScreenshots cannot be sent while chatting with an admin.\n\nPlease type <b>/endchat</b> to exit chat mode, then resend your screenshot.`
-    );
-    return;
-  }
+    // Check if user is currently in chat mode
+    if (ctx.session?.mode === "chat") {
+      await ctx.replyWithHTML(
+        `🚫 <b>You are currently in chat mode.</b>\n\nScreenshots cannot be sent while chatting with an admin.\n\nPlease type <b>/endchat</b> to exit chat mode, then resend your screenshot.`
+      );
+      return;
+    }
     try {
       const fileId = ctx.message.photo.pop()?.file_id;
       if (!fileId) return;
