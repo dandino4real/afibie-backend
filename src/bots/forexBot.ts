@@ -522,7 +522,7 @@ Thanks for waiting
     const action = ctx.message.text.trim().toLowerCase();
 
     // Check if user typed 'endchat' instead of '/endchat'
-    if (ctx.session.mode === "chat" && action === "endchat") {
+    if (ctx.session.mode === "chat" && /^end\s*chat$/.test(action)) {
       await ctx.reply(
         "⚠️ Did you mean /endchat ? Type /endchat to exit chat mode."
       );
