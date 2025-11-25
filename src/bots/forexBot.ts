@@ -396,6 +396,7 @@ Thanks for waiting
           // ✅ Express approval
           if (updated.status === "approved") {
             await notifyUserExpressApproved(user);
+            return;
           }
 
           // ✅ Login ID
