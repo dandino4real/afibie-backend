@@ -349,6 +349,35 @@ Thanks for waiting
     }
   }
 
+    // ================== NOTIFY USER: TEST TRADE SCREENSHOT APPROVED ==================
+  async function notifyUserExpressApproved(user: IFOREX_User) {
+    try {
+      await bot.telegram.sendMessage(
+        user.telegramId,
+        `Thanks for waiting\n\n✅ Your LoginID and screenshots has been approved! 🎉\n\n` +
+          `Please click <b>Continue</b> below to move forward with the final onboarding steps.`,
+        {
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: "➡️ Continue",
+                  callback_data: "continue_final_onboarding",
+                },
+              ],
+            ],
+          },
+        }
+      );
+    } catch (err) {
+      console.error(
+        "❌ Failed to notify user about Test Trades screenshot approval:",
+        err
+      );
+    }
+  }
+
   // ---------------- WATCH FOR STATUS CHANGES IN MONGODB ----------------
   async function watchUserStatusChanges() {
     try {
@@ -363,6 +392,11 @@ Thanks for waiting
         ) {
           const updated = change.updateDescription.updatedFields;
           const user = change.fullDocument as IFOREX_User;
+
+          // ✅ Express approval
+          if (updated.status === "approved") {
+            await notifyUserExpressApproved(user);
+          }
 
           // ✅ Login ID
           if (updated.loginId_status === "approved") {
