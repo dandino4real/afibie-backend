@@ -20,7 +20,8 @@ dotenv.config({
 });
 
 const GROUP_CHAT_ID = process.env.FOREX_GROUP_CHAT_ID;
-const EXNESS_LINK = process.env.EXNESS_LINK || "https://exness.com";
+// const EXNESS_LINK = process.env.EXNESS_LINK || "https://exness.com";
+const EXNESS_LINK = process.env.AXI_LINK || "https://axi.com";
 const AXI_LINK = process.env.AXI_LINK || "https://axi.com";
 const EXCO_LINK = process.env.EXCO_TRADER_LINK || "https://exco.com";
 // const OANDO_LINK = process.env.MT4_ALL_LINK || "https://oanda.com";
@@ -481,7 +482,9 @@ Thanks for waiting
         `Welcome – and congratulations on taking the first real step toward consistent profits with our premium forex signals.\n\n` +
         `This bot will walk you through the process step by step. After answering a few quick questions, you’ll be connected to me and my team for verification.\n\n` +
         `(If you have any issues during the process, message support 👉 @ab_pato1) \n\n` +
-        `👉 If you’re ready, click Continue.`,
+        `<b>Note: </b> \n` +
+        `If you do not have at least $160 to fund your account. Do not continue because you will not be given access. \n\n` +
+        `👉 If You have at least $160 to fund your account, click <b>Continue.</b>`,
       {
         link_preview_options: { is_disabled: true },
         reply_markup: {
@@ -765,7 +768,8 @@ Thanks for waiting
 
     // ---------------- GROUP A ----------------
     if (group === "A") {
-      ctx.session.step = "broker"; // <--- add this
+      ctx.session.broker = "AXI";
+      ctx.session.step = "broker"; 
 
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
@@ -778,12 +782,26 @@ Thanks for waiting
         "EX",
         86400
       );
+      // await ctx.replyWithHTML(
+      //   `🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nDo you already have an Exness account?`,
+      //   Markup.inlineKeyboard([
+      //     Markup.button.callback("✅ Yes", "groupA_yes"),
+      //     Markup.button.callback("❌ No", "groupA_no"),
+      //   ])
+      // );
+
+
       await ctx.replyWithHTML(
-        `🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nDo you already have an Exness account?`,
-        Markup.inlineKeyboard([
-          Markup.button.callback("✅ Yes", "groupA_yes"),
-          Markup.button.callback("❌ No", "groupA_no"),
-        ])
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        {
+          link_preview_options: { is_disabled: true },
+          reply_markup: {
+
+            inline_keyboard: [
+              [{ text: "✅ Done", callback_data: "broker_done" }],
+            ],
+          },
+        }
       );
     }
 
@@ -805,7 +823,7 @@ Thanks for waiting
       );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="https://axi.com">AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -834,7 +852,7 @@ Thanks for waiting
       );
 
       await ctx.replyWithHTML(
-        `❌ Unfortunately due to the cumbersome <b>US </b>regulation,\nwe’re unable to recommend or onboard any US-based brokers at \nthis time. So we won’t be able to proceed with your registration.\n\nHowever, if you hold dual citizenship and can verify your account\nusing another eligible identity, please click the button below to restart.`,
+        `❌ Unfortunately due to the cumbersome <b>US </b>regulation,\nwe’re unable to recommend or onboard any US-based brokers at \nthis time. So we won’t be able to proceed with your registration.\n\nIf you still want access into our signals, contact @ab_pato1 on telegram for paid option or \n\n, click the button below to restart.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -846,8 +864,8 @@ Thanks for waiting
 
     // ---------------- GROUP D ----------------
     else if (group === "D") {
-      ctx.session.broker = "Exness";
-      ctx.session.step = "broker"; // <--- add this
+      ctx.session.broker = "AXI";
+      ctx.session.step = "broker"; 
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
@@ -861,7 +879,7 @@ Thanks for waiting
       );
 
       await ctx.replyWithHTML(
-        `🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nDo you already have an Exness account?`,
+        `🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nDo you already have an AXI account?`,
         Markup.inlineKeyboard([
           Markup.button.callback("✅ Yes", "groupD_yes"),
           Markup.button.callback("❌ No", "groupD_no"),
@@ -871,35 +889,63 @@ Thanks for waiting
   }
 
   // ---------------- BROKER FLOW ----------------
-  bot.action("groupA_no", async (ctx) => {
-    ctx.session.broker = "Exness";
-    ctx.session.step = "broker"; // <--- add this
-    const telegramId = ctx.from?.id?.toString();
-    if (!telegramId) {
-      console.error("❌ ctx.from is undefined. Cannot save session.");
-      return;
-    }
-    await redis.set(
-      `forex:${telegramId}`,
-      JSON.stringify(ctx.session),
-      "EX",
-      86400
-    );
+  // bot.action("groupA_no", async (ctx) => {
+  //   ctx.session.broker = "Exness";
+  //   ctx.session.step = "broker"; // <--- add this
+  //   const telegramId = ctx.from?.id?.toString();
+  //   if (!telegramId) {
+  //     console.error("❌ ctx.from is undefined. Cannot save session.");
+  //     return;
+  //   }
+  //   await redis.set(
+  //     `forex:${telegramId}`,
+  //     JSON.stringify(ctx.session),
+  //     "EX",
+  //     86400
+  //   );
 
-    await ctx.replyWithHTML(
-      `Ok Great 👍 \n\n ❌ <b>Register with Exness</b> 👉 <a href="${EXNESS_LINK}">Exness Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
-      {
-        link_preview_options: { is_disabled: true },
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "✅ Done", callback_data: "broker_done" }],
-          ],
-        },
-      }
-    );
-  });
+  //   await ctx.replyWithHTML(
+  //     `Ok Great 👍 \n\n ❌ <b>Register with Exness</b> 👉 <a href="${EXNESS_LINK}">Exness Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+  //     {
+  //       link_preview_options: { is_disabled: true },
+  //       reply_markup: {
+  //         inline_keyboard: [
+  //           [{ text: "✅ Done", callback_data: "broker_done" }],
+  //         ],
+  //       },
+  //     }
+  //   );
+  // });
 
-  bot.action("groupA_yes", async (ctx) => {
+  // bot.action("groupA_yes", async (ctx) => {
+  //   ctx.session.broker = "AXI";
+  //   ctx.session.step = "broker";
+  //   const telegramId = ctx.from?.id?.toString();
+  //   if (!telegramId) {
+  //     console.error("❌ ctx.from is undefined. Cannot save session.");
+  //     return;
+  //   }
+  //   await redis.set(
+  //     `forex:${telegramId}`,
+  //     JSON.stringify(ctx.session),
+  //     "EX",
+  //     86400
+  //   );
+  //   await ctx.replyWithHTML(
+  //     `Ok Great 👍  \n\n ✅ <b>Register with AXI</b> 👉 <a href="${AXI_LINK}">AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+  //     {
+  //       link_preview_options: { is_disabled: true },
+  //       reply_markup: {
+  //         inline_keyboard: [
+  //           [{ text: "✅ Done", callback_data: "broker_done" }],
+  //         ],
+  //       },
+  //     }
+  //   );
+  // });
+
+  // ---------------- GROUP D – YES / NO ----------------
+  bot.action("groupD_no", async (ctx) => {
     ctx.session.broker = "AXI";
     ctx.session.step = "broker";
     const telegramId = ctx.from?.id?.toString();
@@ -914,35 +960,7 @@ Thanks for waiting
       86400
     );
     await ctx.replyWithHTML(
-      `Ok Great 👍  \n\n ✅ <b>Register with AXI</b> 👉 <a href="${AXI_LINK}">AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
-      {
-        link_preview_options: { is_disabled: true },
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "✅ Done", callback_data: "broker_done" }],
-          ],
-        },
-      }
-    );
-  });
-
-  // ---------------- GROUP D – YES / NO ----------------
-  bot.action("groupD_no", async (ctx) => {
-    ctx.session.broker = "Exness";
-    ctx.session.step = "broker";
-    const telegramId = ctx.from?.id?.toString();
-    if (!telegramId) {
-      console.error("❌ ctx.from is undefined. Cannot save session.");
-      return;
-    }
-    await redis.set(
-      `forex:${telegramId}`,
-      JSON.stringify(ctx.session),
-      "EX",
-      86400
-    );
-    await ctx.replyWithHTML(
-      `Ok Great 👍  \n\n ❌ <b>Register with Exness</b> 👉 <a href="${EXNESS_LINK}">Exness Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+      `Ok Great 👍  \n\n ❌ <b>Register with AXI</b> 👉 <a href="${AXI_LINK}">AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
       {
         link_preview_options: { is_disabled: true },
         reply_markup: {
@@ -1018,7 +1036,8 @@ Thanks for waiting
       let videoFileId: string | undefined;
       switch (ctx.session.broker) {
         case "Exness":
-          videoFileId = process.env.EXNESS_VIDEO_FILE_ID;
+          // videoFileId = process.env.EXNESS_VIDEO_FILE_ID;
+          videoFileId = process.env.AXI_VIDEO_FILE_ID;
           break;
         case "AXI":
           videoFileId = process.env.AXI_VIDEO_FILE_ID;
@@ -1066,7 +1085,8 @@ Thanks for waiting
 
     switch (broker) {
       case "Exness":
-        brokerLink = process.env.EXNESS_LINK || "https://exness.com";
+        // brokerLink = process.env.EXNESS_LINK || "https://exness.com";
+        brokerLink = process.env.AXI_LINK || "https://axi.com";
         break;
       case "AXI":
         brokerLink = process.env.AXI_LINK || "https://axi.com";
@@ -1136,7 +1156,8 @@ Thanks for waiting
     // Map broker → video file ID
     const brokerVideos: Record<string, string | undefined> = {
       axi: process.env.MT4_AXI_VIDEO_FILE_ID,
-      exness: process.env.MT4_EXNESS_VIDEO_FILE_ID,
+      // exness: process.env.MT4_EXNESS_VIDEO_FILE_ID,
+      exness: process.env.MT4_AXI_VIDEO_FILE_ID,
       exco: process.env.MT4_EXCO_VIDEO_FILE_ID,
       oanda: process.env.MT4_OANDA_VIDEO_FILE_ID,
     };
