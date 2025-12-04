@@ -47,14 +47,14 @@ export default function (bot: Telegraf<BotContext>) {
   ];
 
 // new
-const formattedCountries = allCountries.map((c) => ({ name: c }));
+// const formattedCountries = allCountries.map((c) => ({ name: c }));
 
-  // const fuse = new Fuse(allCountries, { threshold: 0.3 });
+  const fuse = new Fuse(allCountries, { threshold: 0.3 });
 
-  const fuse = new Fuse(formattedCountries, {
-  keys: ["name"],
-  threshold: 0.3,
-})
+//   const fuse = new Fuse(allCountries, {
+//   keys: ["name"],
+//   threshold: 0.3,
+// })
 
   // -------------------- REDIS SESSION MIDDLEWARE --------------------
   bot.use(async (ctx, next) => {
@@ -649,7 +649,7 @@ Thanks for waiting
         return;
       }
 
-      const bestMatch = result[0].item.name;
+      const bestMatch = result[0].item
 
       console.log('bestMatch', bestMatch)
       if (bestMatch.toLowerCase() !== text.toLowerCase()) {
