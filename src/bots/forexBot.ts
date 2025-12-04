@@ -650,7 +650,6 @@ Thanks for waiting
 
       const bestMatch = result[0].item;
 
-      console.log("bestMatch", bestMatch);
       if (bestMatch.toLowerCase() !== text.toLowerCase()) {
         await ctx.replyWithHTML(
           `✍️ Did you mean <b>${bestMatch}</b>?`,
@@ -771,7 +770,6 @@ Thanks for waiting
   async function handleCountry(ctx: BotContext, country: string) {
     ctx.session.country = country;
     let group: string;
-    console.log("helper function country:", country);
     if (groupACountries.includes(country)) group = "A";
     else if (groupBCountries.includes(country)) group = "B";
     else if (groupCCountries.includes(country)) group = "C";
@@ -792,7 +790,6 @@ Thanks for waiting
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
 
-      console.log("group A selected");
    
       await redis.set(
         `forex:${telegramId}`,
@@ -825,7 +822,6 @@ Thanks for waiting
     else if (group === "B") {
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
-      console.log("group B selected");
     
       await redis.set(
         `forex:${telegramId}`,
@@ -851,7 +847,6 @@ Thanks for waiting
     else if (group === "C") {
       ctx.session.broker = "Oanda";
       ctx.session.step = "broker";
-      console.log("group C selected");
   
       await redis.set(
         `forex:${telegramId}`,
@@ -875,7 +870,6 @@ Thanks for waiting
     else if (group === "D") {
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
-      console.log("group D selected");
    
       await redis.set(
         `forex:${telegramId}`,
