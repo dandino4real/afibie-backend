@@ -46,15 +46,15 @@ export default function (bot: Telegraf<BotContext>) {
     ...groupDcountries,
   ];
 
-// new
-// const formattedCountries = allCountries.map((c) => ({ name: c }));
+  // new
+  // const formattedCountries = allCountries.map((c) => ({ name: c }));
 
   const fuse = new Fuse(allCountries, { threshold: 0.3 });
 
-//   const fuse = new Fuse(allCountries, {
-//   keys: ["name"],
-//   threshold: 0.3,
-// })
+  //   const fuse = new Fuse(allCountries, {
+  //   keys: ["name"],
+  //   threshold: 0.3,
+  // })
 
   // -------------------- REDIS SESSION MIDDLEWARE --------------------
   bot.use(async (ctx, next) => {
@@ -359,7 +359,7 @@ Thanks for waiting
     }
   }
 
-    // ================== NOTIFY USER: TEST TRADE SCREENSHOT APPROVED ==================
+  // ================== NOTIFY USER: TEST TRADE SCREENSHOT APPROVED ==================
   async function notifyUserExpressApproved(user: IFOREX_User) {
     try {
       await bot.telegram.sendMessage(
@@ -640,18 +640,17 @@ Thanks for waiting
 
     // ✅ Country detection (Fuse.js)
     if (ctx.session.step === "country") {
+      const input = text.trim();
 
-     const input = text.trim();
-
-  const result = fuse.search(input);
+      const result = fuse.search(input);
       if (result.length === 0) {
         await ctx.reply(`❌ Couldn’t recognize "${text}". Try again.`);
         return;
       }
 
-      const bestMatch = result[0].item
+      const bestMatch = result[0].item;
 
-      console.log('bestMatch', bestMatch)
+      console.log("bestMatch", bestMatch);
       if (bestMatch.toLowerCase() !== text.toLowerCase()) {
         await ctx.replyWithHTML(
           `✍️ Did you mean <b>${bestMatch}</b>?`,
@@ -664,7 +663,7 @@ Thanks for waiting
           ])
         );
       } else {
-        console.log('calling handleCountry with:', bestMatch);
+        console.log("calling handleCountry with:", bestMatch);
         await handleCountry(ctx, bestMatch);
       }
       return;
@@ -772,7 +771,7 @@ Thanks for waiting
   async function handleCountry(ctx: BotContext, country: string) {
     ctx.session.country = country;
     let group: string;
-console.log('helper function country:', country);
+    console.log("helper function country:", country);
     if (groupACountries.includes(country)) group = "A";
     else if (groupBCountries.includes(country)) group = "B";
     else if (groupCCountries.includes(country)) group = "C";
@@ -784,15 +783,15 @@ console.log('helper function country:', country);
     // ---------------- GROUP A ----------------
     if (group === "A") {
       ctx.session.broker = "AXI";
-      ctx.session.step = "broker"; 
+      ctx.session.step = "broker";
 
-      console.log('group A selected');
+      console.log("group A selected");
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
         return;
       }
-      
+
       await redis.set(
         `forex:${telegramId}`,
         JSON.stringify(ctx.session),
@@ -807,9 +806,8 @@ console.log('helper function country:', country);
       //   ])
       // );
 
-
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -825,7 +823,7 @@ console.log('helper function country:', country);
     else if (group === "B") {
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
-console.log('group B selected');
+      console.log("group B selected");
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
@@ -839,7 +837,7 @@ console.log('group B selected');
       );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n⚡ It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -855,7 +853,7 @@ console.log('group B selected');
     else if (group === "C") {
       ctx.session.broker = "Oanda";
       ctx.session.step = "broker";
-      console.log('group C selected');
+      console.log("group C selected");
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
@@ -877,16 +875,13 @@ console.log('group B selected');
           },
         }
       );
-
-
-
     }
 
     // ---------------- GROUP D ----------------
     else if (group === "D") {
       ctx.session.broker = "AXI";
-      ctx.session.step = "broker"; 
-      console.log('group D selected');
+      ctx.session.step = "broker";
+      console.log("group D selected");
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
