@@ -45,7 +45,16 @@ export default function (bot: Telegraf<BotContext>) {
     ...groupCCountries,
     ...groupDcountries,
   ];
-  const fuse = new Fuse(allCountries, { threshold: 0.3 });
+
+// new
+const formattedCountries = allCountries.map((c) => ({ name: c }));
+
+  // const fuse = new Fuse(allCountries, { threshold: 0.3 });
+
+  const fuse = new Fuse(formattedCountries, {
+  keys: ["name"],
+  threshold: 0.3,
+})
 
   // -------------------- REDIS SESSION MIDDLEWARE --------------------
   bot.use(async (ctx, next) => {
@@ -631,13 +640,16 @@ Thanks for waiting
 
     // ✅ Country detection (Fuse.js)
     if (ctx.session.step === "country") {
-      const result = fuse.search(text);
+
+     const input = text.trim();
+
+  const result = fuse.search(input);
       if (result.length === 0) {
         await ctx.reply(`❌ Couldn’t recognize "${text}". Try again.`);
         return;
       }
 
-      const bestMatch = result[0].item;
+      const bestMatch = result[0].item.name;
       if (bestMatch.toLowerCase() !== text.toLowerCase()) {
         await ctx.replyWithHTML(
           `✍️ Did you mean <b>${bestMatch}</b>?`,
@@ -796,7 +808,6 @@ Thanks for waiting
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
-
             inline_keyboard: [
               [{ text: "✅ Done", callback_data: "broker_done" }],
             ],
@@ -860,6 +871,9 @@ Thanks for waiting
           },
         }
       );
+
+
+
     }
 
     // ---------------- GROUP D ----------------
@@ -1516,12 +1530,12 @@ If you need help, contact @Francis_Nbtc.
   watchUserStatusChanges();
   // getting the video file id from
 
-  bot.on("video", async (ctx) => {
-    const fileId = ctx.message.video.file_id;
-    console.log("🎥 Video File ID:", fileId);
+  // bot.on("video", async (ctx) => {
+  //   const fileId = ctx.message.video.file_id;
+  //   console.log("🎥 Video File ID:", fileId);
 
-    await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
-      parse_mode: "HTML",
-    });
-  });
+  //   await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
+  //     parse_mode: "HTML",
+  //   });
+  // });
 }
