@@ -780,18 +780,20 @@ Thanks for waiting
 
     ctx.session.group = group;
 
+     const telegramId = ctx.from?.id?.toString();
+      if (!telegramId) {
+        console.error("❌ ctx.from is undefined. Cannot save session.");
+        return;
+      }
+
+
     // ---------------- GROUP A ----------------
     if (group === "A") {
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
 
       console.log("group A selected");
-      const telegramId = ctx.from?.id?.toString();
-      if (!telegramId) {
-        console.error("❌ ctx.from is undefined. Cannot save session.");
-        return;
-      }
-
+   
       await redis.set(
         `forex:${telegramId}`,
         JSON.stringify(ctx.session),
@@ -807,7 +809,7 @@ Thanks for waiting
       // );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="${AXI_LINK}" target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -824,11 +826,7 @@ Thanks for waiting
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
       console.log("group B selected");
-      const telegramId = ctx.from?.id?.toString();
-      if (!telegramId) {
-        console.error("❌ ctx.from is undefined. Cannot save session.");
-        return;
-      }
+    
       await redis.set(
         `forex:${telegramId}`,
         JSON.stringify(ctx.session),
@@ -837,7 +835,7 @@ Thanks for waiting
       );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href=${AXI_LINK} target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="${AXI_LINK}" target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -854,11 +852,7 @@ Thanks for waiting
       ctx.session.broker = "Oanda";
       ctx.session.step = "broker";
       console.log("group C selected");
-      const telegramId = ctx.from?.id?.toString();
-      if (!telegramId) {
-        console.error("❌ ctx.from is undefined. Cannot save session.");
-        return;
-      }
+  
       await redis.set(
         `forex:${telegramId}`,
         JSON.stringify(ctx.session),
@@ -882,11 +876,7 @@ Thanks for waiting
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
       console.log("group D selected");
-      const telegramId = ctx.from?.id?.toString();
-      if (!telegramId) {
-        console.error("❌ ctx.from is undefined. Cannot save session.");
-        return;
-      }
+   
       await redis.set(
         `forex:${telegramId}`,
         JSON.stringify(ctx.session),
