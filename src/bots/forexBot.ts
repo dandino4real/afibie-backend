@@ -650,6 +650,8 @@ Thanks for waiting
       }
 
       const bestMatch = result[0].item.name;
+
+      console.log('bestMatch', bestMatch)
       if (bestMatch.toLowerCase() !== text.toLowerCase()) {
         await ctx.replyWithHTML(
           `✍️ Did you mean <b>${bestMatch}</b>?`,
@@ -662,6 +664,7 @@ Thanks for waiting
           ])
         );
       } else {
+        console.log('calling handleCountry with:', bestMatch);
         await handleCountry(ctx, bestMatch);
       }
       return;
@@ -769,7 +772,7 @@ Thanks for waiting
   async function handleCountry(ctx: BotContext, country: string) {
     ctx.session.country = country;
     let group: string;
-
+console.log('helper function country:', country);
     if (groupACountries.includes(country)) group = "A";
     else if (groupBCountries.includes(country)) group = "B";
     else if (groupCCountries.includes(country)) group = "C";
@@ -783,11 +786,13 @@ Thanks for waiting
       ctx.session.broker = "AXI";
       ctx.session.step = "broker"; 
 
+      console.log('group A selected');
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
         return;
       }
+      
       await redis.set(
         `forex:${telegramId}`,
         JSON.stringify(ctx.session),
@@ -820,7 +825,7 @@ Thanks for waiting
     else if (group === "B") {
       ctx.session.broker = "AXI";
       ctx.session.step = "broker";
-
+console.log('group B selected');
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
@@ -850,6 +855,7 @@ Thanks for waiting
     else if (group === "C") {
       ctx.session.broker = "Oanda";
       ctx.session.step = "broker";
+      console.log('group C selected');
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
@@ -880,6 +886,7 @@ Thanks for waiting
     else if (group === "D") {
       ctx.session.broker = "AXI";
       ctx.session.step = "broker"; 
+      console.log('group D selected');
       const telegramId = ctx.from?.id?.toString();
       if (!telegramId) {
         console.error("❌ ctx.from is undefined. Cannot save session.");
