@@ -245,13 +245,16 @@ import { connectDB } from "./config/db";
 import { BotContext } from "./telegrafContext";
 import cryptoBotHandler from "./bots/cryptoBot";
 import newforexBotHandler from "./bots/forexBot";
+import afibe10xBotHandler from "./bots/afibe10xBot";
 import cryptoUserRoutes from "./routes/crypto_user.routes";
 import forexUserRoutes from "./routes/forex_user.routes";
 import forexNewUserRoutes from "./routes/forex_new_user.routes";
+import afibe10xUserRoutes from "./routes/afibe10x_user.routes";
 import staticticsRoutes from "./routes/users_stats.routes";
 import authRoutes from "./routes/auth.routes";
 import adminRoutes from "./routes/admin.routes";
-import { setupForexWebSocket } from "./websocket/forexChatHandler"; 
+import { setupForexWebSocket } from "./websocket/forexChatHandler";
+import { setupAfibe10xWebSocket } from "./websocket/afibe10xChatHandler";
 
 dotenv.config();
 
@@ -261,6 +264,7 @@ const app = express();
 const requiredEnvVars = [
   "BOT_TOKEN_CRYPTO",
   "NEW_BOT_TOKEN_FOREX",
+  "BOT_TOKEN_AFIBIE_10X",
   "MONGODB_URI",
   "WEBHOOK_SECRET",
   "BASE_URL",
@@ -276,6 +280,7 @@ console.log("Environment variables loaded:");
 console.log("CORS_ORIGINS:", process.env.CORS_ORIGINS || "Not set");
 console.log("BOT_TOKEN_CRYPTO:", process.env.BOT_TOKEN_CRYPTO ? "exists" : "MISSING");
 console.log("NEW_BOT_TOKEN_FOREX:", process.env.NEW_BOT_TOKEN_FOREX ? "exists" : "MISSING");
+console.log("BOT_TOKEN_AFIBIE_10X:", process.env.BOT_TOKEN_AFIBIE_10X ? "exists" : "MISSING");
 console.log("BASE_URL:", process.env.BASE_URL || "Not set");
 console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
 console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
@@ -306,10 +311,12 @@ app.use((req, _, next) => {
 const bots = {
   cryptoBot: new Telegraf<BotContext>(process.env.BOT_TOKEN_CRYPTO!),
   forexBot_New: new Telegraf<BotContext>(process.env.NEW_BOT_TOKEN_FOREX!),
+  afibe10xBot: new Telegraf<BotContext>(process.env.BOT_TOKEN_AFIBIE_10X!),
 };
 
 bots.cryptoBot.context.botType = "crypto";
 bots.forexBot_New.context.botType = "forex_new";
+bots.afibe10xBot.context.botType = "afibe10x";
 
 // Session middleware
 let redis: Redis | null = null;
@@ -354,6 +361,7 @@ Object.values(bots).forEach((bot) => bot.use(sessionMiddleware));
 // Attach handlers
 cryptoBotHandler(bots.cryptoBot);
 newforexBotHandler(bots.forexBot_New);
+afibe10xBotHandler(bots.afibe10xBot);
 
 // Webhook setup
 const setupBots = async () => {
@@ -402,11 +410,13 @@ const createWebhookHandler = (bot: Telegraf<BotContext>) => {
 // Apply webhook handlers
 app.post("/webhook/cryptoBot", express.json(), createWebhookHandler(bots.cryptoBot));
 app.post("/webhook/forexBot_New", express.json(), createWebhookHandler(bots.forexBot_New));
+app.post("/webhook/afibe10xBot", express.json(), createWebhookHandler(bots.afibe10xBot));
 
 // API routes
 app.use("/api/users", cryptoUserRoutes);
 app.use("/api/users", forexUserRoutes);
 app.use("/api/new-forex-users", forexNewUserRoutes);
+app.use("/api/users", afibe10xUserRoutes);
 app.use("/api/users", staticticsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
@@ -420,6 +430,7 @@ app.get("/health", (req: Request, res: Response) => {
     bots: {
       crypto: !!process.env.BOT_TOKEN_CRYPTO,
       forex_new: !!process.env.NEW_BOT_TOKEN_FOREX,
+      afibe10x: !!process.env.BOT_TOKEN_AFIBIE_10X,
     },
   });
 });
@@ -440,7 +451,9 @@ const initializeApp = async () => {
     );
 
     // 🧩 Initialize WebSocket for Forex chat
-    setupForexWebSocket(server , bots.forexBot_New);
+    // 🧩 Initialize WebSocket for Forex chat
+    setupForexWebSocket(server, bots.forexBot_New);
+    setupAfibe10xWebSocket(server, bots.afibe10xBot);
   } catch (error) {
     console.error("❌ App initialization error:", error);
     process.exit(1);
