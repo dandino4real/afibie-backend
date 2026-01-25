@@ -126,6 +126,11 @@ export default function (bot: Telegraf<BotContext>) {
         }
     }
 
+
+
+
+
+
     async function watchUserStatusChanges() {
         try {
             const changeStream = Afibe10XUserModel.watch([], {
@@ -157,6 +162,16 @@ export default function (bot: Telegraf<BotContext>) {
         onLimitExceeded: (ctx: any) =>
             ctx.reply("🚫 Too many link requests! Try again later."),
     });
+
+
+
+
+
+
+
+
+
+
 
     bot.start(async (ctx) => {
         // Reset session
@@ -193,7 +208,16 @@ export default function (bot: Telegraf<BotContext>) {
         );
     });
 
+
+
+
+
+
+
+
+
     bot.action("continue_introduction", async (ctx) => {
+        await ctx.answerCbQuery();
         ctx.session.step = "introduction";
         const sessionKey = `afibe10x:${ctx.from.id}`;
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -216,6 +240,9 @@ export default function (bot: Telegraf<BotContext>) {
         );
     });
 
+
+
+
     bot.action("continue_eligibility", async (ctx) => {
         ctx.session.step = "eligibility";
         const sessionKey = `afibe10x:${ctx.from.id}`;
@@ -232,6 +259,8 @@ export default function (bot: Telegraf<BotContext>) {
         );
     });
 
+
+
     bot.action("continue_captcha", async (ctx) => {
         ctx.session.step = "captcha";
         ctx.session.captcha = generateCaptcha();
@@ -244,6 +273,8 @@ export default function (bot: Telegraf<BotContext>) {
             `Type this number 👉 <code>${ctx.session.captcha}</code>`
         );
     });
+
+
 
     // ---------------- ENDCHAT COMMAND ----------------
     bot.command("endchat", async (ctx) => {
@@ -436,70 +467,6 @@ export default function (bot: Telegraf<BotContext>) {
             `Please enter your WEEX UID below:`
         );
     })
-
-    // async function saveUser(ctx: any) {
-    //     const telegramId = ctx.from.id.toString();
-    //     const updatePayload: Partial<IAfibe10X_User> = {
-    //         telegramId,
-    //         username: ctx.from.username || "unknown",
-    //         fullName: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Unknown User",
-    //         botType: "afibe10x",
-    //         userId: ctx.session.weexUid,
-    //         status: "pending",
-    //         rejectionReason: undefined // Clear rejection reason on resubmit
-    //     };
-
-    //     // 🤖 Automated Verification
-    //     const verificationResult = await weexService.verifyUid(ctx.session.weexUid);
-
-    //     if (verificationResult === true) {
-    //         updatePayload.status = "approved";
-    //         updatePayload.approvedAt = new Date();
-    //         updatePayload.approvedBy = {
-    //             name: "System (Weex API)",
-    //             email: "system@bot"
-    //         };
-    //     } else if (verificationResult === false) {
-    //         updatePayload.status = "rejected";
-    //         updatePayload.rejectedAt = new Date();
-    //         updatePayload.rejectionReason = "wrong_link";
-    //         updatePayload.rejectedBy = {
-    //             name: "System (Weex API)",
-    //             email: "system@bot"
-    //         };
-    //     }
-    //     // If null, it remains "pending" (default fallback)
-
-    //     try {
-    //         const user = await Afibe10XUserModel.findOneAndUpdate(
-    //             { telegramId, botType: "afibe10x" },
-    //             updatePayload,
-    //             { upsert: true, new: true, maxTimeMS: 20000 }
-    //         );
-
-    //         // If automatically processed, notify user immediately via status change watcher
-    //         // The watcher in `watchUserStatusChanges` will pick up the "approved" or "rejected" status
-    //         // and send the appropriate message. 
-
-    //         // WE ONLY SEND THE "VERIFYING" MESSAGE IF IT IS STILL PENDING
-    //         if (user.status === "pending") {
-    //             await ctx.replyWithHTML(
-    //                 `<b>Verification </b>\n\n` +
-    //                 `⏳ <b>We are verifying your account…</b>\n` +
-    //                 `This may take a few minutes.\n\n` +
-    //                 `💡 <b>If you haven’t received feedback after one hour, kindly click “Contact Admin” below to chat with our support team.</b>`,
-    //                 contactAdminButton
-    //             );
-    //         }
-
-    //         // Notify Admin
-    //         await sendAdminAlertAfibe10X(user);
-
-    //     } catch (error) {
-    //         console.error(`[saveUser] Error for user ${telegramId}:`, error);
-    //         await ctx.replyWithHTML(`<b>⚠️ Error</b>\n\n🚫 Could not save your details. Please try again.`);
-    //     }
-    // }
 
 
 async function saveUser(ctx: any) {
