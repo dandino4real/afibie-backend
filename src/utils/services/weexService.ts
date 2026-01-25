@@ -205,7 +205,7 @@ if (queryString) {
                 headers: error.response.headers
             });
             } else {
-                console.error("❌ WEEX Service Error:", error.message);
+                console.error("❌ WEEX Service Error:", error, error.message);
             }
             return null;
         }
