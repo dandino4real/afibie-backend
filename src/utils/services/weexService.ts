@@ -116,20 +116,9 @@ if (queryString) {
         try {
             // Optimization: Single call to getChannelUserTradeAndAsset checks both referral existence and deposit
             const endpoint = "/api/v2/rebate/affiliate/getChannelUserTradeAndAsset";
-            // const method = "GET";
-            // const params = `?uid=${uid}`; // Filtering by UID
-            // const timestamp = Date.now().toString();
             const queryParams = `?uid=${uid}`;  // only here
-        // const timestampMs = Date.now();
-        // const timestamp = timestampMs.toString();
-        const timestamp = Date.now().toString();
+         const timestamp = Date.now().toString();
 
-            // const signature = this.generateSignature(
-            //     method,
-            //     endpoint + params,
-            //     timestamp,
-            //     ""
-            // );
 
             const signature = this.generateSignature("GET", endpoint, timestamp, queryParams);
 
@@ -152,12 +141,6 @@ if (queryString) {
             headers: { ...headers, "ACCESS-SIGN": "[hidden]" }
         });
 
-
-
-            // const response = await axios.get(`${this.baseUrl}${endpoint}${params}`, {
-            //     headers,
-            //     timeout: 5000,
-            // });
 
             const response = await axios.get(
             `${this.baseUrl}${endpoint}${queryParams}`,
