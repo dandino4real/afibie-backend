@@ -27,9 +27,21 @@ export class WeexService {
         method: string,
         endpoint: string,
         timestamp: string,
+        queryString: string = ""
         // params: string = ""
     ): string {
-        const message = `${timestamp}${method.toUpperCase()}${endpoint}`;
+        let message = `${timestamp}${method.toUpperCase()}${endpoint}`;
+
+if (queryString) {
+        // Important: add "?" + queryString even if queryString already starts with "?"
+        // But since your queryString starts with "?", it's fine → becomes ...endpoint?uid=...
+        message += queryString;
+    } else {
+        // Some docs say to append "?" even with no params → but most examples omit it
+        // Start without, but you can test with "?" added if still fails
+        // message += "?";
+    }
+
         return crypto
             .createHmac("sha256", this.secretKey)
             .update(message)
@@ -108,8 +120,9 @@ export class WeexService {
             // const params = `?uid=${uid}`; // Filtering by UID
             // const timestamp = Date.now().toString();
             const queryParams = `?uid=${uid}`;  // only here
-        const timestampMs = Date.now();
-        const timestamp = timestampMs.toString();
+        // const timestampMs = Date.now();
+        // const timestamp = timestampMs.toString();
+        const timestamp = Date.now().toString();
 
             // const signature = this.generateSignature(
             //     method,
@@ -118,7 +131,7 @@ export class WeexService {
             //     ""
             // );
 
-            const signature = this.generateSignature("GET", endpoint, timestamp);
+            const signature = this.generateSignature("GET", endpoint, timestamp, queryParams);
 
             const headers = {
                 "ACCESS-KEY": this.apiKey,
@@ -126,7 +139,7 @@ export class WeexService {
                 "ACCESS-PASSPHRASE": this.passphrase,
                 "ACCESS-TIMESTAMP": timestamp,
                 "Content-Type": "application/json",
-                locale: "en-US",
+                locale: "zh-CN",
             };
 
 
