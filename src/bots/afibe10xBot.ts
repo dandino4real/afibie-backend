@@ -217,16 +217,15 @@ export default function (bot: Telegraf<BotContext>) {
 
 
     bot.action("continue_introduction", async (ctx) => {
-        await ctx.answerCbQuery();
         ctx.session.step = "introduction";
         const sessionKey = `afibe10x:${ctx.from.id}`;
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
 
         await ctx.replyWithHTML(
             `<b>Here’s how it works:</b>\n\n` +
-            `\t<b>.<b/><b>Me + my vetted traders</b> provide the signals\n` +
-            `\t<b>.<b/>You focus on copying correctly, sizing properly, and compounding weekly\n` +
-            `\t<b>.<b/>I’ll teach the execution + risk rules at the start of the challenge\n\n` +
+            `   <b>.<b/><b>Me + my vetted traders</b> provide the signals\n` +
+            `   <b>.<b/>You focus on copying correctly, sizing properly, and compounding weekly\n` +
+            `  <b>.<b/>I’ll teach the execution + risk rules at the start of the challenge\n\n` +
             `🎯 <b>Challenge Goal:</b> Aim for 10X growth through discipline, not gambling.\n` +
             `<i>(This is a challenge, not a guarantee. Results depend on execution and risk control.)</i>\n\n` +
             `This bot will guide you to unlock access to:\n` +
