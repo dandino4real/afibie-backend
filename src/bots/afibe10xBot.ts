@@ -607,15 +607,15 @@ async function saveUser(ctx: any) {
 
     // getting the gif file id from
 
-   bot.on("animation", async (ctx) => {
-  const fileId = ctx.message.animation.file_id;
+//    bot.on("animation", async (ctx) => {
+//   const fileId = ctx.message.animation.file_id;
 
-  console.log("🎞️ GIF (animation) File ID:", fileId);
+//   console.log("🎞️ GIF (animation) File ID:", fileId);
 
-  await ctx.replyWithHTML(
-    `✅ Got it!\nGIF File ID:\n<code>${fileId}</code>`
-  );
-});
+//   await ctx.replyWithHTML(
+//     `✅ Got it!\nGIF File ID:\n<code>${fileId}</code>`
+//   );
+// });
 
 
 
