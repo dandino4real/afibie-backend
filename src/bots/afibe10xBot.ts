@@ -210,12 +210,6 @@ export default function (bot: Telegraf<BotContext>) {
 
 
 
-
-
-
-
-
-
     bot.action("continue_introduction", async (ctx) => {
         ctx.session.step = "introduction";
         const sessionKey = `afibe10x:${ctx.from.id}`;
@@ -611,16 +605,18 @@ async function saveUser(ctx: any) {
     });
 
 
-    // getting the video file id from
+    // getting the gif file id from
 
-    bot.on("video", async (ctx) => {
-        const fileId = ctx.message.video.file_id;
-        console.log("🎥 Video File ID:", fileId);
+   bot.on("animation", async (ctx) => {
+  const fileId = ctx.message.animation.file_id;
 
-        await ctx.reply(`✅ Got it!\nFile ID: <code>${fileId}</code>`, {
-            parse_mode: "HTML",
-        });
-    });
+  console.log("🎞️ GIF (animation) File ID:", fileId);
+
+  await ctx.replyWithHTML(
+    `✅ Got it!\nGIF File ID:\n<code>${fileId}</code>`
+  );
+});
+
 
 
 
