@@ -31,7 +31,7 @@ export const Afibe10XUserService = {
 
         return {
             users,
-            meta: {
+            pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
                 total,

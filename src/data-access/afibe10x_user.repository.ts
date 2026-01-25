@@ -50,17 +50,8 @@ export const Afibe10XUserRepository = {
 
         const total = await Afibe10XUserModel.countDocuments(combinedFilter);
 
-        // return { users, total };
+        return { users, total };
 
-    return {
-      users,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
     },
 
     findById: async (id: string) => {
