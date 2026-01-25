@@ -437,69 +437,134 @@ export default function (bot: Telegraf<BotContext>) {
         );
     })
 
-    async function saveUser(ctx: any) {
-        const telegramId = ctx.from.id.toString();
-        const updatePayload: Partial<IAfibe10X_User> = {
-            telegramId,
-            username: ctx.from.username || "unknown",
-            fullName: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Unknown User",
-            botType: "afibe10x",
-            userId: ctx.session.weexUid,
-            status: "pending",
-            rejectionReason: undefined // Clear rejection reason on resubmit
-        };
+    // async function saveUser(ctx: any) {
+    //     const telegramId = ctx.from.id.toString();
+    //     const updatePayload: Partial<IAfibe10X_User> = {
+    //         telegramId,
+    //         username: ctx.from.username || "unknown",
+    //         fullName: `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() || "Unknown User",
+    //         botType: "afibe10x",
+    //         userId: ctx.session.weexUid,
+    //         status: "pending",
+    //         rejectionReason: undefined // Clear rejection reason on resubmit
+    //     };
 
-        // 🤖 Automated Verification
-        const verificationResult = await weexService.verifyUid(ctx.session.weexUid);
+    //     // 🤖 Automated Verification
+    //     const verificationResult = await weexService.verifyUid(ctx.session.weexUid);
 
-        if (verificationResult === true) {
-            updatePayload.status = "approved";
-            updatePayload.approvedAt = new Date();
-            updatePayload.approvedBy = {
-                name: "System (Weex API)",
-                email: "system@bot"
-            };
-        } else if (verificationResult === false) {
-            updatePayload.status = "rejected";
-            updatePayload.rejectedAt = new Date();
-            updatePayload.rejectionReason = "wrong_link";
-            updatePayload.rejectedBy = {
-                name: "System (Weex API)",
-                email: "system@bot"
-            };
-        }
-        // If null, it remains "pending" (default fallback)
+    //     if (verificationResult === true) {
+    //         updatePayload.status = "approved";
+    //         updatePayload.approvedAt = new Date();
+    //         updatePayload.approvedBy = {
+    //             name: "System (Weex API)",
+    //             email: "system@bot"
+    //         };
+    //     } else if (verificationResult === false) {
+    //         updatePayload.status = "rejected";
+    //         updatePayload.rejectedAt = new Date();
+    //         updatePayload.rejectionReason = "wrong_link";
+    //         updatePayload.rejectedBy = {
+    //             name: "System (Weex API)",
+    //             email: "system@bot"
+    //         };
+    //     }
+    //     // If null, it remains "pending" (default fallback)
 
-        try {
-            const user = await Afibe10XUserModel.findOneAndUpdate(
-                { telegramId, botType: "afibe10x" },
-                updatePayload,
-                { upsert: true, new: true, maxTimeMS: 20000 }
-            );
+    //     try {
+    //         const user = await Afibe10XUserModel.findOneAndUpdate(
+    //             { telegramId, botType: "afibe10x" },
+    //             updatePayload,
+    //             { upsert: true, new: true, maxTimeMS: 20000 }
+    //         );
 
-            // If automatically processed, notify user immediately via status change watcher
-            // The watcher in `watchUserStatusChanges` will pick up the "approved" or "rejected" status
-            // and send the appropriate message. 
+    //         // If automatically processed, notify user immediately via status change watcher
+    //         // The watcher in `watchUserStatusChanges` will pick up the "approved" or "rejected" status
+    //         // and send the appropriate message. 
 
-            // WE ONLY SEND THE "VERIFYING" MESSAGE IF IT IS STILL PENDING
-            if (user.status === "pending") {
-                await ctx.replyWithHTML(
-                    `<b>Verification </b>\n\n` +
-                    `⏳ <b>We are verifying your account…</b>\n` +
-                    `This may take a few minutes.\n\n` +
-                    `💡 <b>If you haven’t received feedback after one hour, kindly click “Contact Admin” below to chat with our support team.</b>`,
-                    contactAdminButton
-                );
-            }
+    //         // WE ONLY SEND THE "VERIFYING" MESSAGE IF IT IS STILL PENDING
+    //         if (user.status === "pending") {
+    //             await ctx.replyWithHTML(
+    //                 `<b>Verification </b>\n\n` +
+    //                 `⏳ <b>We are verifying your account…</b>\n` +
+    //                 `This may take a few minutes.\n\n` +
+    //                 `💡 <b>If you haven’t received feedback after one hour, kindly click “Contact Admin” below to chat with our support team.</b>`,
+    //                 contactAdminButton
+    //             );
+    //         }
 
-            // Notify Admin
-            await sendAdminAlertAfibe10X(user);
+    //         // Notify Admin
+    //         await sendAdminAlertAfibe10X(user);
 
-        } catch (error) {
-            console.error(`[saveUser] Error for user ${telegramId}:`, error);
-            await ctx.replyWithHTML(`<b>⚠️ Error</b>\n\n🚫 Could not save your details. Please try again.`);
-        }
+    //     } catch (error) {
+    //         console.error(`[saveUser] Error for user ${telegramId}:`, error);
+    //         await ctx.replyWithHTML(`<b>⚠️ Error</b>\n\n🚫 Could not save your details. Please try again.`);
+    //     }
+    // }
+
+
+async function saveUser(ctx: any) {
+  try {
+    const telegramId = ctx.from.id.toString();
+
+    const updatePayload: Partial<IAfibe10X_User> = {
+      telegramId,
+      username: ctx.from.username || "unknown",
+      fullName:
+        `${ctx.from.first_name || ""} ${ctx.from.last_name || ""}`.trim() ||
+        "Unknown User",
+      botType: "afibe10x",
+      userId: ctx.session.weexUid,
+      status: "pending",
+    };
+
+    // 🔐 External API must be protected
+    let verificationResult: boolean | null = null;
+    try {
+      verificationResult = await weexService.verifyUid(ctx.session.weexUid);
+    } catch (e) {
+      console.error("WEEX verification failed:", e);
     }
+
+    if (verificationResult === true) {
+      Object.assign(updatePayload, {
+        status: "approved",
+        approvedAt: new Date(),
+        approvedBy: { name: "System (Weex API)", email: "system@bot" },
+      });
+    }
+
+    if (verificationResult === false) {
+      Object.assign(updatePayload, {
+        status: "rejected",
+        rejectedAt: new Date(),
+        rejectionReason: "wrong_link",
+        rejectedBy: { name: "System (Weex API)", email: "system@bot" },
+      });
+    }
+
+    const user = await Afibe10XUserModel.findOneAndUpdate(
+      { telegramId, botType: "afibe10x" },
+      { $set: updatePayload },   // ✅ CRITICAL FIX
+      { upsert: true, new: true }
+    );
+
+    if (user.status === "pending") {
+      await ctx.replyWithHTML(
+        `<b>Verification</b>\n\n⏳ We are verifying your account…`,
+        contactAdminButton
+      );
+    }
+
+    await sendAdminAlertAfibe10X(user);
+
+  } catch (error) {
+    console.error("[saveUser] HARD FAILURE:", error);
+    await ctx.replyWithHTML(
+      `<b>⚠️ Error</b>\n\n🚫 Could not save your details. Please try again`
+    );
+  }
+}
+
 
     bot.action("get_group_links", getLinkLimiter, async (ctx) => {
         const tgId = ctx.from?.id?.toString();
