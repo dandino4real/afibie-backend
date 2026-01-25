@@ -97,6 +97,10 @@ export class WeexService {
             return null;
         }
 
+        console.log('api-key', this.apiKey);
+        console.log('secret-key', this.secretKey);
+        console.log('passphrase', this.passphrase);
+
         try {
             // Optimization: Single call to getChannelUserTradeAndAsset checks both referral existence and deposit
             const endpoint = "/api/v2/rebate/affiliate/getChannelUserTradeAndAsset";
