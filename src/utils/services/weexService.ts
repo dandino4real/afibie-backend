@@ -27,9 +27,9 @@ export class WeexService {
         method: string,
         endpoint: string,
         timestamp: string,
-        params: string = ""
+        // params: string = ""
     ): string {
-        const message = `${timestamp}${method.toUpperCase()}${endpoint}${params}`;
+        const message = `${timestamp}${method.toUpperCase()}${endpoint}`;
         return crypto
             .createHmac("sha256", this.secretKey)
             .update(message)
@@ -104,16 +104,21 @@ export class WeexService {
         try {
             // Optimization: Single call to getChannelUserTradeAndAsset checks both referral existence and deposit
             const endpoint = "/api/v2/rebate/affiliate/getChannelUserTradeAndAsset";
-            const method = "GET";
-            const params = `?uid=${uid}`; // Filtering by UID
-            const timestamp = Date.now().toString();
+            // const method = "GET";
+            // const params = `?uid=${uid}`; // Filtering by UID
+            // const timestamp = Date.now().toString();
+            const queryParams = `?uid=${uid}`;  // only here
+        const timestampMs = Date.now();
+        const timestamp = timestampMs.toString();
 
-            const signature = this.generateSignature(
-                method,
-                endpoint + params,
-                timestamp,
-                ""
-            );
+            // const signature = this.generateSignature(
+            //     method,
+            //     endpoint + params,
+            //     timestamp,
+            //     ""
+            // );
+
+            const signature = this.generateSignature("GET", endpoint, timestamp);
 
             const headers = {
                 "ACCESS-KEY": this.apiKey,
@@ -124,10 +129,29 @@ export class WeexService {
                 locale: "en-US",
             };
 
-            const response = await axios.get(`${this.baseUrl}${endpoint}${params}`, {
-                headers,
-                timeout: 5000,
-            });
+
+// Add debug logging (very helpful)
+        console.log("[WEEX Request Debug]", {
+            fullUrl: `${this.baseUrl}${endpoint}${queryParams}`,
+            timestamp,
+            messageSigned: `${timestamp}GET${endpoint}`,
+            signature,  // log it once to verify
+            headers: { ...headers, "ACCESS-SIGN": "[hidden]" }
+        });
+
+
+
+            // const response = await axios.get(`${this.baseUrl}${endpoint}${params}`, {
+            //     headers,
+            //     timeout: 5000,
+            // });
+
+            const response = await axios.get(
+            `${this.baseUrl}${endpoint}${queryParams}`,
+            { headers, timeout: 10000 }
+        );
+
+        console.log("[WEEX Response]", JSON.stringify(response.data, null, 2));
 
             const data = response.data;
 
@@ -161,7 +185,12 @@ export class WeexService {
 
         } catch (error: any) {
             if (axios.isAxiosError(error) && error.response?.status === 429) {
-                console.warn("⚠️ WEEX Rate Limit Exceeded (429). Falling back to manual verification.");
+                console.error("[WEEX API Error Details]", {
+                status: error.response.status,
+                statusText: error.response.statusText,
+                data: error.response.data,          // ← this will show WEEX's error message!
+                headers: error.response.headers
+            });
             } else {
                 console.error("❌ WEEX Service Error:", error.message);
             }
