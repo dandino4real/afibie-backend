@@ -223,7 +223,7 @@ export default function (bot: Telegraf<BotContext>) {
 
         await ctx.replyWithHTML(
             `<b>Here’s how it works:</b>\n\n` +
-            `   <b>.</b></b>Me + my vetted traders</b> provide the signals\n` +
+            `   <b>.</b><b>Me + my vetted traders</b> provide the signals\n` +
             `   <b>.</b>You focus on copying correctly, sizing properly, and compounding weekly\n` +
             `.  <b>.</b>I’ll teach the execution + risk rules at the start of the challenge\n\n` +
             `🎯 <b>Challenge Goal:</b> Aim for 10X growth through discipline, not gambling.\n` +
