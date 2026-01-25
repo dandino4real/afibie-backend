@@ -184,7 +184,7 @@ export default function (bot: Telegraf<BotContext>) {
             `This is a 4-week guided challenge focused on:\n` +
             `✅ Correct Copy Execution\n` +
             `✅ Risk Management\n` +
-            `✅ Weekly Compounding\n` +
+            `✅ Weekly Compounding\n\n` +
             `<i>Facilitated by <b>Jude Umeano</b>.</i>\n\n` +
             `<b>Click “Continue” 👇 to proceed.</b>`,
             Markup.inlineKeyboard([
@@ -199,10 +199,10 @@ export default function (bot: Telegraf<BotContext>) {
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
 
         await ctx.replyWithHTML(
-            `<b>Here’s how it works:</b>\n` +
-            `&nbsp;&nbsp;<b>Me + my vetted traders</b> provide the signals\n` +
-            `&nbsp;&nbsp;You focus on copying correctly, sizing properly, and compounding weekly\n` +
-            `&nbsp;&nbsp;I’ll teach the execution + risk rules at the start of the challenge\n\n` +
+            `<b>Here’s how it works:</b>\n\n` +
+            `\t<b>.<b/><b>Me + my vetted traders</b> provide the signals\n` +
+            `\t<b>.<b/>You focus on copying correctly, sizing properly, and compounding weekly\n` +
+            `\t<b>.<b/>I’ll teach the execution + risk rules at the start of the challenge\n\n` +
             `🎯 <b>Challenge Goal:</b> Aim for 10X growth through discipline, not gambling.\n` +
             `<i>(This is a challenge, not a guarantee. Results depend on execution and risk control.)</i>\n\n` +
             `This bot will guide you to unlock access to:\n` +
@@ -222,9 +222,9 @@ export default function (bot: Telegraf<BotContext>) {
         await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
 
         await ctx.replyWithHTML(
-            `<b>⚠️ Eligibility Gate</b>\n\n` +
-            `<b>Important:</b> This challenge is only for traders who have a minimum trading capital of <b>$50</b>.\n\n` +
-            `If you do not have at least $50 to trade with, please do not proceed.\n\n` +
+            `<b>Eligibility Gate</b>\n\n` +
+            `<b>⚠️ Important:</b> This challenge is only for traders who have a minimum trading capital of <b>$50</b>.\n\n` +
+            `If you do not have at least <b>$50</b> to trade with, please do not proceed.\n\n` +
             `✅ <b>If you can fund $50 or more, click Continue.</b>`,
             Markup.inlineKeyboard([
                 Markup.button.callback("🔵 Continue", "continue_captcha"),
@@ -328,7 +328,6 @@ export default function (bot: Telegraf<BotContext>) {
 
                     await ctx.replyWithHTML(
                         `<b>Step 2 — WEEX Registration</b>\n\n` +
-                        `✅ <b>WEEX Registration</b>\n` +
                         `<b>Why WEEX?</b>\n` +
                         `🌍 Global access\n` +
                         `⚡ Fast setup\n` +
@@ -373,7 +372,7 @@ export default function (bot: Telegraf<BotContext>) {
         await ctx.replyWithHTML(
             `<b>Step 3 — Minimum Trading Capital</b>\n\n` +
             `💳 <b>Fund Your Account (Minimum $50)</b>\n\n` +
-            `Fund your WEEX account with a minimum trading balance of <b>$50</b>.\n` +
+            `Fund your WEEX account with a minimum trading balance of <b>$50</b>.\n\n` +
             `<i><b>Note</b>: If your WEEX account already has <b>$50 or more</b>, you don’t need to fund again.</i>\n\n` +
             `When you’re ready, click <b>Done</b> ✅`,
             Markup.inlineKeyboard([
@@ -403,20 +402,27 @@ export default function (bot: Telegraf<BotContext>) {
 
         const uidGifFileId = process.env.AFIBE_10X_UID_GIF_FILE_ID;
 
-        if (uidGifFileId) {
-            await ctx.replyWithAnimation(uidGifFileId, {
-                caption: `<b>Step 4 — Submit WEEX UID</b>\n\n` +
-                    `🧾 <b>Submit Your WEEX UID</b>\n` +
-                    `Please enter your WEEX UID below:`,
-                parse_mode: "HTML"
-            });
-        } else {
-            await ctx.replyWithHTML(
-                `<b>Step 4 — Submit WEEX UID</b>\n\n` +
-                `🧾 <b>Submit Your WEEX UID</b>\n` +
-                `Please enter your WEEX UID below:`
-            );
+        // Message text for both scenarios
+        const messageText = `<b>Step 4 — Submit WEEX UID</b>\n\n` +
+            `🧾 <b>Submit Your WEEX UID</b>\n` +
+            `Please enter your WEEX UID below:`;
+
+        // Check if ID is valid and not a placeholder
+        if (uidGifFileId && uidGifFileId !== "placeholder_file_id") {
+            try {
+                await ctx.replyWithAnimation(uidGifFileId, {
+                    caption: messageText,
+                    parse_mode: "HTML"
+                });
+                return; // Exit if animation sent successfully
+            } catch (error) {
+                console.error("Failed to send animation, falling back to text:", error);
+                // Fallback to text below
+            }
         }
+
+        // Fallback or default text reply
+        await ctx.replyWithHTML(messageText);
     });
 
     bot.action("resubmit_uid", async (ctx) => {
