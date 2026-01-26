@@ -28,6 +28,9 @@ export interface IAfibe10X_User extends Document {
     readByAdmin: boolean;
     timestamp: Date;
   }[];
+  groupLinksGenerated: boolean
+  groupLinksGeneratedAt?: Date
+
 }
 
 const UserSchema: Schema = new Schema({
@@ -67,6 +70,8 @@ const UserSchema: Schema = new Schema({
       timestamp: { type: Date, default: Date.now },
     },
   ],
+  groupLinksGenerated: { type: Boolean, default: false },
+  groupLinksGeneratedAt: { type: Date },
 });
 
 export const Afibe10XUserModel = mongoose.model<IAfibe10X_User>(
