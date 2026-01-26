@@ -20,6 +20,7 @@ import authRoutes from "./routes/auth.routes";
 import adminRoutes from "./routes/admin.routes";
 import { setupForexWebSocket } from "./websocket/forexChatHandler";
 import { setupAfibe10xWebSocket } from "./websocket/afibe10xChatHandler";
+import http from "http";
 
 dotenv.config();
 
@@ -211,14 +212,29 @@ const initializeApp = async () => {
     console.log("✅ Webhooks set successfully");
 
     const PORT = process.env.PORT || 3000;
-    const server = app.listen(PORT, () =>
-      console.log(`🚀 Server running on port ${PORT}`)
-    );
+
+        // 👇 CREATE the server explicitly
+    const server = http.createServer(app);
+
+    // 👇 Attach WebSockets BEFORE listen (important)
+    setupForexWebSocket(server, bots.forexBot_New);
+    setupAfibe10xWebSocket(server, bots.afibe10xBot);
+
+
+     // 👇 NOW start listening
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+
+
+    // const server = app.listen(PORT, () =>
+    //   console.log(`🚀 Server running on port ${PORT}`)
+    // );
 
     // 🧩 Initialize WebSocket for Forex chat
     // 🧩 Initialize WebSocket for Afibe10x chat
-    setupForexWebSocket(server, bots.forexBot_New);
-    setupAfibe10xWebSocket(server, bots.afibe10xBot);
+    // setupForexWebSocket(server, bots.forexBot_New);
+    // setupAfibe10xWebSocket(server, bots.afibe10xBot);
   } catch (error) {
     console.error("❌ App initialization error:", error);
     process.exit(1);
