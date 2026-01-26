@@ -216,9 +216,9 @@ const initializeApp = async () => {
     );
 
     // 🧩 Initialize WebSocket for Forex chat
-    // 🧩 Initialize WebSocket for Forex chat
+    // 🧩 Initialize WebSocket for Afibe10x chat
     setupForexWebSocket(server, bots.forexBot_New);
-    // setupAfibe10xWebSocket(server, bots.afibe10xBot);
+    setupAfibe10xWebSocket(server, bots.afibe10xBot);
   } catch (error) {
     console.error("❌ App initialization error:", error);
     process.exit(1);
