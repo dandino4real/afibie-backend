@@ -51,11 +51,29 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
     
     console.log("🌐 WebSocket server for Afibe10x Chat started on /afibe10x-chat");
 
+    
+
     wss.on("connection", (ws, req) => {
         console.log("🔗 New WebSocket connection attempt:", req.url);
         
         const params = new URLSearchParams(req.url?.split("?")[1] || "");
         const adminId = params.get("adminId") || "unknown";
+
+
+
+console.log("[WS DEBUG] Connection attempt received by backend");
+console.log("[WS DEBUG] Full req.url:", req.url);
+console.log("[WS DEBUG] Upgrade header:", req.headers.upgrade);
+console.log("[WS DEBUG] Connection header:", req.headers.connection);
+console.log("[WS DEBUG] All upgrade-related headers:", 
+  JSON.stringify({
+    upgrade: req.headers.upgrade,
+    connection: req.headers.connection,
+    'sec-websocket-version': req.headers['sec-websocket-version'],
+    'sec-websocket-key': req.headers['sec-websocket-key'] ? '[present]' : 'missing'
+  }, null, 2)
+);
+
         
         console.log(`✅ Admin connected to Afibe10x Chat: ${adminId}`);
         adminClients.push({ adminId, ws });
