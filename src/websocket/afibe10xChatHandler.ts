@@ -35,9 +35,12 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
         verifyClient: (info, cb) => {
         const url = info.req.url || '';
         console.log(`[WS VERIFY] Incoming URL: ${url}`);
+        console.log(`[WS VERIFY] Full request headers:`, JSON.stringify(info.req.headers, null, 2));
         if (url.startsWith('/afibe10x-chat')) {
+            console.log(`[WS VERIFY] ACCEPTED: starts with /afibe10x-chat`);
             cb(true);  // Accept
         } else {
+            console.log(`[WS VERIFY] REJECTED: does not start with /afibe10x-chat`);
             cb(false, 404, 'Not Found');  // Or 400, but 404 is clearer
         }
     },
