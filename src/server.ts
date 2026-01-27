@@ -21,6 +21,7 @@ import adminRoutes from "./routes/admin.routes";
 import { setupForexWebSocket } from "./websocket/forexChatHandler";
 import { setupAfibe10xWebSocket } from "./websocket/afibe10xChatHandler";
 import http from "http";
+import { Socket } from 'net';
 
 dotenv.config();
 
@@ -215,6 +216,15 @@ const initializeApp = async () => {
 
         // 👇 CREATE the server explicitly
     const server = http.createServer(app);
+
+    // 👇 ADD THIS BLOCK RIGHT HERE – before attaching WebSockets
+    server.on('upgrade', (request, socket, head) => {
+      console.log('[RAW HTTP UPGRADE] Upgrade request received on HTTP server');
+      console.log('[RAW HTTP UPGRADE] URL:', request.url);
+      console.log('[RAW HTTP UPGRADE] Headers:', JSON.stringify(request.headers, null, 2));
+      console.log('[RAW HTTP UPGRADE] Remote IP:', request.socket.remoteAddress || 'unknown');
+      console.log('[RAW HTTP UPGRADE] Method:', request.method);
+    });
 
     // 👇 Attach WebSockets BEFORE listen (important)
     setupForexWebSocket(server, bots.forexBot_New);

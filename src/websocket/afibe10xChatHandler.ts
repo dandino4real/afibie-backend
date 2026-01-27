@@ -63,13 +63,13 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
 
     });
 
-// NEW: Log every upgrade attempt
-wss.on('upgrade', (request, socket, head) => {
-    console.log('[WS UPGRADE EVENT] Upgrade request received');
-    console.log('[WS UPGRADE EVENT] URL:', request.url);
-    console.log('[WS UPGRADE EVENT] Headers:', JSON.stringify(request.headers, null, 2));
-    console.log('[WS UPGRADE EVENT] Remote address:', socket.remoteAddress);
-});
+// // NEW: Log every upgrade attempt
+// wss.on('upgrade', (request, socket, head) => {
+//     console.log('[WS UPGRADE EVENT] Upgrade request received');
+//     console.log('[WS UPGRADE EVENT] URL:', request.url);
+//     console.log('[WS UPGRADE EVENT] Headers:', JSON.stringify(request.headers, null, 2));
+//     console.log('[WS UPGRADE EVENT] Remote address:', socket.remoteAddress);
+// });
 
     
     console.log("🌐 WebSocket server for Afibe10x Chat started on /afibe10x-chat");

@@ -204,12 +204,12 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
   });
 
   // NEW: Log every upgrade attempt
-wss.on('upgrade', (request, socket, head) => {
-    console.log('[WS UPGRADE EVENT] Upgrade request received');
-    console.log('[WS UPGRADE EVENT] URL:', request.url);
-    console.log('[WS UPGRADE EVENT] Headers:', JSON.stringify(request.headers, null, 2));
-    console.log('[WS UPGRADE EVENT] Remote address:', socket.remoteAddress);
-});
+// wss.on('upgrade', (request, socket, head) => {
+//     console.log('[WS UPGRADE EVENT] Upgrade request received');
+//     console.log('[WS UPGRADE EVENT] URL:', request.url);
+//     console.log('[WS UPGRADE EVENT] Headers:', JSON.stringify(request.headers, null, 2));
+//     console.log('[WS UPGRADE EVENT] Remote address:', socket.remoteAddress);
+// });
   
   console.log("✅ WebSocket server for Forex Chat started on /forex-chat");
 
