@@ -32,71 +32,48 @@ const adminClients: ConnectedClient[] = [];
 
 // ✅ Main setup function
 export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) {
-    // const wss = new WebSocketServer({ 
-    //     server, 
-    
-    //     // perMessageDeflate: {
-    //     //     zlibDeflateOptions: {
-    //     //         chunkSize: 1024,
-    //     //         memLevel: 7,
-    //     //         level: 6,
-    //     //     },
-    //     //     zlibInflateOptions: {
-    //     //         chunkSize: 10 * 1024,
-    //     //     },
-    //     //     clientNoContextTakeover: true,
-    //     //     serverNoContextTakeover: true,
-    //     //     serverMaxWindowBits: 15,
-    //     //     concurrencyLimit: 10,
-    //     //     threshold: 1024,
-    //     // },
-    //         // path: "/afibe10x-chat",
-    //     verifyClient: (info, cb) => {
-    //     const url = info.req.url || '';
-    //     console.log(`[WS VERIFY] Incoming URL: ${url}`);
-    //     console.log(`[WS VERIFY] Full request headers:`, JSON.stringify(info.req.headers, null, 2));
-    //     if (url.startsWith('/afibe10x-chat')) {
-    //         console.log(`[WS VERIFY] ACCEPTED: starts with /afibe10x-chat`);
-    //         cb(true);  // Accept
-    //     } else {
-    //         console.log(`[WS VERIFY] REJECTED: does not start with /afibe10x-chat`);
-    //         cb(false, 404, 'Not Found');  // Or 400, but 404 is clearer
-    //     }
-    // },
+    const wss = new WebSocketServer({ 
+        server,
+        path: "/afibe10x-chat",   // ← This does the filtering automatically
+        // No verifyClient, no perMessageDeflate, no noServer
+    });
 
+    // const wss = new WebSocketServer({ noServer: true });  // ← noServer: true – no auto-upgrade
 
-    // });
-
-
-    const wss = new WebSocketServer({ noServer: true });  // ← noServer: true – no auto-upgrade
-
-    console.log("🌐 WebSocket server for Afibe10x Chat started (noServer mode)");
+    // console.log("🌐 WebSocket server for Afibe10x Chat started (noServer mode)");
 
     // Manually handle upgrade on the HTTP server
-    server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
-        console.log('[MANUAL UPGRADE] Raw upgrade request received');
+    // server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
+    //     console.log('[MANUAL UPGRADE] Raw upgrade request received');
 
-        const url = request.url || '';
-        if (url.startsWith('/afibe10x-chat')) {
-            console.log('[MANUAL UPGRADE] Accepted path:', url);
+    //     const url = request.url || '';
+    //     if (url.startsWith('/afibe10x-chat')) {
+    //         console.log('[MANUAL UPGRADE] Accepted path:', url);
 
-          try {
-            wss.handleUpgrade(request, socket, head, (ws) => {
-                console.log('[MANUAL UPGRADE] handleUpgrade SUCCESS – ws object created');
-                wss.emit('connection', ws, request);
-                console.log('[MANUAL UPGRADE] connection event emitted');
-            });
-        } catch (err) {
-            console.error('[MANUAL UPGRADE] handleUpgrade FAILED with error:', err);
-            socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
-            socket.destroy();
-        }
-        } else {
-            console.log('[MANUAL UPGRADE] Rejected path:', url);
-            socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
-            socket.destroy();
-        }
-    });
+    //         // Log socket state BEFORE calling handleUpgrade
+    //     console.log('[SOCKET STATE BEFORE] writable:', socket.writable);
+    //     console.log('[SOCKET STATE BEFORE] readable:', socket.readable);
+    //     console.log('[SOCKET STATE BEFORE] destroyed:', socket.destroyed);
+    //     console.log('[SOCKET STATE BEFORE] head length:', head.length);
+    //     console.log('[SOCKET STATE BEFORE] head hex:', head.toString('hex'))
+
+    //       try {
+    //         wss.handleUpgrade(request, socket, head, (ws) => {
+    //             console.log('[MANUAL UPGRADE] handleUpgrade SUCCESS – ws object created');
+    //             wss.emit('connection', ws, request);
+    //             console.log('[MANUAL UPGRADE] connection event emitted');
+    //         });
+    //     } catch (err) {
+    //         console.error('[MANUAL UPGRADE] handleUpgrade FAILED with error:', err);
+    //         socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
+    //         socket.destroy();
+    //     }
+    //     } else {
+    //         console.log('[MANUAL UPGRADE] Rejected path:', url);
+    //         socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
+    //         socket.destroy();
+    //     }
+    // });
 
     
     console.log("🌐 WebSocket server for Afibe10x Chat started on /afibe10x-chat");
