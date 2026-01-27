@@ -80,11 +80,17 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
         if (url.startsWith('/afibe10x-chat')) {
             console.log('[MANUAL UPGRADE] Accepted path:', url);
 
-            // Perform the upgrade manually
+          try {
             wss.handleUpgrade(request, socket, head, (ws) => {
+                console.log('[MANUAL UPGRADE] handleUpgrade SUCCESS – ws object created');
                 wss.emit('connection', ws, request);
-                console.log('[MANUAL UPGRADE] handleUpgrade called – connection emitted');
+                console.log('[MANUAL UPGRADE] connection event emitted');
             });
+        } catch (err) {
+            console.error('[MANUAL UPGRADE] handleUpgrade FAILED with error:', err);
+            socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
+            socket.destroy();
+        }
         } else {
             console.log('[MANUAL UPGRADE] Rejected path:', url);
             socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
