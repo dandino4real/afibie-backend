@@ -34,6 +34,7 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
         // path: "/afibe10x-chat",
         verifyClient: (info, cb) => {
         const url = info.req.url || '';
+        console.log(`[WS VERIFY] Incoming URL: ${url}`);
         if (url.startsWith('/afibe10x-chat')) {
             cb(true);  // Accept
         } else {
