@@ -3,7 +3,7 @@ import { Telegraf } from 'telegraf';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const adminBot = new Telegraf(process.env.BOT_TOKEN_AFIBIE_10X! )
+const adminBot = new Telegraf(process.env.BOT_TOKEN_AFIBIE_10X!)
 
 
 const adminChannelId = process.env.TELEGRAM_ADMIN_CHANNEL_ID!;

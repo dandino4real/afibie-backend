@@ -31,7 +31,16 @@ const adminClients: ConnectedClient[] = [];
 export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) {
     const wss = new WebSocketServer({ 
         server, 
-        path: "/afibe10x-chat",
+        // path: "/afibe10x-chat",
+        verifyClient: (info, cb) => {
+        const url = info.req.url || '';
+        if (url.startsWith('/afibe10x-chat')) {
+            cb(true);  // Accept
+        } else {
+            cb(false, 404, 'Not Found');  // Or 400, but 404 is clearer
+        }
+    },
+
         perMessageDeflate: {
             zlibDeflateOptions: {
                 chunkSize: 1024,

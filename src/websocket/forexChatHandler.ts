@@ -191,7 +191,15 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
   
   const wss = new WebSocketServer({ 
     server, 
-    path: "/forex-chat",
+    // path: "/forex-chat",
+    verifyClient: (info, cb) => {
+        const url = info.req.url || '';
+        if (url.startsWith('/forex-chat')) {
+            cb(true);
+        } else {
+            cb(false, 404, 'Not Found');
+        }
+    },
     perMessageDeflate: false // Disable compression to avoid frame issues
   });
   
