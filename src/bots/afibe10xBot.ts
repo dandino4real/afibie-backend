@@ -70,7 +70,7 @@ export default function (bot: Telegraf<BotContext>) {
           `🔒 <b>10X Signal Channel</b>\n` +
           `🔒 <b>10X Discussion Group</b>\n\n` +
           `⚠️ <i>Note: The links expire in 30 minutes after generation. Join immediately.</i>\n` +
-          `If you need help, contact @ab_pato1`,
+          `If you need help, contact @soame1`,
         {
           parse_mode: "HTML",
           reply_markup: Markup.inlineKeyboard([
@@ -203,7 +203,7 @@ export default function (bot: Telegraf<BotContext>) {
 
     await ctx.replyWithHTML(
       `<b>Here’s how it works:</b>\n\n` +
-        `.  <b>Me + my vetted traders</b> provide the signals\n` +
+        `.  <b>Me + my vetted Pro traders</b> provide the signals\n` +
         `.  You focus on copying correctly, sizing properly, and compounding weekly\n` +
         `.  I’ll teach the execution + risk rules at the start of the challenge\n\n` +
         `🎯 <b>Challenge Goal:</b> Aim for 10X growth through discipline, not gambling.\n` +
@@ -211,7 +211,7 @@ export default function (bot: Telegraf<BotContext>) {
         `This bot will guide you to unlock access to:\n` +
         `🔒 <b>10X Signal Channel</b>\n` +
         `🔒 <b>10X Discussion Group</b>\n\n` +
-        `<i>If you have any issues during the process, message support 👉 @Francis_Nbtc</i>\n\n` +
+        `<i>If you have any issues during the process, message support 👉 @soame1</i>\n\n` +
         `👉 <b>Click “Continue” to proceed.</b>`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 Continue", "continue_eligibility"),
@@ -229,6 +229,24 @@ export default function (bot: Telegraf<BotContext>) {
         `<b>⚠️ Important:</b> This challenge is only for traders who have a minimum trading capital of <b>$50</b>.\n\n` +
         `If you do not have at least <b>$50</b> to trade with, please do not proceed.\n\n` +
         `✅ <b>If you can fund $50 or more, click Continue.</b>`,
+      Markup.inlineKeyboard([
+        Markup.button.callback("🔵 Continue", "steps_overview"),
+      ]),
+    );
+  });
+  bot.action("steps_overview", async (ctx) => {
+    ctx.session.step = "overview";
+    const sessionKey = `afibe10x:${ctx.from.id}`;
+    await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
+
+    await ctx.replyWithHTML(
+      `<b>Steps Overview</b>\n\n` +
+        `<b>Steps to Unlock Access 👇</b>.\n` +
+        ` ✅ Step 1: Captcha Verification\n` +
+        ` ✅ Step 2: Create / Confirm your WEEX account\n` +
+        ` ✅ Step 3: Fund your WEEX account (Min. $50)\n` +
+        ` ✅ Step 4: Submit your WEEX UID\n` +
+        ` ✅ Step 5: Verification + Group Links\n` +
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 Continue", "continue_captcha"),
       ]),
