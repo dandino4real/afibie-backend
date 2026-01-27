@@ -59,7 +59,9 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
             console.log(`[WS VERIFY] REJECTED: does not start with /afibe10x-chat`);
             cb(false, 404, 'Not Found');  // Or 400, but 404 is clearer
         }
-    }
+    },
+        perMessageDeflate: false 
+
 
     });
 
