@@ -51,7 +51,13 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
     
     console.log("🌐 WebSocket server for Afibe10x Chat started on /afibe10x-chat");
 
-    
+    wss.on('wsClientError', (err, socket, req) => {
+    console.error("[WS CLIENT ERROR] Upgrade handshake failed!");
+    console.error("[WS CLIENT ERROR] Error:", err.message);
+    console.error("[WS CLIENT ERROR] Request path:", req.url);
+    console.error("[WS CLIENT ERROR] Headers:", req.headers);
+    socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');  // Explicitly reject
+});
 
     wss.on("connection", (ws, req) => {
         console.log("🔗 New WebSocket connection attempt:", req.url);
