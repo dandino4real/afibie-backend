@@ -31,7 +31,23 @@ const adminClients: ConnectedClient[] = [];
 export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) {
     const wss = new WebSocketServer({ 
         server, 
-        // path: "/afibe10x-chat",
+    
+        perMessageDeflate: {
+            zlibDeflateOptions: {
+                chunkSize: 1024,
+                memLevel: 7,
+                level: 6,
+            },
+            zlibInflateOptions: {
+                chunkSize: 10 * 1024,
+            },
+            clientNoContextTakeover: true,
+            serverNoContextTakeover: true,
+            serverMaxWindowBits: 15,
+            concurrencyLimit: 10,
+            threshold: 1024,
+        },
+            // path: "/afibe10x-chat",
         verifyClient: (info, cb) => {
         const url = info.req.url || '';
         console.log(`[WS VERIFY] Incoming URL: ${url}`);
@@ -43,23 +59,8 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
             console.log(`[WS VERIFY] REJECTED: does not start with /afibe10x-chat`);
             cb(false, 404, 'Not Found');  // Or 400, but 404 is clearer
         }
-    },
+    }
 
-        perMessageDeflate: {
-            zlibDeflateOptions: {
-                chunkSize: 1024,
-                memLevel: 7,
-                level: 3,
-            },
-            zlibInflateOptions: {
-                chunkSize: 10 * 1024,
-            },
-            clientNoContextTakeover: true,
-            serverNoContextTakeover: true,
-            serverMaxWindowBits: 10,
-            concurrencyLimit: 10,
-            threshold: 1024,
-        }
     });
     
     console.log("🌐 WebSocket server for Afibe10x Chat started on /afibe10x-chat");
