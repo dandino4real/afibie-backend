@@ -214,28 +214,28 @@ const initializeApp = async () => {
 
     const PORT = process.env.PORT || 3000;
 
-        // 👇 CREATE the server explicitly
-    const server = http.createServer(app);
+    //     // 👇 CREATE the server explicitly
+    // const server = http.createServer(app);
 
-    // 👇 Attach WebSockets BEFORE listen (important)
-    setupForexWebSocket(server, bots.forexBot_New);
-    setupAfibe10xWebSocket(server, bots.afibe10xBot);
-
-
-     // 👇 NOW start listening
-    server.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
+    // // 👇 Attach WebSockets BEFORE listen (important)
+    // setupForexWebSocket(server, bots.forexBot_New);
+    // setupAfibe10xWebSocket(server, bots.afibe10xBot);
 
 
-    // const server = app.listen(PORT, () =>
-    //   console.log(`🚀 Server running on port ${PORT}`)
-    // );
+    //  // 👇 NOW start listening
+    // server.listen(PORT, () => {
+    //   console.log(`🚀 Server running on port ${PORT}`);
+    // });
+
+
+    const server = app.listen(PORT, () =>
+      console.log(`🚀 Server running on port ${PORT}`)
+    );
 
     // 🧩 Initialize WebSocket for Forex chat
     // 🧩 Initialize WebSocket for Afibe10x chat
-    // setupForexWebSocket(server, bots.forexBot_New);
-    // setupAfibe10xWebSocket(server, bots.afibe10xBot);
+    setupForexWebSocket(server, bots.forexBot_New);
+    setupAfibe10xWebSocket(server, bots.afibe10xBot);
   } catch (error) {
     console.error("❌ App initialization error:", error);
     process.exit(1);

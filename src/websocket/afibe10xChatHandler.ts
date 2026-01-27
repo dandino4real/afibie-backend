@@ -4,9 +4,6 @@ import WebSocket, { WebSocketServer } from "ws";
 import { Afibe10XUserModel } from "../models/afibe10x_user.model";
 import { Telegraf } from "telegraf";
 import Redis from "ioredis";
-import { IncomingMessage } from 'http';
-import { Socket } from 'net';
-import { Buffer } from 'buffer';
 
 // --- Extend globalThis so TypeScript knows about afibe10xChatHandler ---
 declare global {
@@ -38,43 +35,6 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
         // No verifyClient, no perMessageDeflate, no noServer
     });
 
-    // const wss = new WebSocketServer({ noServer: true });  // ← noServer: true – no auto-upgrade
-
-    // console.log("🌐 WebSocket server for Afibe10x Chat started (noServer mode)");
-
-    // Manually handle upgrade on the HTTP server
-    // server.on('upgrade', (request: IncomingMessage, socket: Socket, head: Buffer) => {
-    //     console.log('[MANUAL UPGRADE] Raw upgrade request received');
-
-    //     const url = request.url || '';
-    //     if (url.startsWith('/afibe10x-chat')) {
-    //         console.log('[MANUAL UPGRADE] Accepted path:', url);
-
-    //         // Log socket state BEFORE calling handleUpgrade
-    //     console.log('[SOCKET STATE BEFORE] writable:', socket.writable);
-    //     console.log('[SOCKET STATE BEFORE] readable:', socket.readable);
-    //     console.log('[SOCKET STATE BEFORE] destroyed:', socket.destroyed);
-    //     console.log('[SOCKET STATE BEFORE] head length:', head.length);
-    //     console.log('[SOCKET STATE BEFORE] head hex:', head.toString('hex'))
-
-    //       try {
-    //         wss.handleUpgrade(request, socket, head, (ws) => {
-    //             console.log('[MANUAL UPGRADE] handleUpgrade SUCCESS – ws object created');
-    //             wss.emit('connection', ws, request);
-    //             console.log('[MANUAL UPGRADE] connection event emitted');
-    //         });
-    //     } catch (err) {
-    //         console.error('[MANUAL UPGRADE] handleUpgrade FAILED with error:', err);
-    //         socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
-    //         socket.destroy();
-    //     }
-    //     } else {
-    //         console.log('[MANUAL UPGRADE] Rejected path:', url);
-    //         socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
-    //         socket.destroy();
-    //     }
-    // });
-
     
     console.log("🌐 WebSocket server for Afibe10x Chat started on /afibe10x-chat");
 
@@ -91,21 +51,6 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
         
         const params = new URLSearchParams(req.url?.split("?")[1] || "");
         const adminId = params.get("adminId") || "unknown";
-
-
-
-console.log("[WS DEBUG] Connection attempt received by backend");
-console.log("[WS DEBUG] Full req.url:", req.url);
-console.log("[WS DEBUG] Upgrade header:", req.headers.upgrade);
-console.log("[WS DEBUG] Connection header:", req.headers.connection);
-console.log("[WS DEBUG] All upgrade-related headers:", 
-  JSON.stringify({
-    upgrade: req.headers.upgrade,
-    connection: req.headers.connection,
-    'sec-websocket-version': req.headers['sec-websocket-version'],
-    'sec-websocket-key': req.headers['sec-websocket-key'] ? '[present]' : 'missing'
-  }, null, 2)
-);
 
         
         console.log(`✅ Admin connected to Afibe10x Chat: ${adminId}`);
