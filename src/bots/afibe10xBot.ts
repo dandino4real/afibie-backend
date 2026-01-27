@@ -18,8 +18,7 @@ dotenv.config({
 
 const GROUP_CHAT_ID = process.env.AFIBE_10X_GROUP_CHAT_ID;
 const CHANNEL_ID = process.env.AFIBE_10X_CHANNEL_ID;
-const WEEX_LINK =
-  process.env.WEEX_LINK || "https://www.weex.global/en/register?vipCode=afb10x";
+const WEEX_LINK = process.env.WEEX_LINK
 
 // Initialize Redis client
 const redis = new Redis(process.env.REDIS_URL!);
@@ -177,7 +176,7 @@ export default function (bot: Telegraf<BotContext>) {
       botType: "afibe10x",
     });
     if (user && user.mode === "chat") {
-      ctx.session.mode = "chat";
+      ctx.session.mode = "default";
     }
 
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -388,6 +387,11 @@ export default function (bot: Telegraf<BotContext>) {
         break;
       }
     }
+
+
+
+
+
   });
 
   bot.action("done_weex", async (ctx) => {
