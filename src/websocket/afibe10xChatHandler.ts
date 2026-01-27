@@ -32,21 +32,21 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
     const wss = new WebSocketServer({ 
         server, 
     
-        perMessageDeflate: {
-            zlibDeflateOptions: {
-                chunkSize: 1024,
-                memLevel: 7,
-                level: 6,
-            },
-            zlibInflateOptions: {
-                chunkSize: 10 * 1024,
-            },
-            clientNoContextTakeover: true,
-            serverNoContextTakeover: true,
-            serverMaxWindowBits: 15,
-            concurrencyLimit: 10,
-            threshold: 1024,
-        },
+        // perMessageDeflate: {
+        //     zlibDeflateOptions: {
+        //         chunkSize: 1024,
+        //         memLevel: 7,
+        //         level: 6,
+        //     },
+        //     zlibInflateOptions: {
+        //         chunkSize: 10 * 1024,
+        //     },
+        //     clientNoContextTakeover: true,
+        //     serverNoContextTakeover: true,
+        //     serverMaxWindowBits: 15,
+        //     concurrencyLimit: 10,
+        //     threshold: 1024,
+        // },
             // path: "/afibe10x-chat",
         verifyClient: (info, cb) => {
         const url = info.req.url || '';

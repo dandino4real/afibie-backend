@@ -200,7 +200,7 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
             cb(false, 404, 'Not Found');
         }
     },
-    perMessageDeflate: false // Disable compression to avoid frame issues
+    // perMessageDeflate: false // Disable compression to avoid frame issues
   });
   
   console.log("✅ WebSocket server for Forex Chat started on /forex-chat");
