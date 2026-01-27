@@ -246,7 +246,7 @@ export default function (bot: Telegraf<BotContext>) {
         ` ✅ Step 2: Create / Confirm your WEEX account\n` +
         ` ✅ Step 3: Fund your WEEX account (Min. $50)\n` +
         ` ✅ Step 4: Submit your WEEX UID\n` +
-        ` ✅ Step 5: Verification + Group Links\n` +
+        ` ✅ Step 5: Verification + Group Links\n`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 Continue", "continue_captcha"),
       ]),

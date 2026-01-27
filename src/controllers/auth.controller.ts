@@ -4,7 +4,6 @@ import { AuthService } from "../services/auth.service";
 
 export const AuthController = {
   login: async (req: Request, res: Response): Promise<any> => {
-    console.log('got to auth controller');
     try {
       const { email, password } = req.body;
       if (!email || !password) {
@@ -12,13 +11,12 @@ export const AuthController = {
       }
 
       const { id, accessToken, refreshToken } = await AuthService.login(email, password, req);
-      console.log("Returning refreshToken in response:", { id, accessToken, refreshToken });
 
       return res.status(200).json({
         message: "Login successful",
         accessToken,
         id,
-        refreshToken, // Include refreshToken in response body
+        refreshToken,
       });
     } catch (error: any) {
       console.error("Login error:", error);

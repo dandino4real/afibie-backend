@@ -7,8 +7,8 @@ import {
 } from "../utils/jwt";
 import { AdminRepository } from "../data-access/admin.repository";
 import geoip from "geoip-lite";
-import { sendNewLocationAlert } from "../emails/sendNewIpAlert";
-import { sendLoginNotification } from "../emails/sendLoginNotification";
+// import { sendNewLocationAlert } from "../emails/sendNewIpAlert";
+// import { sendLoginNotification } from "../emails/sendLoginNotification";
 import crypto from "crypto";
 import { sendOTPEmail } from "../emails/sendOtpNotification";
 
@@ -57,35 +57,35 @@ export const AuthService = {
       refreshToken,
     };
 
-    const sendWithRetry = async (task: () => Promise<void>, maxRetries = 3) => {
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          await new Promise(resolve => setTimeout(resolve, attempt * 1000)); // Delay between retries
-          await task();
-          break; // Success, exit loop
-        } catch (error) {
-          console.error(`Email attempt ${attempt + 1} failed:`, error);
-          if (attempt === maxRetries - 1) {
-            console.error("Max retries reached, giving up on email:", error);
-          }
-        }
-      }
-    };
+    // const sendWithRetry = async (task: () => Promise<void>, maxRetries = 3) => {
+    //   for (let attempt = 0; attempt < maxRetries; attempt++) {
+    //     try {
+    //       await new Promise(resolve => setTimeout(resolve, attempt * 1000)); // Delay between retries
+    //       await task();
+    //       break; // Success, exit loop
+    //     } catch (error) {
+    //       console.error(`Email attempt ${attempt + 1} failed:`, error);
+    //       if (attempt === maxRetries - 1) {
+    //         console.error("Max retries reached, giving up on email:", error);
+    //       }
+    //     }
+    //   }
+    // };
 
-    if (isNewIP) {
-      const previousGeo = geoip.lookup(admin.lastIp || "");
-      const previousLocation = previousGeo
-        ? `${previousGeo.city}, ${previousGeo.region}, ${previousGeo.country}`
-        : "Unknown";
-      setTimeout(() =>
-        sendWithRetry(() =>
-          sendNewLocationAlert(admin.email, admin.name, previousLocation, currentLocation, currentIP)
-        ), 0);
-    }
-    setTimeout(() =>
-      sendWithRetry(() =>
-        sendLoginNotification(admin.email, admin.name, currentLocation, currentIP)
-      ), 0);
+    // if (isNewIP) {
+    //   const previousGeo = geoip.lookup(admin.lastIp || "");
+    //   const previousLocation = previousGeo
+    //     ? `${previousGeo.city}, ${previousGeo.region}, ${previousGeo.country}`
+    //     : "Unknown";
+    //   setTimeout(() =>
+    //     sendWithRetry(() =>
+    //       sendNewLocationAlert(admin.email, admin.name, previousLocation, currentLocation, currentIP)
+    //     ), 0);
+    // }
+    // setTimeout(() =>
+    //   sendWithRetry(() =>
+    //     sendLoginNotification(admin.email, admin.name, currentLocation, currentIP)
+    //   ), 0);
 
     return response;
   },
