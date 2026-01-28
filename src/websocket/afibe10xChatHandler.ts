@@ -31,8 +31,19 @@ const adminClients: ConnectedClient[] = [];
 export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) {
     const wss = new WebSocketServer({ 
         server,
-        path: "/afibe10x-chat",   // ← This does the filtering automatically
+        // path: "/afibe10x-chat",   
         // No verifyClient, no perMessageDeflate, no noServer
+          verifyClient: (info: any, cb: (verified: boolean, code?: number, message?: string) => void) => {
+            console.log("🔍 verifyClient called for:", info.req.url);
+            // Check if the path is correct
+            if (info.req.url?.startsWith("/afibe10x-chat")) {
+                console.log("✅ Accepting WebSocket connection for path:", info.req.url);
+                cb(true);
+            } else {
+                console.warn("⚠️ Rejecting WebSocket connection for path:", info.req.url);
+                cb(false, 404, "Not Found");
+            }
+        }
     });
 
     
