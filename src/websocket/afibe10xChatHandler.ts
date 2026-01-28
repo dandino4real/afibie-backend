@@ -296,13 +296,12 @@
 // }
 
 
-
-
 import WebSocket, { WebSocketServer } from "ws";
 import { Afibe10XUserModel } from "../models/afibe10x_user.model";
 import { Telegraf } from "telegraf";
 import Redis from "ioredis";
 import { IncomingMessage } from "http";
+import * as crypto from "crypto";
 
 // --- Extend globalThis so TypeScript knows about afibe10xChatHandler ---
 declare global {
@@ -330,76 +329,153 @@ const adminClients: ConnectedClient[] = [];
 export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) {
     console.log("🌐 Initializing WebSocket server for Afibe10x Chat...");
 
-    // Create WebSocket server with noServer initially
-    const wss = new WebSocketServer({ noServer: true });
+    // Create WebSocket server - Use the standard approach without manual handshake
+    const wss = new WebSocketServer({ 
+        noServer: true,
+        perMessageDeflate: false,
+        maxPayload: 10 * 1024 * 1024,
+    });
 
-    // Handle HTTP server upgrade events manually
+    // Track upgrade attempts to prevent duplicate handling
+    const upgradeAttempts = new Map<string, number>();
+    const MAX_ATTEMPTS = 3;
+
+    // Handle HTTP server upgrade events
     server.on('upgrade', (request: IncomingMessage, socket: any, head: Buffer) => {
-        console.log("🔄 HTTP Upgrade request detected:", {
+        const clientKey = request.headers['sec-websocket-key'] || 'unknown';
+        const currentAttempts = (upgradeAttempts.get(clientKey) || 0) + 1;
+        upgradeAttempts.set(clientKey, currentAttempts);
+
+        console.log("🔄 HTTP Upgrade attempt:", {
             url: request.url,
-            method: request.method,
-            headers: request.headers
+            attempt: currentAttempts,
+            clientKey: clientKey.substring(0, 10) + '...'
         });
 
-        // Check if this is our WebSocket endpoint
-        if (request.url?.startsWith('/afibe10x-chat')) {
-            console.log("✅ Matched WebSocket endpoint, proceeding with handshake...");
+        // Prevent too many attempts
+        if (currentAttempts > MAX_ATTEMPTS) {
+            console.log("❌ Too many upgrade attempts, closing socket");
+            socket.write('HTTP/1.1 429 Too Many Requests\r\n\r\n');
+            socket.destroy();
+            return;
+        }
 
-            // Extract adminId from query parameters for validation
-            const urlParams = new URL(request.url, `http://${request.headers.host}`);
-            const adminId = urlParams.searchParams.get('adminId');
+        // Check if this is our WebSocket endpoint
+        if (!request.url?.includes('/afibe10x-chat')) {
+            console.log("❌ Path not matched, destroying socket");
+            socket.destroy();
+            return;
+        }
+
+        console.log("✅ Matched WebSocket endpoint");
+
+        try {
+            // Parse URL to get query parameters
+            const baseUrl = `http://${request.headers.host || 'localhost'}`;
+            const url = new URL(request.url, baseUrl);
+            const adminId = url.searchParams.get('adminId');
 
             if (!adminId) {
-                console.log("❌ Rejecting connection: No adminId provided");
-                socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+                console.log("❌ No adminId provided");
+                socket.write('HTTP/1.1 400 Bad Request\r\n\r\nMissing adminId parameter');
                 socket.destroy();
                 return;
             }
 
-            // Optional: Add additional validation here (e.g., check if admin exists in DB)
+            console.log(`🔐 Admin ID: ${adminId}`);
 
-            // Handle the WebSocket upgrade
+            // Handle the WebSocket upgrade using the standard method
             wss.handleUpgrade(request, socket, head, (ws) => {
-                console.log("🎉 WebSocket upgrade successful, emitting connection...");
+                console.log("🎉 WebSocket upgrade successful!");
+                
+                // Clean up the attempts tracking after successful upgrade
+                upgradeAttempts.delete(clientKey);
+                
+                // Emit the connection event
                 wss.emit('connection', ws, request);
             });
-        } else {
-            // Reject other upgrade requests
-            console.log("❌ Not a WebSocket endpoint, destroying socket");
+
+        } catch (error: any) {
+            console.error("❌ Error during WebSocket upgrade:", error.message);
+            
+            // Clean up on error
+            upgradeAttempts.delete(clientKey);
+            
+            try {
+                socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
+            } catch (e) {
+                // Socket might already be closed
+            }
             socket.destroy();
         }
     });
 
     // WebSocket connection handler
     wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
-        console.log("🔗 WebSocket connection established! URL:", req.url);
+        console.log("🔗 New WebSocket connection established!");
+        
+        // Extract adminId from URL
+        let adminId = 'unknown';
+        try {
+            const baseUrl = `http://${req.headers.host || 'localhost'}`;
+            const url = new URL(req.url || '/', baseUrl);
+            adminId = url.searchParams.get('adminId') || 'unknown';
+        } catch (error) {
+            console.error("❌ Error parsing URL:", error);
+        }
 
-        const urlParams = new URL(req.url || '', `http://${req.headers.host}`);
-        const adminId = urlParams.searchParams.get('adminId') || 'unknown';
-
-        console.log(`✅ Admin connected to Afibe10x Chat: ${adminId}`);
+        console.log(`✅ Admin connected: ${adminId}`);
         
         // Add to connected clients
-        adminClients.push({ adminId, ws });
+        const client: ConnectedClient = { adminId, ws };
+        adminClients.push(client);
+        console.log(`📈 Total connected admins: ${adminClients.length}`);
 
-        // Send immediate connection confirmation
-        try {
-            ws.send(JSON.stringify({
-                type: "connection_established",
-                adminId,
-                timestamp: new Date().toISOString(),
-                message: "WebSocket connection established successfully"
-            }));
-            console.log(`✅ Connection confirmation sent to admin ${adminId}`);
-        } catch (error) {
-            console.error("❌ Failed to send connection confirmation:", error);
-        }
+        // Add connection timeout to ensure proper handshake
+        const connectionTimeout = setTimeout(() => {
+            if (ws.readyState === WebSocket.CONNECTING) {
+                console.log(`⚠️ Connection timeout for admin ${adminId}, closing`);
+                ws.close(1006, 'Connection timeout');
+            }
+        }, 5000);
+
+        // Send connection confirmation when WebSocket is ready
+        const sendConnectionConfirmation = () => {
+            clearTimeout(connectionTimeout);
+            
+            if (ws.readyState === WebSocket.OPEN) {
+                try {
+                    ws.send(JSON.stringify({
+                        type: "connection_established",
+                        adminId,
+                        timestamp: new Date().toISOString(),
+                        message: "WebSocket connection established successfully",
+                        clientCount: adminClients.length
+                    }));
+                    console.log(`✅ Connection confirmation sent to admin ${adminId}`);
+                } catch (error: any) {
+                    console.error(`❌ Failed to send connection confirmation:`, error.message);
+                }
+            } else {
+                console.warn(`⚠️ WebSocket not open for admin ${adminId}, state: ${ws.readyState}`);
+                // Try again in 250ms if still connecting
+                if (ws.readyState === WebSocket.CONNECTING) {
+                    setTimeout(sendConnectionConfirmation, 250);
+                }
+            }
+        };
+
+        // Wait for WebSocket to be fully opened
+        ws.on('open', () => {
+            console.log(`✅ WebSocket opened for admin ${adminId}`);
+            sendConnectionConfirmation();
+        });
 
         // --- Handle messages from admin UI ---
         ws.on("message", async (data: WebSocket.Data) => {
             try {
                 const message = data.toString();
-                console.log("📨 Received WebSocket message from admin:", adminId, message);
+                console.log("📨 Received WebSocket message from admin:", adminId, message.substring(0, 100) + '...');
                 
                 const parsedData = JSON.parse(message);
 
@@ -496,7 +572,23 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
 
                     case "ping": {
                         // Heartbeat to keep connection alive
-                        ws.send(JSON.stringify({ type: "pong", timestamp: new Date().toISOString() }));
+                        ws.send(JSON.stringify({ 
+                            type: "pong", 
+                            timestamp: new Date().toISOString(),
+                            adminId 
+                        }));
+                        break;
+                    }
+
+                    case "test": {
+                        // Test endpoint for debugging
+                        ws.send(JSON.stringify({
+                            type: "test_response",
+                            message: "WebSocket server is working",
+                            timestamp: new Date().toISOString(),
+                            adminId,
+                            clientCount: adminClients.length
+                        }));
                         break;
                     }
 
@@ -505,6 +597,7 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
                         ws.send(JSON.stringify({
                             type: "error",
                             error: "Unknown message type",
+                            receivedType: parsedData.type,
                             timestamp: new Date().toISOString()
                         }));
                 }
@@ -524,7 +617,8 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
             if (idx !== -1) {
                 const disconnectedAdmin = adminClients[idx];
                 adminClients.splice(idx, 1);
-                console.log(`❌ Admin disconnected: ${disconnectedAdmin.adminId} (code: ${code}, reason: ${reason.toString()})`);
+                console.log(`❌ Admin disconnected: ${disconnectedAdmin.adminId} (code: ${code}, reason: ${reason.toString() || 'No reason'})`);
+                console.log(`📉 Total connected admins: ${adminClients.length}`);
             }
         });
 
@@ -533,32 +627,30 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
         });
 
         ws.on("pong", () => {
-            // Heartbeat response
             console.log(`💓 Received pong from admin ${adminId}`);
         });
     });
 
-    wss.on('wsClientError', (err: Error, socket: any, req: IncomingMessage) => {
-        console.error("[WS CLIENT ERROR] Upgrade handshake failed!");
-        console.error("[WS CLIENT ERROR] Error:", err.message);
-        console.error("[WS CLIENT ERROR] Request path:", req.url);
-        console.error("[WS CLIENT ERROR] Headers:", req.headers);
-        socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    // Handle WebSocket server errors
+    wss.on('error', (error: Error) => {
+        console.error("❌ WebSocket server error:", error.message);
     });
 
     // Heartbeat to keep connections alive
     const heartbeatInterval = setInterval(() => {
-        adminClients.forEach(({ ws, adminId }) => {
+        adminClients.forEach(({ ws, adminId }, index) => {
             if (ws.readyState === WebSocket.OPEN) {
                 try {
                     ws.ping();
-                    console.log(`💓 Sent ping to admin ${adminId}`);
+                    console.log(`💓 Sent ping to admin ${adminId} (${index + 1}/${adminClients.length})`);
                 } catch (error: any) {
                     console.error(`❌ Error pinging admin ${adminId}:`, error.message);
                 }
+            } else if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+                console.log(`⚠️ Admin ${adminId} WebSocket is closed/closing`);
             }
         });
-    }, 30000); // Ping every 30 seconds
+    }, 30000);
 
     wss.on("close", () => {
         clearInterval(heartbeatInterval);
@@ -587,18 +679,19 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
             });
 
             let sentCount = 0;
-            adminClients.forEach(({ ws }) => {
+            adminClients.forEach(({ ws, adminId }) => {
                 if (ws.readyState === WebSocket.OPEN) {
                     try {
                         ws.send(payload);
                         sentCount++;
-                    } catch (error) {
-                        console.error("❌ Failed to send message to admin:", error);
+                        console.log(`✅ Message forwarded to admin ${adminId}`);
+                    } catch (error: any) {
+                        console.error(`❌ Failed to send message to admin ${adminId}:`, error.message);
                     }
                 }
             });
             
-            console.log(`✅ User message forwarded to ${sentCount} admin(s)`);
+            console.log(`✅ User message forwarded to ${sentCount} admin(s) out of ${adminClients.length} total`);
             
             // Store message in DB
             try {
@@ -634,4 +727,6 @@ export function setupAfibe10xWebSocket(server: any, afibe10xBot: Telegraf<any>) 
     };
     
     console.log("✅ Afibe10x WebSocket handler initialized successfully");
+    
+    return wss;
 }
