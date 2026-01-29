@@ -436,10 +436,15 @@
 // }
 
 
+
+
+
 import WebSocket, { WebSocketServer } from "ws";
 import { FOREX_User } from "../models/new-forex_user.model";
 import { Telegraf } from "telegraf";
 import Redis from "ioredis";
+import { IncomingMessage, Server } from "http";
+
 
 // --- Extend globalThis so TypeScript knows about forexChatHandler ---
 declare global {
@@ -452,7 +457,7 @@ declare global {
     | undefined;
 }
 
-// ✅ Setup Redis (optional: use your existing connection if available)
+// ✅ Setup Redis
 const redis = new Redis(process.env.REDIS_URL || "");
 
 // --- WebSocket client tracking ---
@@ -463,20 +468,22 @@ interface ConnectedClient {
 
 const adminClients: ConnectedClient[] = [];
 
-// ✅ Main setup function
-export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
-  const wss = new WebSocketServer({ server, path: "/forex-chat" });
-  console.log("🌐 WebSocket server for Forex Chat started");
+// ✅ Main setup function - returns the wss instance
+export function setupForexWebSocket(server: Server, forexBot: Telegraf<any>): WebSocketServer {
+  const wss = new WebSocketServer({ noServer: true });
 
-  wss.on("connection", (ws, req) => {
+  console.log("🌐 Forex WebSocket ready (noServer mode)");
+
+  wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
     console.log("🔗 New Forex WebSocket connection attempt:", req.url);
-    
+
     const params = new URLSearchParams(req.url?.split("?")[1] || "");
     const adminId = params.get("adminId") || "unknown";
 
     console.log(`✅ Admin connected to Forex Chat: ${adminId}`);
     adminClients.push({ adminId, ws });
 
+    // Send connection confirmation
     ws.send(JSON.stringify({
       type: "connection_established",
       adminId,
@@ -544,20 +551,8 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
             break;
           }
 
-          case "end_chat": {
-            const { telegramId } = data;
-            const sessionKey = `forex_new:${telegramId}`;
-            const sessionData = await redis.get(sessionKey);
-            if (sessionData) {
-              const session = JSON.parse(sessionData);
-              delete session.mode;
-              await redis.set(sessionKey, JSON.stringify(session), "EX", 86400);
-
-              await forexBot.telegram.sendMessage(
-                telegramId,
-                "✅ Chat session ended. You can continue using the bot normally."
-              );
-            }
+          case "ping": {
+            ws.send(JSON.stringify({ type: "pong", timestamp: new Date().toISOString() }));
             break;
           }
 
@@ -573,6 +568,10 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
       const idx = adminClients.findIndex((c) => c.ws === ws);
       if (idx !== -1) adminClients.splice(idx, 1);
       console.log(`❌ Forex Admin disconnected: ${adminId}`);
+    });
+
+    ws.on("error", (error) => {
+      console.error(`❌ Forex WebSocket error for admin ${adminId}:`, error.message);
     });
   });
 
@@ -600,4 +599,6 @@ export function setupForexWebSocket(server: any, forexBot: Telegraf<any>) {
       await forexBot.telegram.sendMessage(telegramId, text);
     },
   };
+
+  return wss;  // Return the wss instance
 }
