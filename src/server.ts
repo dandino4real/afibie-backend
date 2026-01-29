@@ -419,32 +419,32 @@ const createWebhookHandler = (bot: Telegraf<BotContext>) => {
 };
 
 // Apply webhook handlers
-app.post("/webhook/cryptoBot", express.json(), createWebhookHandler(bots.cryptoBot));
-app.post("/webhook/forexBot_New", express.json(), createWebhookHandler(bots.forexBot_New));
-app.post("/webhook/afibe10xBot", express.json(), createWebhookHandler(bots.afibe10xBot));
+// app.post("/webhook/cryptoBot", express.json(), createWebhookHandler(bots.cryptoBot));
+// app.post("/webhook/forexBot_New", express.json(), createWebhookHandler(bots.forexBot_New));
+// app.post("/webhook/afibe10xBot", express.json(), createWebhookHandler(bots.afibe10xBot));
 
-// API routes
-app.use("/api/users", cryptoUserRoutes);
-app.use("/api/users", forexUserRoutes);
-app.use("/api/new-forex-users", forexNewUserRoutes);
-app.use("/api/users", afibe10xUserRoutes);
-app.use("/api/users", staticticsRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
+// // API routes
+// app.use("/api/users", cryptoUserRoutes);
+// app.use("/api/users", forexUserRoutes);
+// app.use("/api/new-forex-users", forexNewUserRoutes);
+// app.use("/api/users", afibe10xUserRoutes);
+// app.use("/api/users", staticticsRoutes);
+// app.use("/api/auth", authRoutes);
+// app.use("/api/admin", adminRoutes);
 
-// Health check
-app.get("/health", (req: Request, res: Response) => {
-  res.status(200).json({
-    status: "OK",
-    environment: process.env.NODE_ENV,
-    sessionType: process.env.NODE_ENV === "production" ? "redis" : "memory",
-    bots: {
-      crypto: !!process.env.BOT_TOKEN_CRYPTO,
-      forex_new: !!process.env.NEW_BOT_TOKEN_FOREX,
-      afibe10x: !!process.env.BOT_TOKEN_AFIBIE_10X,
-    },
-  });
-});
+// // Health check
+// app.get("/health", (req: Request, res: Response) => {
+//   res.status(200).json({
+//     status: "OK",
+//     environment: process.env.NODE_ENV,
+//     sessionType: process.env.NODE_ENV === "production" ? "redis" : "memory",
+//     bots: {
+//       crypto: !!process.env.BOT_TOKEN_CRYPTO,
+//       forex_new: !!process.env.NEW_BOT_TOKEN_FOREX,
+//       afibe10x: !!process.env.BOT_TOKEN_AFIBIE_10X,
+//     },
+//   });
+// });
 
 // App initialization
 const initializeApp = async () => {
