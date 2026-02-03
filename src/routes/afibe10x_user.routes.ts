@@ -27,4 +27,6 @@ router.delete(
     Afibe10XUserController.deleteUser
 );
 
+ 
+
 export default router;

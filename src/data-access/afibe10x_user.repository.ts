@@ -93,4 +93,6 @@ export const Afibe10XUserRepository = {
     deleteById: async (id: string) => {
         return Afibe10XUserModel.findByIdAndDelete(id);
     },
+
+    
 };

@@ -42,11 +42,8 @@ export default function (bot: Telegraf<BotContext>) {
 
   async function notifyUserOnStatusChange(change: any) {
     const user = change.fullDocument as IAfibe10X_User;
-    console.log('user', user)
-    console.log('tid', user.telegramId)
     if (!user || !user.telegramId) return;
 
-    console.log('got passhere')
     // Get session from Redis
     const sessionKey = `afibe10x:${user.telegramId}`;
     const sessionData = await redis.get(sessionKey);
@@ -129,7 +126,6 @@ export default function (bot: Telegraf<BotContext>) {
   }
 
   async function watchUserStatusChanges() {
-    console.log('call watchUserStaus')
     try {
       const changeStream = Afibe10XUserModel.watch([], {
         fullDocument: "updateLookup",
