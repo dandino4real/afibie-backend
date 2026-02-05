@@ -81,10 +81,7 @@ export function setupAfibe10xWebSocket(
               await redis.set(sessionKey, JSON.stringify(session), "EX", 86400);
             }
 
-            await afibe10xBot.telegram.sendMessage(
-              telegramId,
-              "💬 Admin has joined the chat. You can now send messages directly.",
-            );
+           
 
             ws.send(
               JSON.stringify({
