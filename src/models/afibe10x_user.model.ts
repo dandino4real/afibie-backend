@@ -28,8 +28,10 @@ export interface IAfibe10X_User extends Document {
     readByAdmin: boolean;
     timestamp: Date;
   }[];
-  groupLinksGenerated: boolean
-  groupLinksGeneratedAt?: Date
+  groupLinksGenerated: boolean;
+  groupLinksGeneratedAt?: Date;
+  unreadCount: number;
+  hasUnread: boolean;
 
 }
 
@@ -72,7 +74,11 @@ const UserSchema: Schema = new Schema({
   ],
   groupLinksGenerated: { type: Boolean, default: false },
   groupLinksGeneratedAt: { type: Date },
+  unreadCount: { type: Number, default: 0 },
+  hasUnread: { type: Boolean, default: false },
 });
+
+UserSchema.index({ hasUnread: 1, unreadCount: -1 });
 
 export const Afibe10XUserModel = mongoose.model<IAfibe10X_User>(
   "Afibe10XUser",

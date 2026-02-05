@@ -20,4 +20,13 @@ export const Afibie10xUserStatsRepository = {
     });
     return totalRejectedUsers;
   },
+  getTotalUnreadMessages: async () => {
+    // Sum unreadCount across all users
+    const result = await Afibe10XUserModel.aggregate([
+      { $match: { hasUnread: true } }, // only users with unread messages
+      { $group: { _id: null, totalUnread: { $sum: "$unreadCount" } } },
+    ]);
+    return result[0]?.totalUnread ?? 0;
+  },
+
 };

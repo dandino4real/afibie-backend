@@ -1,11 +1,8 @@
-
-
 import WebSocket, { WebSocketServer } from "ws";
 import { Afibe10XUserModel } from "../models/afibe10x_user.model";
 import { Telegraf } from "telegraf";
 import Redis from "ioredis";
 import { IncomingMessage, Server } from "http";
-
 
 // --- Extend globalThis so TypeScript knows about afibe10xChatHandler ---
 declare global {
@@ -30,35 +27,51 @@ interface ConnectedClient {
 const adminClients: ConnectedClient[] = [];
 
 // ✅ Main setup function - returns the wss instance
-export function setupAfibe10xWebSocket(server: Server, afibe10xBot: Telegraf<any>): WebSocketServer {
+export function setupAfibe10xWebSocket(
+  server: Server,
+  afibe10xBot: Telegraf<any>,
+): WebSocketServer {
   const wss = new WebSocketServer({ noServer: true });
 
-  console.log("🌐 Afibe10x WebSocket ready (noServer mode)");
-
   wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
-    console.log("🔗 New Afibe10x WebSocket connection attempt:", req.url);
-
     const params = new URLSearchParams(req.url?.split("?")[1] || "");
     const adminId = params.get("adminId") || "unknown";
 
-    console.log(`✅ Admin connected to Afibe10x Chat: ${adminId}`);
     adminClients.push({ adminId, ws });
 
-    ws.send(JSON.stringify({
-      type: "connection_established",
-      adminId,
-      timestamp: new Date().toISOString(),
-      message: "Afibe10x WebSocket connected"
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "connection_established",
+        adminId,
+        timestamp: new Date().toISOString(),
+        message: "Afibe10x WebSocket connected",
+      }),
+    );
 
     ws.on("message", async (msg) => {
       try {
-        console.log("📨 Received Afibe10x WebSocket message:", msg.toString());
         const data = JSON.parse(msg.toString());
 
         switch (data.type) {
           case "start_chat": {
             const { telegramId } = data;
+
+            await Afibe10XUserModel.updateOne(
+              { telegramId, botType: "afibe10x" },
+              {
+                $set: {
+                  "messages.$[msg].readByAdmin": true,
+                  unreadCount: 0,
+                  hasUnread: false,
+                },
+              },
+              {
+                arrayFilters: [
+                  { "msg.sender": "user", "msg.readByAdmin": false },
+                ],
+              },
+            );
+
             const sessionKey = `afibe10x:${telegramId}`;
             const sessionData = await redis.get(sessionKey);
 
@@ -70,15 +83,17 @@ export function setupAfibe10xWebSocket(server: Server, afibe10xBot: Telegraf<any
 
             await afibe10xBot.telegram.sendMessage(
               telegramId,
-              "💬 Admin has joined the chat. You can now send messages directly."
+              "💬 Admin has joined the chat. You can now send messages directly.",
             );
 
-            ws.send(JSON.stringify({
-              type: "chat_started",
-              telegramId,
-              timestamp: new Date().toISOString(),
-              message: "Chat session started successfully"
-            }));
+            ws.send(
+              JSON.stringify({
+                type: "chat_started",
+                telegramId,
+                timestamp: new Date().toISOString(),
+                message: "Chat session started successfully",
+              }),
+            );
             break;
           }
 
@@ -86,12 +101,12 @@ export function setupAfibe10xWebSocket(server: Server, afibe10xBot: Telegraf<any
             const { telegramId, message } = data;
             await afibe10xBot.telegram.sendMessage(
               telegramId,
-              `👨‍💼 Admin: ${message}`
+              `👨‍💼 Admin: ${message}`,
             );
 
             await afibe10xBot.telegram.sendMessage(
               telegramId,
-              "💬 You can exit this chat anytime by typing /endchat."
+              "💬 You can exit this chat anytime by typing /endchat.",
             );
 
             await Afibe10XUserModel.updateOne(
@@ -106,18 +121,26 @@ export function setupAfibe10xWebSocket(server: Server, afibe10xBot: Telegraf<any
                     timestamp: new Date(),
                   },
                 },
-              }
+              },
             );
             break;
           }
 
           case "ping": {
-            ws.send(JSON.stringify({ type: "pong", timestamp: new Date().toISOString() }));
+            ws.send(
+              JSON.stringify({
+                type: "pong",
+                timestamp: new Date().toISOString(),
+              }),
+            );
             break;
           }
 
           default:
-            console.warn("⚠️ Unknown Afibe10x WebSocket message type:", data.type);
+            console.warn(
+              "⚠️ Unknown Afibe10x WebSocket message type:",
+              data.type,
+            );
         }
       } catch (err) {
         console.error("❌ Invalid Afibe10x WS message:", err);
@@ -131,14 +154,20 @@ export function setupAfibe10xWebSocket(server: Server, afibe10xBot: Telegraf<any
     });
 
     ws.on("error", (error) => {
-      console.error(`❌ Afibe10x WebSocket error for admin ${adminId}:`, error.message);
+      console.error(
+        `❌ Afibe10x WebSocket error for admin ${adminId}:`,
+        error.message,
+      );
     });
   });
 
   // Global handler
   globalThis.afibe10xChatHandler = {
     async sendToAdmin(telegramId: string, text: string) {
-      const user = await Afibe10XUserModel.findOne({ telegramId, botType: "afibe10x" });
+      const user = await Afibe10XUserModel.findOne({
+        telegramId,
+        botType: "afibe10x",
+      });
       if (!user) return;
 
       const payload = JSON.stringify({
@@ -160,5 +189,5 @@ export function setupAfibe10xWebSocket(server: Server, afibe10xBot: Telegraf<any
     },
   };
 
-  return wss;  // Return the wss instance
+  return wss; // Return the wss instance
 }

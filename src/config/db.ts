@@ -13,19 +13,24 @@ export async function connectDB() {
     throw new Error("MONGODB_URI is not defined in environment variables");
   }
 
-  console.log("Connecting to MongoDB...");
   try {
     await mongoose.connect(mongoUri, {
       retryWrites: true,
       writeConcern: { w: "majority" },
-      connectTimeoutMS: 15000, // Increased to 15s
-      serverSelectionTimeoutMS: 10000, // Increased to 10s
-      socketTimeoutMS: 60000, // Increased to 60s
-      maxPoolSize: 10, // Connection pooling for serverless
+      connectTimeoutMS: 15000,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 60000,
+      maxPoolSize: 10,
     });
     console.log("✅ MongoDB connected successfully");
+
+   if (process.env.NODE_ENV !== "production") {
+      await mongoose.connection.db?.command({ ping: 1 });
+      await mongoose.syncIndexes();
+
+    }
   } catch (err) {
     console.error("❌ MongoDB connection error:", err);
-    throw err; // Let the caller handle retries
+    throw err;
   }
 }

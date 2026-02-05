@@ -238,6 +238,4 @@ async approveUser(id: string, admin?: { name: string; email: string }) {
   return user;
 }
 
-
-
 };

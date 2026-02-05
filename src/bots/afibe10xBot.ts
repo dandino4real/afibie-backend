@@ -18,7 +18,7 @@ dotenv.config({
 
 const GROUP_CHAT_ID = process.env.AFIBE_10X_GROUP_CHAT_ID;
 const CHANNEL_ID = process.env.AFIBE_10X_CHANNEL_ID;
-const WEEX_LINK = process.env.WEEX_LINK
+const WEEX_LINK = process.env.WEEX_LINK;
 
 // Initialize Redis client
 const redis = new Redis(process.env.REDIS_URL!);
@@ -333,6 +333,9 @@ export default function (bot: Telegraf<BotContext>) {
               timestamp: new Date(),
             },
           },
+
+          $inc: { unreadCount: 1 },
+          $set: { hasUnread: true },
         },
       );
 
@@ -387,11 +390,6 @@ export default function (bot: Telegraf<BotContext>) {
         break;
       }
     }
-
-
-
-
-
   });
 
   bot.action("done_weex", async (ctx) => {

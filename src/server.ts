@@ -44,32 +44,11 @@ if (missingVars.length > 0) {
   process.exit(1);
 }
 
-// Debug environment variables
-// console.log("Environment variables loaded:");
-// console.log("CORS_ORIGINS:", process.env.CORS_ORIGINS || "Not set");
-// console.log("BOT_TOKEN_CRYPTO:", process.env.BOT_TOKEN_CRYPTO ? "exists" : "MISSING");
-// console.log("NEW_BOT_TOKEN_FOREX:", process.env.NEW_BOT_TOKEN_FOREX ? "exists" : "MISSING");
-// console.log("BOT_TOKEN_AFIBIE_10X:", process.env.BOT_TOKEN_AFIBIE_10X ? "exists" : "MISSING");
-// console.log("BASE_URL:", process.env.BASE_URL || "Not set");
-// console.log("MONGODB_URI:", process.env.MONGODB_URI ? "exists" : "MISSING");
-// console.log("WEBHOOK_SECRET:", process.env.WEBHOOK_SECRET ? "exists" : "MISSING");
-// console.log("REDIS_URL:", process.env.REDIS_URL ? "exists" : "Not set");
-
-// Middleware setup
-app.use(helmet());
-app.use(express.json());
-
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
   : ["http://localhost:3000"];
-app.use(
-  cors({
-    origin: corsOrigins,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Refresh-Token"],
-  })
-);
+
+
 
 app.use((req, _, next) => {
   console.log(`➡️  ${req.method} ${req.path}`);
@@ -176,34 +155,6 @@ const createWebhookHandler = (bot: Telegraf<BotContext>) => {
   };
 };
 
-// Apply webhook handlers
-// app.post("/webhook/cryptoBot", express.json(), createWebhookHandler(bots.cryptoBot));
-// app.post("/webhook/forexBot_New", express.json(), createWebhookHandler(bots.forexBot_New));
-// app.post("/webhook/afibe10xBot", express.json(), createWebhookHandler(bots.afibe10xBot));
-
-// // API routes
-// app.use("/api/users", cryptoUserRoutes);
-// app.use("/api/users", forexUserRoutes);
-// app.use("/api/new-forex-users", forexNewUserRoutes);
-// app.use("/api/users", afibe10xUserRoutes);
-// app.use("/api/users", staticticsRoutes);
-// app.use("/api/auth", authRoutes);
-// app.use("/api/admin", adminRoutes);
-// app.use("/api/afibie-users", adminRoutes);
-
-// // Health check
-// app.get("/health", (req: Request, res: Response) => {
-//   res.status(200).json({
-//     status: "OK",
-//     environment: process.env.NODE_ENV,
-//     sessionType: process.env.NODE_ENV === "production" ? "redis" : "memory",
-//     bots: {
-//       crypto: !!process.env.BOT_TOKEN_CRYPTO,
-//       forex_new: !!process.env.NEW_BOT_TOKEN_FOREX,
-//       afibe10x: !!process.env.BOT_TOKEN_AFIBIE_10X,
-//     },
-//   });
-// });
 
 // App initialization
 const initializeApp = async () => {
