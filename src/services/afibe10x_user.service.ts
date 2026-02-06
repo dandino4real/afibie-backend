@@ -2,7 +2,15 @@ import { Afibe10XUserRepository } from "../data-access/afibe10x_user.repository"
 
 export const Afibe10XUserService = {
   fetchUsers: async (query: any) => {
-    const { page = 1, limit = 10, status, dateFrom, dateTo, search } = query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      dateFrom,
+      dateTo,
+      search,
+      hasUnread,
+    } = query;
 
     const filter: any = {};
 
@@ -12,6 +20,15 @@ export const Afibe10XUserService = {
       filter.createdAt = {
         $gte: new Date(dateFrom),
         $lte: new Date(dateTo),
+      };
+    }
+
+    if (hasUnread === "true" || hasUnread === true) {
+      filter.messages = {
+        $elemMatch: {
+          sender: "user",
+          readByAdmin: false,
+        },
       };
     }
 
