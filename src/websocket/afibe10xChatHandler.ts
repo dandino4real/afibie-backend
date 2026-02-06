@@ -81,8 +81,6 @@ export function setupAfibe10xWebSocket(
               await redis.set(sessionKey, JSON.stringify(session), "EX", 86400);
             }
 
-           
-
             ws.send(
               JSON.stringify({
                 type: "chat_started",
@@ -106,6 +104,21 @@ export function setupAfibe10xWebSocket(
               "💬 You can exit this chat anytime by typing /endchat.",
             );
 
+            // await Afibe10XUserModel.updateOne(
+            //   { telegramId, botType: "afibe10x" },
+            //   {
+            //     $push: {
+            //       messages: {
+            //         sender: "admin",
+            //         user: "Admin",
+            //         text: message,
+            //         readByAdmin: true,
+            //         timestamp: new Date(),
+            //       },
+            //     },
+            //   },
+            // );
+
             await Afibe10XUserModel.updateOne(
               { telegramId, botType: "afibe10x" },
               {
@@ -118,8 +131,19 @@ export function setupAfibe10xWebSocket(
                     timestamp: new Date(),
                   },
                 },
+                $set: {
+                  unreadCount: 0,
+                  hasUnread: false,
+                  "messages.$[msg].readByAdmin": true,
+                },
+              },
+              {
+                arrayFilters: [
+                  { "msg.sender": "user", "msg.readByAdmin": false },
+                ],
               },
             );
+
             break;
           }
 
@@ -186,5 +210,5 @@ export function setupAfibe10xWebSocket(
     },
   };
 
-  return wss; // Return the wss instance
+  return wss;
 }
