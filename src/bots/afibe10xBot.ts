@@ -1,5 +1,4 @@
 import { Telegraf, Markup } from "telegraf";
-import { message } from "telegraf/filters";
 import {
   Afibe10XUserModel,
   IAfibe10X_User,
@@ -26,6 +25,7 @@ const redis = new Redis(process.env.REDIS_URL!);
 export default function (bot: Telegraf<BotContext>) {
   // Initialize session properties
   bot.use((ctx, next) => {
+    if (ctx.chat?.type !== "private") return;
     if (!ctx.session) {
       ctx.session = {
         step: "welcome",
@@ -153,11 +153,14 @@ export default function (bot: Telegraf<BotContext>) {
   const getLinkLimiter = rateLimit({
     window: 60_000,
     limit: 3,
-    onLimitExceeded: (ctx: any) =>
-      ctx.reply("🚫 Too many link requests! Try again later."),
+    onLimitExceeded: (ctx: any) => {
+      if (ctx.chat?.type !== "private") return;
+      ctx.reply("🚫 Too many link requests! Try again later.");
+    },
   });
 
   bot.start(async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
     // Reset session
     ctx.session = {
       step: "welcome",
@@ -196,6 +199,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("continue_introduction", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "introduction";
     const sessionKey = `afibe10x:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -219,6 +224,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("continue_eligibility", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "eligibility";
     const sessionKey = `afibe10x:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -234,6 +241,8 @@ export default function (bot: Telegraf<BotContext>) {
     );
   });
   bot.action("steps_overview", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "overview";
     const sessionKey = `afibe10x:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -253,6 +262,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("continue_captcha", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "captcha";
     ctx.session.captcha = generateCaptcha();
     const sessionKey = `afibe10x:${ctx.from.id}`;
@@ -267,6 +278,8 @@ export default function (bot: Telegraf<BotContext>) {
 
   // ---------------- ENDCHAT COMMAND ----------------
   bot.command("endchat", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     const telegramId = ctx.from?.id?.toString();
     if (!telegramId) return;
 
@@ -304,6 +317,10 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.on("text", async (ctx) => {
+
+if (ctx.chat?.type !== "private") return;
+
+
     if (!ctx.session) return;
     const text = ctx.message.text.trim();
     const sessionKey = `afibe10x:${ctx.from.id}`;
@@ -393,6 +410,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("done_weex", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "capital_check";
     const sessionKey = `afibe10x:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -410,6 +429,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("done_weex_retry", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     // Logic for when user retries after "Wrong Link" rejection
     // Redirect to submit UID again
     ctx.session.step = "submit_uid";
@@ -423,6 +444,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("done_capital", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "submit_uid";
     const sessionKey = `afibe10x:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -454,6 +477,8 @@ export default function (bot: Telegraf<BotContext>) {
   });
 
   bot.action("resubmit_uid", async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     ctx.session.step = "submit_uid";
     const sessionKey = `afibe10x:${ctx.from.id}`;
     await redis.set(sessionKey, JSON.stringify(ctx.session), "EX", 86400);
@@ -528,6 +553,8 @@ export default function (bot: Telegraf<BotContext>) {
   }
 
   bot.action("get_group_links", getLinkLimiter, async (ctx) => {
+    if (ctx.chat?.type !== "private") return;
+
     const tgId = ctx.from?.id?.toString();
     if (!tgId) return;
 
@@ -598,6 +625,7 @@ export default function (bot: Telegraf<BotContext>) {
 
   // 🟢 Button for user to contact admin
   bot.action("contact_admin", async (ctx) => {
+    if(ctx.chat?.type !== "private") return;
     ctx.session.mode = "chat"; // Switch to chat mode automatically
     await ctx.answerCbQuery();
     await ctx.replyWithHTML(
@@ -624,7 +652,9 @@ export default function (bot: Telegraf<BotContext>) {
       `🚨 Afibe 10X Bot Error for update ${ctx.update.update_id}:`,
       err,
     );
+     if (ctx.chat?.type === "private") {
     ctx.reply("❌ An error occurred. Please try again later.");
+  }
   });
 
   // getting the gif file id from
