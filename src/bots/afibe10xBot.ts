@@ -191,6 +191,7 @@ export default function (bot: Telegraf<BotContext>) {
         `✅ Risk Management\n` +
         `✅ Weekly Compounding\n\n` +
         `<i>Facilitated by <b>Jude Umeano</b>.</i>\n\n` +
+        `<i>If you experience issues at any point chat up @soame1  </i>\n\n` +
         `<b>Click “Continue” 👇 to proceed.</b>`,
       Markup.inlineKeyboard([
         Markup.button.callback("🔵 Continue", "continue_introduction"),
@@ -536,12 +537,16 @@ if (ctx.chat?.type !== "private") return;
         { upsert: true, new: true },
       );
 
-      if (user.status === "pending") {
-        await ctx.replyWithHTML(
-          `<b>Verification</b>\n\n⏳ We are verifying your account…`,
-          contactAdminButton,
-        );
-      }
+    if (user.status === "pending") {
+  await ctx.replyWithHTML(
+    `<b>Verification</b>\n\n` +
+    `⏳ We are verifying your account…\n` +
+    `This may take up to 6 hours.\n\n` +
+    `You’ll be notified automatically once the review is complete.`,
+    contactAdminButton,
+  );
+}
+
 
       await sendAdminAlertAfibe10X(user);
     } catch (error) {
@@ -626,7 +631,7 @@ if (ctx.chat?.type !== "private") return;
   // 🟢 Button for user to contact admin
   bot.action("contact_admin", async (ctx) => {
     if(ctx.chat?.type !== "private") return;
-    ctx.session.mode = "chat"; // Switch to chat mode automatically
+    ctx.session.mode = "chat"; 
     await ctx.answerCbQuery();
     await ctx.replyWithHTML(
       `💬 <b>Chat mode activated.</b>\n\n` +
