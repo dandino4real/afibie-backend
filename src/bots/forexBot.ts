@@ -662,7 +662,6 @@ Thanks for waiting
           ])
         );
       } else {
-        console.log("calling handleCountry with:", bestMatch);
         await handleCountry(ctx, bestMatch);
       }
       return;
@@ -717,7 +716,6 @@ Thanks for waiting
             (existingUser.mode = "chat"), (existingUser.updatedAt = new Date());
 
             await existingUser.save();
-            console.log("🔄 Forex user updated:", existingUser);
 
             // Notify admin of update (optional)
             await sendAdminAlertForex(existingUser);
@@ -736,13 +734,12 @@ Thanks for waiting
             });
 
             await newUser.save();
-            console.log("✅ New forex user created:", newUser);
 
             // Notify admin of new registration
             await sendAdminAlertForex(newUser);
           }
         } catch (err) {
-          console.error("❌ Failed to save or update forex user:", err);
+          console.log("❌ Failed to save or update forex user:", err);
           await ctx.reply(
             "⚠️ An error occurred while saving your details. Please try again later."
           );
@@ -787,7 +784,7 @@ Thanks for waiting
 
     // ---------------- GROUP A ----------------
     if (group === "A") {
-      ctx.session.broker = "AXI";
+      ctx.session.broker = "EXCO";
       ctx.session.step = "broker";
 
    
@@ -806,7 +803,7 @@ Thanks for waiting
       // );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="${AXI_LINK}" target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>EXCO</b>.\n\n👉 Register here: <a href="${EXCO_LINK}" target="_blank" rel="noopener noreferrer" >EXCO Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
@@ -831,7 +828,7 @@ Thanks for waiting
       );
 
       await ctx.replyWithHTML(
-        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>AXI</b>.\n\n👉 Register here: <a href="${AXI_LINK}" target="_blank" rel="noopener noreferrer" >AXI Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
+        `Ok Great 👍 \n\n 🌍 Your country: <b>${country}</b>\n\n<b>Broker Setup</b>\n\nOur recommended broker is <b>EXCO</b>.\n\n👉 Register here: <a href="${EXCO_LINK}" target="_blank" rel="noopener noreferrer" >EXCO Link</a>\n\n It is important you use this link. Once you have created an account, comeback here and click <b>Done</b>.`,
         {
           link_preview_options: { is_disabled: true },
           reply_markup: {
