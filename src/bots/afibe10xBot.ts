@@ -548,7 +548,7 @@ if (ctx.chat?.type !== "private") return;
 }
 
 
-      await sendAdminAlertAfibe10X(user);
+      // await sendAdminAlertAfibe10X(user);
     } catch (error) {
       console.error("[saveUser] HARD FAILURE:", error);
       await ctx.replyWithHTML(

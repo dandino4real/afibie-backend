@@ -718,7 +718,7 @@ Thanks for waiting
             await existingUser.save();
 
             // Notify admin of update (optional)
-            await sendAdminAlertForex(existingUser);
+            // await sendAdminAlertForex(existingUser);
           } else {
             // Create new user
             const newUser = new FOREX_User({
